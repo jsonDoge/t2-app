@@ -21,7 +21,10 @@
   },
   "homepage": "https://github.com/Matas555/t2-app#readme",
   "dependencies": {
+    "eslint-config-airbnb": "^18.2.1",
+    "ethers": "^5.4.7",
     "next": "11.1.2",
+    "prop-types": "^15.7.2",
     "react": "17.0.2",
     "react-dom": "17.0.2"
   },

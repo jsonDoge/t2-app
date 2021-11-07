@@ -42,7 +42,7 @@ export const getContract = (
   }
 
   const web3ProviderOrSigner = options.isSignerRequired
-    ? new Wallet(options.privateKey, web3Provider)
+    ? new Wallet(options.privateKey as string, web3Provider)
     : web3Provider;
 
   switch (type) {

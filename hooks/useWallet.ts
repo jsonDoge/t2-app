@@ -3,13 +3,14 @@ import { useContext } from 'react';
 import WalletContextProvider from '../context/wallet';
 
 const useLocalWallet = () => {
-  const walletContext = useContext(WalletContextProvider);
+  // TODO fix type, problematic contexts
+  const walletContext: { wallet: {} } = useContext(WalletContextProvider as any);
 
   if (walletContext === null) {
     throw new Error('No parent <WalletContextProvider />');
   }
 
-  return walletContext.localWallet;
+  return walletContext.wallet;
 };
 
 export default useLocalWallet;

@@ -7,7 +7,7 @@ import { getContract } from './web3Utils';
 import ContractTypes from '../constants/contractTypes';
 import PlantTypes from '../constants/plantTypes';
 
-interface Plant {
+export interface Plant {
   type: string,
   owner: string
 }

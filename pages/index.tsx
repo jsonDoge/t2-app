@@ -2,6 +2,7 @@ import React from 'react';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import { getPlotInfo } from '../services/farm';
+import type { Plant } from '../services/farm';
 
 const Home: NextPage = () => {
   const getAllCoordinates = (centerX: number, centerY: number) => {
@@ -17,8 +18,8 @@ const Home: NextPage = () => {
     return coordinates
   } 
 
-  const generatedGrid = (plants) => {
-    return plants.map((p, i: number) =>
+  const generatedGrid = (plants: (Plant | undefined)[]): JSX.Element[] => {
+    return plants.map((p: (Plant | undefined), i: number) =>
       <div key={i} className="flex h-20 w-20 bg-green-200 items-center justify-center">
         {p ? 'Plant' : 'x'}
       </div>
@@ -27,16 +28,16 @@ const Home: NextPage = () => {
 
   const [x, setX] = useState(2);
   const [y, setY] = useState(2);
-  const [grid, setGrid] = useState([]);
+  const [grid, setGrid] = useState([] as JSX.Element[]);
 
   const loadGrid = async () => {
     const coordinates = getAllCoordinates(x, y);
-    const plants = await Promise.all(coordinates.map((c) => getPlotInfo(c.x, c.y)))
+    const plants: (Plant | undefined)[] = await Promise.all(coordinates.map((c) => getPlotInfo(c.x, c.y)))
     setGrid(generatedGrid(plants))
   }
 
   const plant = async () => {
-    
+
   }
 
   useEffect(() => { loadGrid() }, [])

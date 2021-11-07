@@ -36,7 +36,7 @@ export const plant = async (type: string, privateKey: string) => {
 }
 
 export const getPlotInfo = async (x: number, y: number): Promise<(Plant | undefined)> => {
-  const farm: Contract = getContract(process.env.C_FARM, ContractTypes.FARM, { isSignerRequired: false });
+  const farm: Contract = getContract(process.env.C_FARM as string, ContractTypes.FARM, { isSignerRequired: false });
 
   const plotId = x + y * 1000;
   const plant = await farm.getPlantByPlotId(plotId);

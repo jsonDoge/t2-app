@@ -33,7 +33,10 @@ export const getContract = (
 ) => {
   const web3Provider = getProvider();
 
-  if (!web3Provider) return null;
+  if (!web3Provider) {
+    throw new Error('provider not found');
+  };
+
   if (options.isSignerRequired && !options.privateKey) {
     throw new Error('wallet key not provided');
   }
@@ -42,21 +45,17 @@ export const getContract = (
     ? new Wallet(options.privateKey, web3Provider)
     : web3Provider;
 
-  try {
-    switch (type) {
-      case ContractTypes.FARM:
-        return new Contract(address, farmAbi, web3ProviderOrSigner);
-      case ContractTypes.ERC20:
-        return new Contract(address, erc20Abi, web3ProviderOrSigner);
-      case ContractTypes.PLOT:
-        return new Contract(address, plotAbi, web3ProviderOrSigner);
-      case ContractTypes.BADGE:
-        return new Contract(address, badgeAbi, web3ProviderOrSigner);
-      default:
-        return null;
-    }
-  } catch (e) {
-    return null;
+  switch (type) {
+    case ContractTypes.FARM:
+      return new Contract(address, farmAbi, web3ProviderOrSigner);
+    case ContractTypes.ERC20:
+      return new Contract(address, erc20Abi, web3ProviderOrSigner);
+    case ContractTypes.PLOT:
+      return new Contract(address, plotAbi, web3ProviderOrSigner);
+    case ContractTypes.BADGE:
+      return new Contract(address, badgeAbi, web3ProviderOrSigner);
+    default:
+      throw new Error('Unknown contract type');
   }
 };
 

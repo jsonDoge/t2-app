@@ -4,7 +4,7 @@ import React, {
 import PropTypes from 'prop-types';
 import { Wallet } from 'ethers';
 
-const WalletContext = createContext(null);
+const WalletContext = createContext({});
 
 const getWallet = () => ({
   address: window.localStorage.getItem('wallet:address'),
@@ -16,26 +16,29 @@ const saveWallet = (address: string, privateKey: string) => {
   window.localStorage.setItem('wallet:key', privateKey);
 };
 
-const WalletContextProvider = ({ children }) => {
+const WalletContextProvider = ({ children }: { children: React.ReactNode}) => {
   const walletContext = useContext(WalletContext);
 
   if (walletContext) {
     throw new Error('walletContext has already been declared.');
   }
 
-  const [localWallet, setLocalWallet] = useState(null);
+  const [localWallet, setLocalWallet] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
   const loadWallet = () => {
     setIsLoading(true);
-    let wallet = getWallet();
+    let wallet: Wallet;
+    let existingWallet = getWallet();
 
-    if (!wallet.address || !wallet.privateKey) {
+    if (!existingWallet.address || !existingWallet.privateKey) {
       wallet = Wallet.createRandom();
       saveWallet(wallet.address, wallet.privateKey);
+      setLocalWallet(wallet);
+    } else {
+      setLocalWallet(existingWallet);
     }
 
-    setLocalWallet(wallet);
     setIsLoading(false);
   };
 

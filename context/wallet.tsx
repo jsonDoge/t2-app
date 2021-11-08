@@ -17,11 +17,12 @@ const saveWallet = (address: string, privateKey: string) => {
 };
 
 const WalletContextProvider = ({ children }: { children: React.ReactNode}) => {
-  const walletContext = useContext(WalletContext);
+  // TODO: investigate context why this is breaking
+  // const walletContext = useContext(WalletContext);
 
-  if (walletContext) {
-    throw new Error('walletContext has already been declared.');
-  }
+  // if (walletContext) {
+  //   throw new Error('walletContext has already been declared.');
+  // }
 
   const [localWallet, setLocalWallet] = useState({});
   const [isLoading, setIsLoading] = useState(false);

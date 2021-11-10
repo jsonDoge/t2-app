@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
   reactStrictMode: true,
-  env: {
+  publicRuntimeConfig: {
     ETH_PROVIDER: process.env.ETH_PROVIDER,
     C_STABLE_TOKEN: process.env.C_STABLE_TOKEN,
     C_FARM_SETTINGS: process.env.C_FARM_SETTINGS,

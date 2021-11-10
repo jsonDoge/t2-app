@@ -1,12 +1,42 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
+import { IWalletContext, useWallet } from '../context/wallet';
+import { buySeed, getSeedBalance } from '../services/shop';
+import plantTypes from '../constants/plantTypes';
 
-const Shop: NextPage = () => (
-  <main className="flex flex-col items-center justify-top w-full h-full flex-1 px-20 mt-20 text-center">
-    <div className="mb-2">
-      <span>Shop</span>
-    </div>
-  </main>
-);
+const Shop: NextPage = () => {
+  const { isLoading, wallet }: IWalletContext = useWallet();
+  const [balance, setbalance] = useState(0);
+
+  const buyPotatoSeed = () => {
+    if (!wallet?.address || !wallet?.privateKey) { return }
+    buySeed(plantTypes.POTATO, wallet?.privateKey);
+  }
+
+  useEffect(() => {
+    if (!isLoading && wallet?.address) {
+      getSeedBalance(wallet?.address, plantTypes.POTATO).then(setbalance)
+    }
+  }, [isLoading])
+
+  return (
+    <main className="flex flex-col items-center justify-top w-full h-full flex-1 px-20 mt-20 text-center">
+      <div className="mb-2 border-b w-full">
+        <div>potato seed balance</div>
+        <div>{balance}</div>
+      </div>
+      <div></div>
+        <div className="mb-2">
+          <div>Shop</div>
+          <div>{isLoading}</div>
+          {
+            !isLoading
+              ? <button onClick={() => buyPotatoSeed()}>Buy potato seeds</button>
+              : <span>Loading</span>
+          }
+        </div>
+    </main>
+  );
+};
 
 export default Shop;

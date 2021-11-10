@@ -1,8 +1,12 @@
+import getConfig from 'next/config'
+
 // services
 import { getContract } from './web3Utils';
 
 // constants
 import ContractTypes from '../constants/contractTypes';
+
+const { publicRuntimeConfig } = getConfig();
 
 export interface Plant {
   type: string,
@@ -12,7 +16,7 @@ export interface Plant {
 export const mintStableToken = async (address: string, privateKey: string) => {
   const options = { isSignerRequired: true, privateKey };
   const stableToken = getContract(
-    process.env.C_STABLE_TOKEN as string,
+    publicRuntimeConfig.C_STABLE_TOKEN as string,
     ContractTypes.ERC20,
     options
   );
@@ -23,7 +27,7 @@ export const mintStableToken = async (address: string, privateKey: string) => {
 export const getStableTokenBalance = async (address: string): Promise<number> => {
   const options = { isSignerRequired: false };
   const stableToken = getContract(
-    process.env.C_STABLE_TOKEN as string,
+    publicRuntimeConfig.C_STABLE_TOKEN as string,
     ContractTypes.ERC20,
     options
   );

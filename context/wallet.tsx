@@ -43,7 +43,7 @@ const WalletContextProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (!existingWallet) {
       wallet = Wallet.createRandom();
-      saveWallet(wallet.address, wallet.privateKey);
+      saveWallet(wallet.address.toLowerCase(), wallet.privateKey);
       setLocalWallet({
         address: wallet.address,
         privateKey: wallet.privateKey,

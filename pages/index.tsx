@@ -46,7 +46,7 @@ const Home: NextPage = () => {
   const onPlantConfirm = async () => {
     if (isWalletLoading || !wallet?.privateKey) { return; }
     await plant(selectedPlot.x, selectedPlot.y, plantTypes.POTATO, wallet?.privateKey);
-    setIsBuyPlotModalShown(false);
+    setIsPlantModalShown(false);
   }
 
   const hideModal = () => {

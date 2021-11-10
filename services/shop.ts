@@ -13,7 +13,7 @@ const { publicRuntimeConfig } = getConfig();
 export const buySeed = async (plantType: string, privateKey: string) => {
   const options = { isSignerRequired: true, privateKey };
   const farm = getContract(
-    publicRuntimeConfig.C_FARM as string,
+    publicRuntimeConfig.C_FARM,
     ContractTypes.FARM,
     options
   );
@@ -21,12 +21,12 @@ export const buySeed = async (plantType: string, privateKey: string) => {
   const seedAddress = getSeedAddress(plantType);
 
   const stableToken = getContract(
-    publicRuntimeConfig.C_STABLE_TOKEN as string,
+    publicRuntimeConfig.C_STABLE_TOKEN,
     ContractTypes.ERC20,
     options
   );
 
-  await stableToken.approve(publicRuntimeConfig.C_FARM as string, 1, { gasPrice: 0 });
+  await stableToken.approve(publicRuntimeConfig.C_FARM, 1, { gasPrice: 0 });
   await farm.buySeeds(seedAddress, 1, { gasPrice: 0 });
 }
 

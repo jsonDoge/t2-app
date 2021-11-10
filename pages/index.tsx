@@ -1,33 +1,35 @@
 import React from 'react';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
-import { buyPlot, getPlotInfo } from '../services/farm';
-import type { Plant, Plot } from '../services/utils';
+import { buyPlot, getPlotInfo, plant } from '../services/farm';
+import type { Plot, PlotInfo } from '../services/utils';
 import Modal from '../components/modal';
 import Button from '../components/button';
 import { IWalletContext, useWallet } from '../context/wallet';
+import plantTypes from '../constants/plantTypes';
 
 const Home: NextPage = () => {
   const { isLoading: isWalletLoading, wallet }: IWalletContext = useWallet();
 
 
-  const [plot, selectPlot] = useState({ x: 0, y: 0 });
+  const [selectedPlot, selectPlot] = useState({ x: 0, y: 0 });
   const [centerX, setCenterX] = useState(2);
   const [centerY, setCenterY] = useState(2);
   const [grid, setGrid] = useState([] as JSX.Element[]);
-  const [isModalShown, setIsModalShown] = useState(false);
+  const [isBuyPlotModalShown, setIsBuyPlotModalShown] = useState(false);
+  const [isPlantModalShown, setIsPlantModalShown] = useState(false);
 
 
   const loadGrid = async () => {
     setGrid([]);
     const coordinates = getAllCoordinates(centerX, centerY);
-    const plotInfo: ({ type: string, owner: string } | undefined)[] = await Promise.all(
+    const plotInfo: (PlotInfo | undefined)[] = await Promise.all(
       coordinates.map((c) => getPlotInfo(c.x, c.y))
     )
 
     const plots = plotInfo.map((p, i) => {
       let plot: Plot = { ...coordinates[i] };
-      if (p?.type) { plot = { ...plot, plant: { type: p.type } } }
+      if (p?.plant) { plot = { ...plot, plant: p.plant } }
       if (p?.owner) { plot = { ...plot, owner: p.owner } }
       return plot;
     });
@@ -35,22 +37,38 @@ const Home: NextPage = () => {
     setGrid(generatedGrid(plots))
   }
 
-  const plant = async () => {
-
-  }
-
   const onBuyPlotConfirm = async () => {
     if (isWalletLoading || !wallet?.privateKey) { return; }
-    await buyPlot(plot.x, plot.y, wallet?.privateKey);
-    setIsModalShown(false);
-  }
-  const hideModal = () => { setIsModalShown(false); }
-  const onPlotSelect = (x: number, y: number) => {
-    selectPlot({ x, y });
-    setIsModalShown(true);
+    await buyPlot(selectedPlot.x, selectedPlot.y, wallet?.privateKey);
+    setIsBuyPlotModalShown(false);
   }
 
-  useEffect(() => { loadGrid(); }, []);
+  const onPlantConfirm = async () => {
+    if (isWalletLoading || !wallet?.privateKey) { return; }
+    await plant(selectedPlot.x, selectedPlot.y, plantTypes.POTATO, wallet?.privateKey);
+    setIsBuyPlotModalShown(false);
+  }
+
+  const hideModal = () => {
+    setIsBuyPlotModalShown(false);
+    setIsPlantModalShown(false);
+  }
+
+  const onPlotSelect = (x: number, y: number, isOwner: boolean) => {
+    selectPlot({ x, y });
+
+    if (!isOwner) {
+      setIsBuyPlotModalShown(true);
+      return;
+    }
+
+    setIsPlantModalShown(true);
+  }
+
+  useEffect(() => {
+    if (isWalletLoading || !wallet?.address) { return }
+    loadGrid();
+  }, [isWalletLoading, wallet?.address]);
 
   const getAllCoordinates = (centerX: number, centerY: number) => {
     let coordinates = []
@@ -67,9 +85,11 @@ const Home: NextPage = () => {
 
   const generatedGrid = (plots: Plot[]): JSX.Element[] => {
     return plots.map((p: Plot, i: number) => {
-      const color = p?.owner === wallet?.address?.toLowerCase() ? 'bg-blue-200' : 'bg-green-200';
+      const isOwner = p?.owner === wallet?.address;
+      const isPlantOwner = p?.plant?.owner === wallet?.address;
+      const color = isOwner || isPlantOwner ? 'bg-blue-200' : 'bg-green-200';
       return (
-        <div key={i} className={`flex h-20 w-20 items-center justify-center ${color}`} onClick={() => onPlotSelect(p.x, p.y)}>
+        <div key={i} className={`flex h-20 w-20 items-center justify-center ${color}`} onClick={() => onPlotSelect(p.x, p.y, isOwner)}>
           { p?.plant?.type || '' }
         </div>
       )
@@ -113,13 +133,24 @@ const Home: NextPage = () => {
       <div className="grid grid-cols-5 gap-1 mt-10">
         { grid }
       </div>
-      {isModalShown &&
+      {isBuyPlotModalShown &&
         <Modal
           title="Buy land plot?"
-          description={`You are about to buy plot located at [X : ${plot.x} | Y : ${plot.y}]`}
+          description={`You are about to buy plot located at [X : ${selectedPlot.x} | Y : ${selectedPlot.y}]`}
           confirmText="Buy"
           cancelText="Cancel"
           onConfirm={() => onBuyPlotConfirm()}
+          onCancel={() => hideModal()}
+        >
+        </Modal>
+      }
+      {isPlantModalShown &&
+        <Modal
+          title="Plant Potato?"
+          description={`You are about to plant a potato at [X : ${selectedPlot.x} | Y : ${selectedPlot.y}]`}
+          confirmText="Plant"
+          cancelText="Regret forever"
+          onConfirm={() => onPlantConfirm()}
           onCancel={() => hideModal()}
         >
         </Modal>

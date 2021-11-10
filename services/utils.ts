@@ -4,6 +4,7 @@ const { publicRuntimeConfig } = getConfig();
 
 export interface Plant {
   type: string,
+  owner: string,
 }
 
 export interface Plot {
@@ -11,6 +12,11 @@ export interface Plot {
   x: number,
   y: number,
   owner?: string,
+}
+
+export interface PlotInfo {
+  plant: Plant,
+  owner: string,
 }
 
 export const getProductAddress = (type: string): string => {

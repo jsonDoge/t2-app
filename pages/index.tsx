@@ -21,7 +21,7 @@ const Home: NextPage = () => {
   const generatedGrid = (plants: (Plant | undefined)[]): JSX.Element[] => {
     return plants.map((p: (Plant | undefined), i: number) =>
       <div key={i} className="flex h-20 w-20 bg-green-200 items-center justify-center">
-        {p ? 'Plant' : 'x'}
+        {p ? 'Plant' : ''}
       </div>
     )
   };
@@ -37,7 +37,7 @@ const Home: NextPage = () => {
   }
 
   const plant = async () => {
-
+    
   }
 
   useEffect(() => { loadGrid() }, [])

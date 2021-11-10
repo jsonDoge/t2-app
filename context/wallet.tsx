@@ -1,41 +1,53 @@
-import React, {
-  createContext, useContext, useState, useMemo, useEffect,
+import {
+  createContext, useState, useEffect, useContext,
 } from 'react';
-import PropTypes from 'prop-types';
 import { Wallet } from 'ethers';
+import PropTypes from 'prop-types';
 
-const WalletContext = createContext({});
+export interface IWalletContext {
+  isLoading: boolean,
+  wallet: IWallet | undefined
+}
 
-const getWallet = () => ({
-  address: window.localStorage.getItem('wallet:address'),
-  privateKey: window.localStorage.getItem('wallet:key'),
-});
+interface IWallet {
+  address: string,
+  privateKey: string
+}
+const WalletContext = createContext<IWalletContext>({ isLoading: false, wallet: undefined });
+
+const getWallet = () => {
+  const address = window.localStorage.getItem('wallet:address');
+  const privateKey = window.localStorage.getItem('wallet:key');
+
+  if (!address || !privateKey) {
+    return undefined;
+  }
+
+  return { address, privateKey }
+};
 
 const saveWallet = (address: string, privateKey: string) => {
   window.localStorage.setItem('wallet:address', address);
   window.localStorage.setItem('wallet:key', privateKey);
 };
 
-const WalletContextProvider = ({ children }: { children: React.ReactNode}) => {
-  // TODO: investigate context why this is breaking
-  // const walletContext = useContext(WalletContext);
+const WalletContextProvider = ({ children }: { children: React.ReactNode }) => {
 
-  // if (walletContext) {
-  //   throw new Error('walletContext has already been declared.');
-  // }
-
-  const [localWallet, setLocalWallet] = useState({});
+  const [localWallet, setLocalWallet] = useState<IWallet|undefined>();
   const [isLoading, setIsLoading] = useState(false);
 
   const loadWallet = () => {
     setIsLoading(true);
     let wallet: Wallet;
-    let existingWallet = getWallet();
+    let existingWallet: IWallet | undefined = getWallet();
 
-    if (!existingWallet.address || !existingWallet.privateKey) {
+    if (!existingWallet) {
       wallet = Wallet.createRandom();
       saveWallet(wallet.address, wallet.privateKey);
-      setLocalWallet(wallet);
+      setLocalWallet({
+        address: wallet.address,
+        privateKey: wallet.privateKey,
+      });
     } else {
       setLocalWallet(existingWallet);
     }
@@ -47,20 +59,16 @@ const WalletContextProvider = ({ children }: { children: React.ReactNode}) => {
     loadWallet();
   }, []);
 
-  const contextData = useMemo(() => ({
-    wallet: localWallet,
-    isLoading,
-  }), [localWallet, isLoading]);
-
   return (
-    <WalletContext.Provider value={{ wallet: contextData }}>
+    <WalletContext.Provider value={{ isLoading, wallet: localWallet }}>
       {children}
     </WalletContext.Provider>
   );
 };
 
 WalletContextProvider.propTypes = {
-  children: PropTypes.element.isRequired,
+  children: PropTypes.node.isRequired,
 };
 
 export default WalletContextProvider;
+export const useWallet = () => useContext(WalletContext);

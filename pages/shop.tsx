@@ -30,7 +30,6 @@ const Shop: NextPage = () => {
       <div></div>
         <div className="mb-2">
           <div>Shop</div>
-          <div>{isLoading}</div>
           {
             !isLoading
               ? <Button onClick={() => buyPotatoSeed()}>Buy potato seeds</Button>

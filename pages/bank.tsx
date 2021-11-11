@@ -26,16 +26,15 @@ const Bank: NextPage = () => {
         <div>balance</div>
         <div>{balance}</div>
       </div>
-      <div></div>
-        <div className="mb-2">
-          <div>Bank</div>
-          <div>{isLoading}</div>
-          {
-            !isLoading
-              ? <Button onClick={() => getLoan()}>Get farmers loan</Button>
-              : <span>Loading</span>
-          }
-        </div>
+      <div className="mb-2">
+        <div>Bank</div>
+        <div>{isLoading}</div>
+        {
+          !isLoading
+            ? <Button onClick={() => getLoan()}>Get farmers loan</Button>
+            : <span>Loading</span>
+        }
+      </div>
     </main>
   );
 };

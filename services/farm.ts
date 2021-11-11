@@ -55,6 +55,18 @@ export const buyPlot = async (x: number, y: number, privateKey: string) => {
   await farm.buyPlot(plotId, { gasPrice: 0 });
 }
 
+export const harvest = async (x: number, y: number, privateKey: string) => {
+  const options = { isSignerRequired: true, privateKey };
+  const farm = getContract(
+    publicRuntimeConfig.C_FARM,
+    ContractTypes.FARM,
+    options
+  );
+
+  const plotId = getPlotIdFromCoordinates(x, y);
+  await farm.harvest(plotId, { gasPrice: 0 });
+}
+
 export const getPlotInfo = async (x: number, y: number): Promise<(PlotInfo | undefined)> => {
   const farm: Contract = getContract(publicRuntimeConfig.C_FARM, ContractTypes.FARM, { isSignerRequired: false });
   const plot: Contract = getContract(publicRuntimeConfig.C_PLOT, ContractTypes.PLOT, { isSignerRequired: false });

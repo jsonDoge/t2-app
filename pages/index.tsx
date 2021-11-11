@@ -1,7 +1,7 @@
 import React from 'react';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
-import { buyPlot, getPlotInfo, plant } from '../services/farm';
+import { buyPlot, getPlotInfo, plant, harvest } from '../services/farm';
 import type { Plot, PlotInfo } from '../services/utils';
 import Modal from '../components/modal';
 import Button from '../components/button';
@@ -18,6 +18,7 @@ const Home: NextPage = () => {
   const [grid, setGrid] = useState([] as JSX.Element[]);
   const [isBuyPlotModalShown, setIsBuyPlotModalShown] = useState(false);
   const [isPlantModalShown, setIsPlantModalShown] = useState(false);
+  const [isHarvestModalShown, setIsHarvestModalShown] = useState(false);
 
 
   const loadGrid = async () => {
@@ -49,20 +50,33 @@ const Home: NextPage = () => {
     setIsPlantModalShown(false);
   }
 
+  const onHarvestConfirm = async () => {
+    if (isWalletLoading || !wallet?.privateKey) { return; }
+    await harvest(selectedPlot.x, selectedPlot.y, wallet?.privateKey);
+    setIsHarvestModalShown(false);
+  }
+
   const hideModal = () => {
     setIsBuyPlotModalShown(false);
     setIsPlantModalShown(false);
+    setIsHarvestModalShown(false);
   }
 
-  const onPlotSelect = (x: number, y: number, isOwner: boolean) => {
+  const onPlotSelect = (x: number, y: number, isOwner: boolean, isPlantOwner: boolean) => {
     selectPlot({ x, y });
 
-    if (!isOwner) {
+    if (!isOwner && !isPlantOwner) {
       setIsBuyPlotModalShown(true);
       return;
     }
 
-    setIsPlantModalShown(true);
+    if (isOwner && !isPlantOwner) {
+      setIsPlantModalShown(true);
+      return;
+    }
+
+    // only conditions left are if isPlantOwner is truthy
+    setIsHarvestModalShown(true);
   }
 
   useEffect(() => {
@@ -89,7 +103,7 @@ const Home: NextPage = () => {
       const isPlantOwner = p?.plant?.owner === wallet?.address;
       const color = isOwner || isPlantOwner ? 'bg-blue-200' : 'bg-green-200';
       return (
-        <div key={i} className={`flex h-20 w-20 items-center justify-center ${color}`} onClick={() => onPlotSelect(p.x, p.y, isOwner)}>
+        <div key={i} className={`flex h-20 w-20 items-center justify-center ${color}`} onClick={() => onPlotSelect(p.x, p.y, isOwner, isPlantOwner)}>
           { p?.plant?.type || '' }
         </div>
       )
@@ -151,6 +165,17 @@ const Home: NextPage = () => {
           confirmText="Plant"
           cancelText="Regret forever"
           onConfirm={() => onPlantConfirm()}
+          onCancel={() => hideModal()}
+        >
+        </Modal>
+      }
+      {isHarvestModalShown &&
+        <Modal
+          title="Harvest Potato?"
+          description={`You are about to harvest a potato at [X : ${selectedPlot.x} | Y : ${selectedPlot.y}]`}
+          confirmText="Harvest"
+          cancelText="Cancel"
+          onConfirm={() => onHarvestConfirm()}
           onCancel={() => hideModal()}
         >
         </Modal>

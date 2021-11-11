@@ -11,19 +11,30 @@ import plantTypes from '../constants/plantTypes';
 const Home: NextPage = () => {
   const { isLoading: isWalletLoading, wallet }: IWalletContext = useWallet();
 
-
   const [selectedPlot, selectPlot] = useState({ x: 0, y: 0 });
+  const [error, setError] = useState('');
   const [centerX, setCenterX] = useState(2);
   const [centerY, setCenterY] = useState(2);
   const [grid, setGrid] = useState([] as JSX.Element[]);
+  const [gridXAxis, setGridXAxis] = useState([] as JSX.Element[]);
+  const [gridYAxis, setGridYAxis] = useState([] as JSX.Element[]);
   const [isBuyPlotModalShown, setIsBuyPlotModalShown] = useState(false);
   const [isPlantModalShown, setIsPlantModalShown] = useState(false);
   const [isHarvestModalShown, setIsHarvestModalShown] = useState(false);
 
-
   const loadGrid = async () => {
+    if (centerX > 999 || centerY > 999 || centerX < 0 || centerY < 0) { 
+      setError('Invalid coordinates has to be between 999 and 0');
+      return;
+    } else {
+      setError('');
+    }
+
     setGrid([]);
+    setGridYAxis([]);
+    setGridXAxis([]);
     const coordinates = getAllCoordinates(centerX, centerY);
+
     const plotInfo: (PlotInfo | undefined)[] = await Promise.all(
       coordinates.map((c) => getPlotInfo(c.x, c.y))
     )
@@ -35,25 +46,30 @@ const Home: NextPage = () => {
       return plot;
     });
 
-    setGrid(generatedGrid(plots))
+    setGridXAxis(generateGridAxis(centerX, true))
+    setGridYAxis(generateGridAxis(centerY, false))
+    setGrid(generateGrid(plots))
   }
 
   const onBuyPlotConfirm = async () => {
     if (isWalletLoading || !wallet?.privateKey) { return; }
     await buyPlot(selectedPlot.x, selectedPlot.y, wallet?.privateKey);
     setIsBuyPlotModalShown(false);
+    loadGrid();
   }
 
   const onPlantConfirm = async () => {
     if (isWalletLoading || !wallet?.privateKey) { return; }
     await plant(selectedPlot.x, selectedPlot.y, plantTypes.POTATO, wallet?.privateKey);
     setIsPlantModalShown(false);
+    loadGrid();
   }
 
   const onHarvestConfirm = async () => {
     if (isWalletLoading || !wallet?.privateKey) { return; }
     await harvest(selectedPlot.x, selectedPlot.y, wallet?.privateKey);
     setIsHarvestModalShown(false);
+    loadGrid();
   }
 
   const hideModal = () => {
@@ -90,14 +106,14 @@ const Home: NextPage = () => {
       for (let x = -2; x < 3; x += 1) {
         const cx = centerX + x;
         const cy = centerY + y
-        if (cx > 999 || y > 999 || cx < 0 || cy < 0) { continue; }
+        if (cx > 999 || cy > 999 || cx < 0 || cy < 0) { continue; }
         coordinates.push({ x: centerX + x, y: centerY + y });
       }
     }
     return coordinates
   } 
 
-  const generatedGrid = (plots: Plot[]): JSX.Element[] => {
+  const generateGrid = (plots: Plot[]): JSX.Element[] => {
     return plots.map((p: Plot, i: number) => {
       const isOwner = p?.owner === wallet?.address;
       const isPlantOwner = p?.plant?.owner === wallet?.address;
@@ -110,10 +126,28 @@ const Home: NextPage = () => {
     })
   };
 
+  const generateGridAxis = (center: number, isX: boolean): JSX.Element[] => {
+    let axis = [];
+    const size = isX ? 'w-20' : 'h-20'
+    for (let a = center - 2; a <= center + 2; a++) {
+      if (a >= 0 && a <= 999) {
+        axis.push(
+          <div key={a} className={`flex items-center justify-center ${size} `}>
+            { a }
+          </div>
+        )
+      }
+    }
+    return axis;
+  }
+
   return (
     <main className="flex flex-col items-center justify-top w-full h-full flex-1 px-20 mt-20 text-center">
       <div className="mb-2">
         <span>Farm field coordinates</span>
+      </div>
+      <div className="mb-2">
+        { error && <span className="text-red-500">{error}</span>}
       </div>
       <div className="flex flex-row items-center justify-center">
         <div className="mx-2">
@@ -144,8 +178,19 @@ const Home: NextPage = () => {
           <Button onClick={() => loadGrid()}>Load</Button>
         </div>
       </div>
-      <div className="grid grid-cols-5 gap-1 mt-10">
-        { grid }
+      <div className="mt-10">
+        <div className="grid grid-cols-12">
+          <div className="grid-cols-1"></div>
+          <div className={`grid grid-cols-${gridXAxis.length} gap-1 col-span-11`}>
+            { gridXAxis }
+          </div>
+        </div>
+        <div className="grid grid-cols-12">
+          <div className="grid col-span-1 grid-cols-1 gap-1">{ gridYAxis }</div>
+          <div className={`grid grid-cols-${gridXAxis.length} gap-1 col-span-11`}>
+            { grid }
+          </div>
+        </div>
       </div>
       {isBuyPlotModalShown &&
         <Modal

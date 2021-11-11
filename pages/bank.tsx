@@ -2,21 +2,23 @@ import React, { useEffect, useState, useContext } from 'react';
 import type { NextPage } from 'next';
 import { mintStableToken, getStableTokenBalance } from '../services/bank';
 import { IWalletContext, useWallet } from '../context/wallet';
+import Button from '../components/button';
 
 const Bank: NextPage = () => {
   const { isLoading, wallet }: IWalletContext = useWallet();
   const [balance, setbalance] = useState(0);
 
-  const getLoan = (address: string|undefined, privateKey: string|undefined) => {
-    if (!address || !privateKey) { return }
-    mintStableToken(address, privateKey);
+  const getLoan = async () => {
+    if (!wallet?.address || !wallet?.privateKey) { return }
+    await mintStableToken(wallet.address, wallet.privateKey);
+    getStableTokenBalance(wallet.address).then(setbalance)
   }
 
   useEffect(() => {
     if (!isLoading && wallet?.address) {
       getStableTokenBalance(wallet?.address).then(setbalance)
     }
-  }, [isLoading])
+  }, [isLoading, wallet?.address])
 
   return (
     <main className="flex flex-col items-center justify-top w-full h-full flex-1 px-20 mt-20 text-center">
@@ -30,7 +32,7 @@ const Bank: NextPage = () => {
           <div>{isLoading}</div>
           {
             !isLoading
-              ? <button onClick={() => getLoan(wallet?.address, wallet?.privateKey)}>Get farmers loan</button>
+              ? <Button onClick={() => getLoan()}>Get farmers loan</Button>
               : <span>Loading</span>
           }
         </div>

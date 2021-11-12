@@ -6,9 +6,9 @@ interface Props {
   title: string,
   description: string,
   confirmText: string,
-  cancelText: string,
+  cancelText?: string,
   onConfirm: () => void,
-  onCancel: () => void
+  onCancel?: () => void
 }
 
 const Modal: React.FC<Props> = ({
@@ -41,7 +41,7 @@ const Modal: React.FC<Props> = ({
           </div>
           <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
             <Button onClick={confirm}>{confirmText}</Button>
-            <Button onClick={cancel}>{cancelText}</Button>
+            { onCancel && <Button onClick={cancel}>{cancelText}</Button> }
           </div>
         </div>
       </div>

@@ -40,15 +40,14 @@ const Home: NextPage = () => {
     setIsHarvestModalShown(true);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-shadow
-  const getAllCoordinates = (centerX: number, centerY: number) => {
+  const getAllCoordinatesAround = (x: number, y: number) => {
     const coordinates = [];
     for (let dy = -2; dy < 3; dy += 1) {
       for (let dx = -2; dx < 3; dx += 1) {
-        const x = centerX + dx;
-        const y = centerY + dy;
-        if (x > 999 || y > 999 || x < 0 || y < 0) { continue; }
-        coordinates.push({ x: centerX + x, y: centerY + y });
+        const sumX = x + dx;
+        const sumY = y + dy;
+        if (sumX > 999 || sumY > 999 || sumX < 0 || sumY < 0) { continue; }
+        coordinates.push({ x: sumX, y: sumY });
       }
     }
     return coordinates;
@@ -61,6 +60,7 @@ const Home: NextPage = () => {
       const color = isOwner || isPlantOwner ? 'bg-blue-200' : 'bg-green-200';
       return (
         <button
+          key={`${p.x}${p.y}`}
           type="button"
           className={`flex h-20 w-20 items-center justify-center ${color}`}
           onClick={() => onPlotSelect(p.x, p.y, isOwner, isPlantOwner)}
@@ -96,7 +96,7 @@ const Home: NextPage = () => {
     setGridYAxis([]);
     setGridXAxis([]);
 
-    const coordinates = getAllCoordinates(centerX, centerY);
+    const coordinates = getAllCoordinatesAround(centerX, centerY);
 
     const plotInfo: (PlotInfo | undefined)[] = await Promise.all(
       coordinates.map((c) => getPlotInfo(c.x, c.y)),

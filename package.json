@@ -5,7 +5,7 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "dev": "next dev",
+    "dev": "PORT=5555 next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

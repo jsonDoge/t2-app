@@ -1,4 +1,4 @@
-import getConfig from 'next/config'
+import getConfig from 'next/config';
 
 // services
 import { getContract } from './web3Utils';
@@ -18,20 +18,20 @@ export const mintStableToken = async (address: string, privateKey: string) => {
   const stableToken = getContract(
     publicRuntimeConfig.C_STABLE_TOKEN,
     ContractTypes.ERC20,
-    options
+    options,
   );
 
   await stableToken.mint(address, 100, { gasPrice: 0 });
-}
+};
 
 export const getStableTokenBalance = async (address: string): Promise<number> => {
   const options = { isSignerRequired: false };
   const stableToken = getContract(
     publicRuntimeConfig.C_STABLE_TOKEN,
     ContractTypes.ERC20,
-    options
+    options,
   );
 
   const balance = await stableToken.balanceOf(address);
   return balance.toNumber();
-}
+};

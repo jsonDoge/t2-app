@@ -15,7 +15,7 @@ const Barn: NextPage = () => {
 
   useEffect(() => {
     if (isLoading || !wallet?.address) { return; }
-    
+
     getProductBalance(wallet?.address, plantTypes.POTATO).then(setProductBalance);
     getBadgeBalance(wallet?.address, plantTypes.POTATO).then(setBadgeBalance);
   }, [isLoading, wallet?.address]);
@@ -25,7 +25,7 @@ const Barn: NextPage = () => {
     await craftBadge(plantType0, plantType1, plantType2, wallet?.privateKey);
     getProductBalance(wallet?.address, plantTypes.POTATO).then(setProductBalance);
     getBadgeBalance(wallet?.address, plantTypes.POTATO).then(setBadgeBalance);
-  }
+  };
 
   return (
     <main className="flex flex-col items-center justify-top w-full h-full flex-1 px-20 mt-20 text-center">
@@ -44,17 +44,17 @@ const Barn: NextPage = () => {
         <div className="my-2">Badge ingredients</div>
         <div className="grid grid-cols-3 gap-3">
           <div>
-            <select onChange={(e) => { setPlantType0(e.target.value) }} value={plantType0}>
+            <select onChange={(e) => { setPlantType0(e.target.value); }} value={plantType0}>
               { Object.values(plantTypes).map((v) => (<option key={v}>{v}</option>))}
             </select>
           </div>
           <div>
-            <select onChange={(e) => { setPlantType1(e.target.value) }} value={plantType1}>
+            <select onChange={(e) => { setPlantType1(e.target.value); }} value={plantType1}>
               { Object.values(plantTypes).map((v) => (<option key={v}>{v}</option>))}
             </select>
           </div>
           <div>
-            <select onChange={(e) => { setPlantType2(e.target.value) }} value={plantType2}>
+            <select onChange={(e) => { setPlantType2(e.target.value); }} value={plantType2}>
               { Object.values(plantTypes).map((v) => (<option key={v}>{v}</option>))}
             </select>
           </div>
@@ -64,9 +64,11 @@ const Barn: NextPage = () => {
         <div>Craft badge (nft)</div>
         {
           !isLoading
-            ? <Button onClick={onBadgeCraft}>
+            ? (
+              <Button onClick={onBadgeCraft}>
                 Try craft badge
               </Button>
+            )
             : <span>Loading</span>
         }
       </div>

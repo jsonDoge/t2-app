@@ -1,5 +1,4 @@
-import { Contract, ethers } from 'ethers';
-import getConfig from 'next/config'
+import getConfig from 'next/config';
 
 // services
 import { getContract } from './web3Utils';
@@ -15,7 +14,7 @@ export const buySeed = async (plantType: string, privateKey: string) => {
   const farm = getContract(
     publicRuntimeConfig.C_FARM,
     ContractTypes.FARM,
-    options
+    options,
   );
 
   const seedAddress = getSeedAddress(plantType);
@@ -23,12 +22,12 @@ export const buySeed = async (plantType: string, privateKey: string) => {
   const stableToken = getContract(
     publicRuntimeConfig.C_STABLE_TOKEN,
     ContractTypes.ERC20,
-    options
+    options,
   );
 
   await stableToken.approve(publicRuntimeConfig.C_FARM, 1, { gasPrice: 0 });
   await farm.buySeeds(seedAddress, 1, { gasPrice: 0 });
-}
+};
 
 export const getSeedBalance = async (address: string, plantType: string): Promise<number> => {
   const seedAddress = getSeedAddress(plantType);
@@ -37,9 +36,9 @@ export const getSeedBalance = async (address: string, plantType: string): Promis
   const seed = getContract(
     seedAddress,
     ContractTypes.ERC20,
-    options
+    options,
   );
 
   const balance = await seed.balanceOf(address);
   return balance.toNumber();
-}
+};

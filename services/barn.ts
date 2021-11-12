@@ -1,4 +1,4 @@
-import getConfig from 'next/config'
+import getConfig from 'next/config';
 
 // services
 import { getContract } from './web3Utils';
@@ -16,12 +16,12 @@ export const getProductBalance = async (address: string, plantType: string): Pro
   const product = getContract(
     productAddress,
     ContractTypes.ERC20,
-    options
+    options,
   );
 
   const balance = await product.balanceOf(address);
   return balance.toNumber();
-}
+};
 
 export const getBadgeBalance = async (address: string, plantType: string): Promise<number> => {
   const badgeAddress = getBadgeAddress(plantType);
@@ -30,44 +30,49 @@ export const getBadgeBalance = async (address: string, plantType: string): Promi
   const badge = getContract(
     badgeAddress,
     ContractTypes.ERC20,
-    options
+    options,
   );
 
   const balance = await badge.balanceOf(address);
   return balance.toNumber();
-}
+};
 
-export const craftBadge = async (plantType0: string, plantType1: string, plantType2: string, privateKey: string): Promise<void> => {
+export const craftBadge = async (
+  plantType0: string, plantType1: string, plantType2: string, privateKey: string,
+): Promise<void> => {
   const options = { isSignerRequired: true, privateKey };
 
   const productAddress0 = getProductAddress(plantType0);
   const productAddress1 = getProductAddress(plantType1);
   const productAddress2 = getProductAddress(plantType2);
 
-  const allowancePerProduct = [productAddress0, productAddress1, productAddress2].reduce((a: any, c: string) => {
-    a[c] = (a[c] || 0) + 1;
-    return a;
-  }, {})
+  const allowancePerProduct = [productAddress0, productAddress1, productAddress2]
+    .reduce((a: any, c: string) => ({ ...a, c: (a[c] || 0) + 1 }), {});
 
-  for (let productAddress of Object.keys(allowancePerProduct)) {
+  // eslint-disable-next-line no-restricted-syntax
+  for (const productAddress of Object.keys(allowancePerProduct)) {
     const productContract = getContract(
       productAddress,
       ContractTypes.ERC20,
-      options
+      options,
     );
-    await productContract.approve(publicRuntimeConfig.C_FARM, allowancePerProduct[productAddress], { gasPrice: 0 });
+
+    // eslint-disable-next-line no-await-in-loop
+    await productContract.approve(
+      publicRuntimeConfig.C_FARM, allowancePerProduct[productAddress], { gasPrice: 0 },
+    );
   }
 
   const farm = getContract(
     publicRuntimeConfig.C_FARM,
     ContractTypes.FARM,
-    options
+    options,
   );
 
   await farm.convertProductsToBadge(
     productAddress0,
     productAddress1,
     productAddress2,
-    { gasPrice: 0 }
+    { gasPrice: 0 },
   );
-}
+};

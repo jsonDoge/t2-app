@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import getConfig from 'next/config'
+import getConfig from 'next/config';
 
 const { publicRuntimeConfig } = getConfig();
 

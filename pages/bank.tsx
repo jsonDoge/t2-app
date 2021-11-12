@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import { mintStableToken, getStableTokenBalance } from '../services/bank';
 import { IWalletContext, useWallet } from '../context/wallet';
@@ -9,16 +9,16 @@ const Bank: NextPage = () => {
   const [balance, setbalance] = useState(0);
 
   const getLoan = async () => {
-    if (!wallet?.address || !wallet?.privateKey) { return }
+    if (!wallet?.address || !wallet?.privateKey) { return; }
     await mintStableToken(wallet.address, wallet.privateKey);
-    getStableTokenBalance(wallet.address).then(setbalance)
-  }
+    getStableTokenBalance(wallet.address).then(setbalance);
+  };
 
   useEffect(() => {
     if (!isLoading && wallet?.address) {
-      getStableTokenBalance(wallet?.address).then(setbalance)
+      getStableTokenBalance(wallet?.address).then(setbalance);
     }
-  }, [isLoading, wallet?.address])
+  }, [isLoading, wallet?.address]);
 
   return (
     <main className="flex flex-col items-center justify-top w-full h-full flex-1 px-20 mt-20 text-center">

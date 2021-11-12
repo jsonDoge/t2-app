@@ -1,4 +1,4 @@
-import {
+import React, {
   createContext, useState, useEffect, useContext,
 } from 'react';
 import { Wallet } from 'ethers';
@@ -23,7 +23,7 @@ const getWallet = () => {
     return undefined;
   }
 
-  return { address, privateKey }
+  return { address, privateKey };
 };
 
 const saveWallet = (address: string, privateKey: string) => {
@@ -32,14 +32,13 @@ const saveWallet = (address: string, privateKey: string) => {
 };
 
 const WalletContextProvider = ({ children }: { children: React.ReactNode }) => {
-
-  const [localWallet, setLocalWallet] = useState<IWallet|undefined>();
+  const [localWallet, setLocalWallet] = useState<IWallet | undefined>();
   const [isLoading, setIsLoading] = useState(false);
 
   const loadWallet = () => {
     setIsLoading(true);
     let wallet: Wallet;
-    let existingWallet: IWallet | undefined = getWallet();
+    const existingWallet: IWallet | undefined = getWallet();
 
     if (!existingWallet) {
       wallet = Wallet.createRandom();

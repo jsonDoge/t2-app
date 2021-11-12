@@ -11,9 +11,8 @@ import badgeAbi from '../contracts/badge.abi.json';
 import erc20Abi from '../contracts/erc20.abi.json';
 import plotAbi from '../contracts/plot.abi.json';
 import farmAbi from '../contracts/farm.abi.json';
-import contractTypes from '../constants/contractTypes';
 
-interface getContractOptions {
+interface GetContractOptions {
   isSignerRequired: boolean,
   privateKey?: string,
 }
@@ -29,13 +28,13 @@ interface getContractOptions {
 export const getContract = (
   address: string,
   type: string,
-  options: getContractOptions = { isSignerRequired: false },
+  options: GetContractOptions = { isSignerRequired: false },
 ) => {
   const web3Provider = getProvider();
 
   if (!web3Provider) {
     throw new Error('provider not found');
-  };
+  }
 
   if (options.isSignerRequired && !options.privateKey) {
     throw new Error('wallet key not provided');
@@ -71,9 +70,9 @@ export const getErc20Balance = (
   erc20Address: string,
   walletAddress: string,
 ) => {
-  const tokenContract = getContract(erc20Address, contractTypes.ERC20, { isSignerRequired: false });
+  const tokenContract = getContract(erc20Address, ContractTypes.ERC20, { isSignerRequired: false });
 
-  if (!tokenContract) { throw new Error('Contract not found') }
+  if (!tokenContract) { throw new Error('Contract not found'); }
 
   return tokenContract.balanceOf(walletAddress);
 };

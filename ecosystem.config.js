@@ -1,8 +1,8 @@
 module.exports = {
-  apps : [{
-    name   : "t2-app",
-    script : "yarn",
+  apps: [{
+    name: 't2-app',
+    script: 'yarn',
     automation: false,
-    args: "run start",
-  }]
-}
+    args: 'run start',
+  }],
+};

@@ -10,16 +10,16 @@ const Shop: NextPage = () => {
   const [balance, setbalance] = useState(0);
 
   const buyPotatoSeed = async () => {
-    if (!wallet?.address || !wallet?.privateKey) { return }
+    if (!wallet?.address || !wallet?.privateKey) { return; }
     await buySeed(plantTypes.POTATO, wallet?.privateKey);
-    getSeedBalance(wallet?.address, plantTypes.POTATO).then(setbalance)
-  }
+    getSeedBalance(wallet?.address, plantTypes.POTATO).then(setbalance);
+  };
 
   useEffect(() => {
     if (!isLoading && wallet?.address) {
-      getSeedBalance(wallet?.address, plantTypes.POTATO).then(setbalance)
+      getSeedBalance(wallet?.address, plantTypes.POTATO).then(setbalance);
     }
-  }, [isLoading, wallet?.address])
+  }, [isLoading, wallet?.address]);
 
   return (
     <main className="flex flex-col items-center justify-top w-full h-full flex-1 px-20 mt-20 text-center">
@@ -27,15 +27,14 @@ const Shop: NextPage = () => {
         <div>potato seed balance</div>
         <div>{balance}</div>
       </div>
-      <div></div>
-        <div className="mb-2">
-          <div>Shop</div>
-          {
-            !isLoading
-              ? <Button onClick={() => buyPotatoSeed()}>Buy potato seeds</Button>
-              : <span>Loading</span>
-          }
-        </div>
+      <div className="mb-2">
+        <div>Shop</div>
+        {
+          !isLoading
+            ? <Button onClick={() => buyPotatoSeed()}>Buy potato seeds</Button>
+            : <span>Loading</span>
+        }
+      </div>
     </main>
   );
 };

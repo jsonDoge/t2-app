@@ -15,6 +15,6 @@ module.exports = {
     C_CORN_BADGE: process.env.C_CORN_BADGE,
     C_CARROT_SEED: process.env.C_CARROT_SEED,
     C_CARROT_PRODUCT: process.env.C_CARROT_PRODUCT,
-    C_CARROT_BADGE: process.env.C_CARROT_BADGE
-  }
-}
+    C_CARROT_BADGE: process.env.C_CARROT_BADGE,
+  },
+};

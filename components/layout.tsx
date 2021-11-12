@@ -36,7 +36,7 @@ const Layout: NextPage = ({ children }) => {
       </footer>
     </div>
   );
-}
+};
 
 Layout.propTypes = {
   children: PropTypes.element.isRequired,

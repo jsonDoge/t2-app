@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import {
-  buyPlot, plant, harvest,
+  buyPlot, plant, harvest, getUserPlots,
 } from '../services/farm';
 import Modal from '../components/modal';
 import Button from '../components/button';
@@ -18,6 +18,7 @@ const Home: NextPage = () => {
   const [centerY, setCenterY] = useState(2);
   const [gridCenterX, setGridCenterX] = useState(2);
   const [gridCenterY, setGridCenterY] = useState(2);
+  const [userPlots, setUserPlots] = useState([] as ({ x: number, y: number })[]);
 
   const [isBuyPlotModalShown, setIsBuyPlotModalShown] = useState(false);
   const [isPlantModalShown, setIsPlantModalShown] = useState(false);
@@ -89,6 +90,7 @@ const Home: NextPage = () => {
   useEffect(() => {
     if (isWalletLoading || !wallet?.address) { return; }
     reLoadGrid();
+    getUserPlots(wallet?.address).then(setUserPlots);
   }, [isWalletLoading, wallet?.address]);
 
   return (
@@ -135,6 +137,16 @@ const Home: NextPage = () => {
         onError={setError}
         onSelect={onPlotSelect}
       />
+      <div className="mt-5 w-full border-t border-blue-200">
+        <h2 className="text-3xl font-bold">Your owned plots</h2>
+        {
+          userPlots.map((plot) => (
+            <div>
+              {`[X : ${plot.x} Y : ${plot.y}]`}
+            </div>
+          ))
+        }
+      </div>
       {isBuyPlotModalShown
       && (
         <Modal

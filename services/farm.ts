@@ -3,7 +3,12 @@ import getConfig from 'next/config';
 
 // services
 import { getContract } from './web3Utils';
-import { getPlotIdFromCoordinates, getSeedAddress, PlotInfo } from './utils';
+import {
+  getCoordinatesFromPlotId,
+  getPlotIdFromCoordinates,
+  getSeedAddress,
+  PlotInfo,
+} from './utils';
 
 // constants
 import ContractTypes from '../constants/contractTypes';
@@ -66,6 +71,21 @@ export const harvest = async (x: number, y: number, privateKey: string) => {
 
   const plotId = getPlotIdFromCoordinates(x, y);
   await farm.harvest(plotId, { gasPrice: 0 });
+};
+
+export const getUserPlots = async (address: string): Promise<({ x: number, y: number })[]> => {
+  const plotContract: Contract = getContract(
+    publicRuntimeConfig.C_PLOT, ContractTypes.PLOT, { isSignerRequired: false },
+  );
+
+  const plotsOwnedCount = await plotContract.balanceOf(address);
+  const plotsOwned: ({ x: number, y: number })[] = [];
+  for (let i = 0; i <= plotsOwnedCount - 1; i += 1) {
+    // eslint-disable-next-line no-await-in-loop
+    const plotIdBn = await plotContract.tokenOfOwnerByIndex(address, i);
+    plotsOwned.push(getCoordinatesFromPlotId(plotIdBn.toNumber()));
+  }
+  return plotsOwned;
 };
 
 export const getPlotInfo = async (x: number, y: number): Promise<(PlotInfo | undefined)> => {

@@ -38,3 +38,5 @@ export const getSeedAddress = (type: string): string => {
 };
 
 export const getPlotIdFromCoordinates = (x: number, y: number) => x + y * 1000;
+export const getCoordinatesFromPlotId = (plotId: number): { x: number, y: number } =>
+  ({ x: plotId % 1000, y: Math.floor(plotId / 1000) });

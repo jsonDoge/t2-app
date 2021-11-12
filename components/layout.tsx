@@ -9,7 +9,7 @@ const Layout: NextPage = ({ children }) => {
   const { wallet } = useWallet();
 
   return (
-    <div className="flex flex-col min-h-screen  bg-green-100">
+    <div className="flex flex-col min-h-screen bg-green-100">
       <Head>
         <title>T2 Farm</title>
         <link rel="icon" href="/favicon.ico" />

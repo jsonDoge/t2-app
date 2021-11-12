@@ -81,7 +81,8 @@ export const getPlotInfo = async (x: number, y: number): Promise<(PlotInfo | und
   let plotOwner;
   try {
     plotOwner = await plot.ownerOf(plotId);
-  } catch (e) { console.error(e); }
+  // eslint-disable-next-line no-empty
+  } catch (e) { }
 
   if (!plotOwner) {
     return undefined;

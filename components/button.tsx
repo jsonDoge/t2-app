@@ -3,10 +3,12 @@ import React from 'react';
 interface Props {
   children?: React.ReactNode;
   onClick?: () => void;
+  disabled?: boolean;
 }
 
-const Button: React.FC<Props> = ({ children, onClick }) => (
+const Button: React.FC<Props> = ({ children, onClick, disabled = false }) => (
   <button
+    disabled={disabled}
     onClick={onClick}
     type="button"
     className="

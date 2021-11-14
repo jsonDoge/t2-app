@@ -131,7 +131,7 @@ const Home: NextPage = () => {
   return (
     <main className="flex flex-col items-center justify-top w-full h-full flex-1 px-20 mt-20 text-center">
       <div className="mb-2">
-        <span>Farm fields - coordinates [0-999]</span>
+        <span>Farm plots - coordinates [0-999]</span>
       </div>
       <div className="mb-2">
         { error && <div className="text-red-500">{error}</div>}

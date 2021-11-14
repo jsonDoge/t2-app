@@ -117,7 +117,7 @@ const Barn: NextPage = () => {
               !isLoadingWallet
                 ? (
                   <Button onClick={onBadgeCraft}>
-                    { !isLoading && <div>Try carft badge</div> }
+                    { !isLoading && <div>Try craft badge</div> }
                     { isLoading && <Spinner /> }
                   </Button>
                 )

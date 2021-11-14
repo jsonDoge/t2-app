@@ -1,5 +1,6 @@
 import React from 'react';
 import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import PropTypes from 'prop-types';
@@ -7,6 +8,7 @@ import { useWallet } from '../context/wallet';
 
 const Layout: NextPage = ({ children }) => {
   const { wallet } = useWallet();
+  const { asPath } = useRouter();
 
   return (
     <div className="flex flex-col min-h-screen bg-green-100">
@@ -21,10 +23,10 @@ const Layout: NextPage = ({ children }) => {
           </h1>
         </div>
         <div className="flex w-1/3 justify-center items-center pt-2 font-bold">
-          <div className="mx-2"><Link href="/"><a><span className="text-bold">Fields</span></a></Link></div>
-          <div className="mx-2"><Link href="/shop"><a><span className="text-bold">Shop</span></a></Link></div>
-          <div className="mx-2"><Link href="/barn"><a><span className="text-bold">Barn</span></a></Link></div>
-          <div className="mx-2"><Link href="/bank"><a><span className="text-bold">Bank</span></a></Link></div>
+          <div className={`px-2 rounded-sm ${asPath === '/' && 'bg-green-200'}`}><Link href="/"><a><span className="text-bold">Fields</span></a></Link></div>
+          <div className={`px-2 rounded-sm ${asPath === '/shop' && 'bg-green-200'}`}><Link href="/shop"><a><span className="text-bold">Shop</span></a></Link></div>
+          <div className={`px-2 rounded-sm ${asPath === '/barn' && 'bg-green-200'}`}><Link href="/barn"><a><span className="text-bold">Barn</span></a></Link></div>
+          <div className={`px-2 rounded-sm ${asPath === '/bank' && 'bg-green-200'}`}><Link href="/bank"><a><span className="text-bold">Bank</span></a></Link></div>
         </div>
         <div className="flex w-1/3 items-bottom justify-end items-center pr-10">
           <span className="font-bold">{wallet?.address}</span>

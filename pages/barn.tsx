@@ -89,7 +89,7 @@ const Barn: NextPage = () => {
           <div className="w-2/3 text-right px-10">{cornBadgeBalance}</div>
         </div>
         <div className="flex justify-start items-start my-5">
-          <div className="text-xl">Craft badge (nft)</div>
+          <div className="text-xl">Craft badge (NFT)</div>
         </div>
         <div className="mb-2 mt-4">
           <div className="my-2">Ingredients</div>

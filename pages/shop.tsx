@@ -44,8 +44,9 @@ const Shop: NextPage = () => {
   return (
     <main className="flex flex-col items-center justify-top w-full h-full flex-1">
       <div className="w-96 mt-20">
-        <div className="flex justify-start items-start my-5">
+        <div className="flex flex-col justify-start items-start my-5">
           <div className="text-2xl">Shop</div>
+          <div>(all seeds 1USDT)</div>
         </div>
         <div className="flex flex-row bg-green-200 w-96 py-5 rounded-sm">
           <div className="font-bold w-1/3 text-center">Potato seeds</div>

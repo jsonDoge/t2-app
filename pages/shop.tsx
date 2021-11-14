@@ -5,6 +5,7 @@ import { buySeed, getSeedBalance } from '../services/shop';
 import plantTypes from '../constants/plantTypes';
 import Button from '../components/button';
 import Spinner from '../components/spinner';
+import { toSentenceCase } from '../services/utils';
 
 const Shop: NextPage = () => {
   const { isLoading: isLoadingWallet, wallet }: IWalletContext = useWallet();
@@ -65,7 +66,9 @@ const Shop: NextPage = () => {
             <div className="w-1/3 text-left">
               <div>
                 <select onChange={(e) => { setSeedType(e.target.value); }} value={seedType}>
-                  { Object.values(plantTypes).map((v) => (<option key={v}>{v}</option>))}
+                  { Object.values(plantTypes).map((v) => (
+                    <option key={v} value={v}>{toSentenceCase(v)}</option>
+                  ))}
                 </select>
               </div>
             </div>

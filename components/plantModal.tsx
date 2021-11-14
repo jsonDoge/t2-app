@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toSentenceCase } from '../services/utils';
 
 import Button from './button';
 
@@ -38,7 +39,9 @@ const PlantModal: React.FC<Props> = ({
                 <div className="mt-2">
                   <p>
                     <select onChange={(e) => { setSeedType(e.target.value); }} value={seedType}>
-                      { seedTypes.map((v) => (<option key={v}>{v}</option>))}
+                      { seedTypes.map((v) => (
+                        <option key={v} value={v}>{toSentenceCase(v)}</option>
+                      ))}
                     </select>
                   </p>
                   <p className="text-sm text-gray-500">

@@ -5,6 +5,7 @@ import { craftBadge, getBadgeBalance, getProductBalance } from '../services/barn
 import plantTypes from '../constants/plantTypes';
 import Button from '../components/button';
 import Spinner from '../components/spinner';
+import { toSentenceCase } from '../services/utils';
 
 const Barn: NextPage = () => {
   const { isLoading: isLoadingWallet, wallet }: IWalletContext = useWallet();
@@ -96,17 +97,23 @@ const Barn: NextPage = () => {
           <div className="grid grid-cols-3 gap-3 bg-green-200 py-3 rounded-sm">
             <div className="text-center">
               <select onChange={(e) => { setPlantType0(e.target.value); }} value={plantType0}>
-                { Object.values(plantTypes).map((v) => (<option key={v}>{v}</option>))}
+                { Object.values(plantTypes).map((v) => (
+                  <option key={v} value={v}>{toSentenceCase(v)}</option>
+                ))}
               </select>
             </div>
             <div className="text-center">
               <select onChange={(e) => { setPlantType1(e.target.value); }} value={plantType1}>
-                { Object.values(plantTypes).map((v) => (<option key={v}>{v}</option>))}
+                { Object.values(plantTypes).map((v) => (
+                  <option key={v} value={v}>{toSentenceCase(v)}</option>
+                ))}
               </select>
             </div>
             <div className="text-center">
               <select onChange={(e) => { setPlantType2(e.target.value); }} value={plantType2}>
-                { Object.values(plantTypes).map((v) => (<option key={v}>{v}</option>))}
+                { Object.values(plantTypes).map((v) => (
+                  <option key={v} value={v}>{toSentenceCase(v)}</option>
+                ))}
               </select>
             </div>
           </div>

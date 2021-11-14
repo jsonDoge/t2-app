@@ -78,6 +78,7 @@ const Home: NextPage = () => {
     }
     setIsLoading(false);
     setIsBuyPlotModalShown(false);
+    getUserPlots(wallet?.address).then(setUserPlots);
     reLoadGrid();
   };
 

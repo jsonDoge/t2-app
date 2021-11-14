@@ -180,7 +180,7 @@ const Home: NextPage = () => {
         />
       </div>
       <div className="my-2">
-        <div>Color map</div>
+        <div>Plot colors</div>
         <div className="flex flex-row gap-2">
           <div className="bg-green-200 px-2">Not owned</div>
           <div className="bg-yellow-200 px-2">Owned by Others</div>

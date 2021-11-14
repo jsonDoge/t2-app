@@ -8,6 +8,7 @@ import Button from '../components/button';
 import { IWalletContext, useWallet } from '../context/wallet';
 import plantTypes from '../constants/plantTypes';
 import FieldGrid from '../components/fieldGrid';
+import PlantModal from '../components/plantModal';
 
 const Home: NextPage = () => {
   const { isLoading: isWalletLoading, wallet }: IWalletContext = useWallet();
@@ -66,9 +67,9 @@ const Home: NextPage = () => {
     reLoadGrid();
   };
 
-  const onPlantConfirm = async () => {
+  const onPlantConfirm = async (seedType: string) => {
     if (isWalletLoading || !wallet?.privateKey) { return; }
-    await plant(selectedPlot.x, selectedPlot.y, plantTypes.POTATO, wallet?.privateKey);
+    await plant(selectedPlot.x, selectedPlot.y, seedType, wallet?.privateKey);
     setIsPlantModalShown(false);
     reLoadGrid();
   };
@@ -131,18 +132,27 @@ const Home: NextPage = () => {
         </div>
       </div>
       <div className="mt-5">
-      <FieldGrid
-        centerX={gridCenterX}
-        centerY={gridCenterY}
-        walletAddress={wallet?.address}
-        onError={setError}
-        onSelect={onPlotSelect}
-      />
+        <FieldGrid
+          centerX={gridCenterX}
+          centerY={gridCenterY}
+          walletAddress={wallet?.address}
+          onError={setError}
+          onSelect={onPlotSelect}
+        />
       </div>
+      <div className="my-2">
+        <div>Color map</div>
+        <div className="flex flex-row gap-2">
+          <div className="bg-green-200 px-2">Not owned</div>
+          <div className="bg-yellow-200 px-2">Owned</div>
+          <div className="bg-blue-200 px-2">Yours</div>
+        </div>
+      </div>
+      <div className="mt-8 w-full">
         <h2 className="text-3xl font-bold">Your owned plots</h2>
         {
           userPlots.map((plot) => (
-            <div>
+            <div key={plot.x.toString() + plot.y.toString()}>
               {`[X : ${plot.x} Y : ${plot.y}]`}
             </div>
           ))
@@ -161,12 +171,13 @@ const Home: NextPage = () => {
       )}
       {isPlantModalShown
       && (
-        <Modal
-          title="Plant Potato?"
-          description={`You are about to plant a potato at [X : ${selectedPlot.x} | Y : ${selectedPlot.y}]`}
+        <PlantModal
+          title="Plant seed?"
+          seedTypes={Object.values(plantTypes)}
+          description={`You are about to plant at [X : ${selectedPlot.x} | Y : ${selectedPlot.y}]`}
           confirmText="Plant"
           cancelText="Regret forever"
-          onConfirm={() => onPlantConfirm()}
+          onConfirm={(seedType) => onPlantConfirm(seedType)}
           onCancel={() => hideModal()}
         />
       )}

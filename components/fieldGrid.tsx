@@ -108,7 +108,7 @@ const FieldGrid: React.FC<Props> = ({
   }, [centerX, centerY, walletAddress]);
 
   return (
-    <div className="mt-10">
+    <div>
       <div className="grid grid-cols-12">
         <div className="grid-cols-1" />
         <div className={`grid gap-1 col-span-11 grid-cols-${gridXAxis.length}`}>

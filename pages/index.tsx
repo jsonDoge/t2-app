@@ -130,6 +130,7 @@ const Home: NextPage = () => {
           <Button onClick={() => reLoadGrid()}>Load</Button>
         </div>
       </div>
+      <div className="mt-5">
       <FieldGrid
         centerX={gridCenterX}
         centerY={gridCenterY}
@@ -137,7 +138,7 @@ const Home: NextPage = () => {
         onError={setError}
         onSelect={onPlotSelect}
       />
-      <div className="mt-5 w-full border-t border-blue-200">
+      </div>
         <h2 className="text-3xl font-bold">Your owned plots</h2>
         {
           userPlots.map((plot) => (

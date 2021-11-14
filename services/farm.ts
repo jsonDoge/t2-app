@@ -1,4 +1,4 @@
-import { Contract } from 'ethers';
+import { Contract, BigNumber } from 'ethers';
 import getConfig from 'next/config';
 
 // services
@@ -74,12 +74,21 @@ export const harvest = async (x: number, y: number, privateKey: string) => {
 };
 
 export const getUserPlots = async (address: string): Promise<({ x: number, y: number })[]> => {
+  const farmContract: Contract = getContract(
+    publicRuntimeConfig.C_FARM, ContractTypes.FARM, { isSignerRequired: false },
+  );
   const plotContract: Contract = getContract(
     publicRuntimeConfig.C_PLOT, ContractTypes.PLOT, { isSignerRequired: false },
   );
 
   const plotsOwnedCount = await plotContract.balanceOf(address);
-  const plotsOwned: ({ x: number, y: number })[] = [];
+  const plantsOwned = await farmContract.getUserPlantIds(address);
+  let plotsOwned: ({ x: number, y: number })[] = [];
+
+  const plantCoordinates = plantsOwned
+    .map((p: BigNumber) => getCoordinatesFromPlotId(p.toNumber()));
+  plotsOwned = plotsOwned.concat(plantCoordinates);
+
   for (let i = 0; i <= plotsOwnedCount - 1; i += 1) {
     // eslint-disable-next-line no-await-in-loop
     const plotIdBn = await plotContract.tokenOfOwnerByIndex(address, i);

@@ -17,7 +17,7 @@ const Layout: NextPage = ({ children }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <header className="flex flex-row h-16">
-        <div className="flex w-1/3 justify-start items-center pt-2">
+        <div className="flex flex-col w-1/3 justify-center items-start pt-2">
           <h1 className="text-3xl font-bold pl-3">
             TokenToken farm
           </h1>

@@ -38,12 +38,13 @@ const Barn: NextPage = () => {
   }, [isLoadingWallet, wallet?.address]);
 
   const onBadgeCraft = async () => {
+    setError('');
     if (!wallet?.privateKey) { return; }
     setIsLoading(true);
     try {
       await craftBadge(plantType0, plantType1, plantType2, wallet?.privateKey);
     } catch (e) {
-      setError('Craft failed');
+      setError('Craft failed or non-existent combo');
       setIsLoading(false);
       return;
     }

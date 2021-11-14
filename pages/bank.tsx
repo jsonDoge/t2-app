@@ -12,6 +12,7 @@ const Bank: NextPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const getLoan = async () => {
+    setError('');
     if (!wallet?.address || !wallet?.privateKey) { return; }
     setIsLoading(true);
     try {

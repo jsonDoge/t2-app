@@ -47,7 +47,7 @@ export const craftBadge = async (
   const productAddress2 = getProductAddress(plantType2);
 
   const allowancePerProduct = [productAddress0, productAddress1, productAddress2]
-    .reduce((a: any, c: string) => ({ ...a, c: (a[c] || 0) + 1 }), {});
+    .reduce((a: any, c: string) => ({ ...a, [c]: (a[c] || 0) + 1 }), {});
 
   // eslint-disable-next-line no-restricted-syntax
   for (const productAddress of Object.keys(allowancePerProduct)) {

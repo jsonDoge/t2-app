@@ -65,6 +65,7 @@ const Home: NextPage = () => {
   };
 
   const onBuyPlotConfirm = async () => {
+    setError('');
     if (isWalletLoading || !wallet?.privateKey) { return; }
     setIsLoading(true);
     try {
@@ -73,7 +74,6 @@ const Home: NextPage = () => {
       setIsLoading(false);
       setIsBuyPlotModalShown(false);
       setError('Buy failed, check if you have enough USDT funds');
-      setTimeout(() => setError(''), 5000);
       return;
     }
     setIsLoading(false);
@@ -82,6 +82,7 @@ const Home: NextPage = () => {
   };
 
   const onPlantConfirm = async (seedType: string) => {
+    setError('');
     if (isWalletLoading || !wallet?.privateKey) { return; }
     setIsLoading(true);
     try {
@@ -90,7 +91,6 @@ const Home: NextPage = () => {
       setIsLoading(false);
       setIsPlantModalShown(false);
       setError('Planting failed, check if you have necessary seed');
-      setTimeout(() => setError(''), 5000);
       return;
     }
     setIsLoading(false);
@@ -99,6 +99,7 @@ const Home: NextPage = () => {
   };
 
   const onHarvestConfirm = async () => {
+    setError('');
     if (isWalletLoading || !wallet?.privateKey) { return; }
     setIsLoading(true);
     try {
@@ -107,7 +108,6 @@ const Home: NextPage = () => {
       setIsLoading(false);
       setIsHarvestModalShown(false);
       setError('Harvest failed :(');
-      setTimeout(() => setError(''), 5000);
       return;
     }
     setIsLoading(false);

@@ -9,14 +9,17 @@ import { IWalletContext, useWallet } from '../context/wallet';
 import plantTypes from '../constants/plantTypes';
 import FieldGrid from '../components/fieldGrid';
 import PlantModal from '../components/plantModal';
+import Spinner from '../components/spinner';
 
 const Home: NextPage = () => {
   const { isLoading: isWalletLoading, wallet }: IWalletContext = useWallet();
+  const [isLoading, setIsLoading] = useState(false);
 
   const [selectedPlot, selectPlot] = useState({ x: 0, y: 0 });
   const [error, setError] = useState('');
   const [centerX, setCenterX] = useState(2);
   const [centerY, setCenterY] = useState(2);
+  const [gridRefreshCounter, setGridRefreshCounter] = useState(0);
   const [gridCenterX, setGridCenterX] = useState(2);
   const [gridCenterY, setGridCenterY] = useState(2);
   const [userPlots, setUserPlots] = useState([] as ({ x: number, y: number })[]);
@@ -58,25 +61,56 @@ const Home: NextPage = () => {
     setError('');
     setGridCenterX(centerX);
     setGridCenterY(centerY);
+    setGridRefreshCounter(gridRefreshCounter + 1);
   };
 
   const onBuyPlotConfirm = async () => {
     if (isWalletLoading || !wallet?.privateKey) { return; }
-    await buyPlot(selectedPlot.x, selectedPlot.y, wallet?.privateKey);
+    setIsLoading(true);
+    try {
+      await buyPlot(selectedPlot.x, selectedPlot.y, wallet?.privateKey);
+    } catch (e) {
+      setIsLoading(false);
+      setIsBuyPlotModalShown(false);
+      setError('Buy failed, check if you have enough USDT funds');
+      setTimeout(() => setError(''), 5000);
+      return;
+    }
+    setIsLoading(false);
     setIsBuyPlotModalShown(false);
     reLoadGrid();
   };
 
   const onPlantConfirm = async (seedType: string) => {
     if (isWalletLoading || !wallet?.privateKey) { return; }
-    await plant(selectedPlot.x, selectedPlot.y, seedType, wallet?.privateKey);
+    setIsLoading(true);
+    try {
+      await plant(selectedPlot.x, selectedPlot.y, seedType, wallet?.privateKey);
+    } catch (e) {
+      setIsLoading(false);
+      setIsPlantModalShown(false);
+      setError('Planting failed, check if you have necessary seed');
+      setTimeout(() => setError(''), 5000);
+      return;
+    }
+    setIsLoading(false);
     setIsPlantModalShown(false);
     reLoadGrid();
   };
 
   const onHarvestConfirm = async () => {
     if (isWalletLoading || !wallet?.privateKey) { return; }
-    await harvest(selectedPlot.x, selectedPlot.y, wallet?.privateKey);
+    setIsLoading(true);
+    try {
+      await harvest(selectedPlot.x, selectedPlot.y, wallet?.privateKey);
+    } catch (e) {
+      setIsLoading(false);
+      setIsHarvestModalShown(false);
+      setError('Harvest failed :(');
+      setTimeout(() => setError(''), 5000);
+      return;
+    }
+    setIsLoading(false);
     setIsHarvestModalShown(false);
     reLoadGrid();
   };
@@ -97,10 +131,10 @@ const Home: NextPage = () => {
   return (
     <main className="flex flex-col items-center justify-top w-full h-full flex-1 px-20 mt-20 text-center">
       <div className="mb-2">
-        <span>Farm field coordinates [0-999]</span>
+        <span>Farm fields - coordinates [0-999]</span>
       </div>
       <div className="mb-2">
-        { error && <span className="text-red-500">{error}</span>}
+        { error && <div className="text-red-500">{error}</div>}
       </div>
       <div className="flex flex-row items-center justify-center">
         <div className="mx-2">
@@ -138,6 +172,7 @@ const Home: NextPage = () => {
           walletAddress={wallet?.address}
           onError={setError}
           onSelect={onPlotSelect}
+          refreshCounter={gridRefreshCounter}
         />
       </div>
       <div className="my-2">
@@ -166,7 +201,7 @@ const Home: NextPage = () => {
         <Modal
           title="Buy land plot?"
           description={`You are about to buy plot located at [X : ${selectedPlot.x} | Y : ${selectedPlot.y}]`}
-          confirmText="Buy"
+          confirmText={isLoading ? <Spinner /> : 'Buy'}
           cancelText="Cancel"
           onConfirm={() => onBuyPlotConfirm()}
           onCancel={() => hideModal()}
@@ -178,7 +213,7 @@ const Home: NextPage = () => {
           title="Plant seed?"
           seedTypes={Object.values(plantTypes)}
           description={`You are about to plant at [X : ${selectedPlot.x} | Y : ${selectedPlot.y}]`}
-          confirmText="Plant"
+          confirmText={isLoading ? <Spinner /> : 'Plant'}
           cancelText="Regret forever"
           onConfirm={(seedType) => onPlantConfirm(seedType)}
           onCancel={() => hideModal()}
@@ -189,7 +224,7 @@ const Home: NextPage = () => {
         <Modal
           title="Harvest Potato?"
           description={`You are about to harvest a potato at [X : ${selectedPlot.x} | Y : ${selectedPlot.y}]`}
-          confirmText="Harvest"
+          confirmText={isLoading ? <Spinner /> : 'Harvest'}
           cancelText="Cancel"
           onConfirm={() => onHarvestConfirm()}
           onCancel={() => hideModal()}

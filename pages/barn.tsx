@@ -45,6 +45,7 @@ const Barn: NextPage = () => {
     } catch (e) {
       setError('Craft failed');
       setIsLoading(false);
+      return;
     }
     refreshBalances(wallet?.address);
     setIsLoading(false);

@@ -6,7 +6,7 @@ interface Props {
   title: string,
   seedTypes: string[],
   description: string,
-  confirmText: string,
+  confirmText: string | JSX.Element,
   cancelText?: string,
   onConfirm: (seedType: string) => void,
   onCancel?: () => void

@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { getPlotInfo } from '../services/farm';
 import { Plot, PlotInfo } from '../services/utils';
+import Spinner from './spinner';
 
 interface Props {
   centerX: number,
   centerY: number,
   walletAddress: string | undefined,
+  refreshCounter: number,
   onSelect: (
     x: number,
     y: number,
@@ -17,8 +19,9 @@ interface Props {
 }
 
 const FieldGrid: React.FC<Props> = ({
-  centerX, centerY, walletAddress, onSelect, onError,
+  centerX, centerY, walletAddress, refreshCounter, onSelect, onError,
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [grid, setGrid] = useState([] as JSX.Element[]);
   const [gridXAxis, setGridXAxis] = useState([] as JSX.Element[]);
   const [gridYAxis, setGridYAxis] = useState([] as JSX.Element[]);
@@ -79,6 +82,7 @@ const FieldGrid: React.FC<Props> = ({
       onError('Invalid coordinates has to be between 999 and 0');
       return;
     }
+    setIsLoading(true);
 
     setGrid([]);
     setGridYAxis([]);
@@ -100,12 +104,13 @@ const FieldGrid: React.FC<Props> = ({
     setGridXAxis(generateGridAxis(centerX, true));
     setGridYAxis(generateGridAxis(centerY, false));
     setGrid(generateGrid(plots));
+    setIsLoading(false);
   };
 
   useEffect(() => {
     if (!walletAddress) { return; }
     loadGrid();
-  }, [centerX, centerY, walletAddress]);
+  }, [centerX, centerY, walletAddress, refreshCounter]);
 
   return (
     <div>
@@ -119,6 +124,7 @@ const FieldGrid: React.FC<Props> = ({
         <div className="grid col-span-1 grid-cols-1 gap-1">{ gridYAxis }</div>
         <div className={`grid gap-1 col-span-11 grid-cols-${gridXAxis.length}`}>
           { grid }
+          { isLoading && <div className="flex flex-col justify-center h-96"><Spinner /></div>}
         </div>
       </div>
       <div className="grid-cols-5 grid-cols-4" />

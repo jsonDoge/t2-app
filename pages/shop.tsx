@@ -30,6 +30,7 @@ const Shop: NextPage = () => {
     } catch (e) {
       setError('Buying failed');
       setIsLoading(false);
+      return;
     }
     refreshBalances(wallet.address);
     setIsLoading(false);

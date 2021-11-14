@@ -5,7 +5,7 @@ import Button from './button';
 interface Props {
   title: string,
   description: string,
-  confirmText: string,
+  confirmText: string | JSX.Element,
   cancelText?: string,
   onConfirm: () => void,
   onCancel?: () => void

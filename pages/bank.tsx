@@ -19,6 +19,7 @@ const Bank: NextPage = () => {
     } catch (e) {
       setError('Buying failed');
       setIsLoading(false);
+      return;
     }
     await getStableTokenBalance(wallet.address).then(setbalance);
     setIsLoading(false);

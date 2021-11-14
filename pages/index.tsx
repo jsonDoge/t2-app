@@ -97,7 +97,7 @@ const Home: NextPage = () => {
   return (
     <main className="flex flex-col items-center justify-top w-full h-full flex-1 px-20 mt-20 text-center">
       <div className="mb-2">
-        <span>Farm field coordinates</span>
+        <span>Farm field coordinates [0-999]</span>
       </div>
       <div className="mb-2">
         { error && <span className="text-red-500">{error}</span>}
@@ -144,7 +144,7 @@ const Home: NextPage = () => {
         <div>Color map</div>
         <div className="flex flex-row gap-2">
           <div className="bg-green-200 px-2">Not owned</div>
-          <div className="bg-yellow-200 px-2">Owned</div>
+          <div className="bg-yellow-200 px-2">Owned by Others</div>
           <div className="bg-blue-200 px-2">Yours</div>
         </div>
       </div>

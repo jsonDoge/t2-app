@@ -17,15 +17,9 @@ const PlantModal: React.FC<Props> = ({
 }) => {
   const [seedType, setSeedType] = useState(seedTypes[0]);
 
-  const confirm = () => {
-    if (onConfirm) { onConfirm(seedType); }
-    setSeedType(seedTypes[0]);
-  };
+  const confirm = () => onConfirm && onConfirm(seedType);
 
-  const cancel = () => {
-    if (onCancel) { onCancel(); }
-    setSeedType(seedTypes[0]);
-  };
+  const cancel = () => onCancel && onCancel();
 
   return (
     <div className="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">

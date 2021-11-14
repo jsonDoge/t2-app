@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import plantTypes from '../constants/plantTypes';
 import { getPlotInfo } from '../services/farm';
 import { Plot, PlotInfo } from '../services/utils';
 import Spinner from './spinner';
@@ -25,6 +26,19 @@ const FieldGrid: React.FC<Props> = ({
   const [grid, setGrid] = useState([] as JSX.Element[]);
   const [gridXAxis, setGridXAxis] = useState([] as JSX.Element[]);
   const [gridYAxis, setGridYAxis] = useState([] as JSX.Element[]);
+
+  const getPlantTypeEmoji = (plantType: string) => {
+    switch (plantType) {
+      case plantTypes.POTATO:
+        return '🥔🥔🥔🥔🥔';
+      case plantTypes.CARROT:
+        return '🥕🥕🥕🥕🥕';
+      case plantTypes.CORN:
+        return '🌽🌽🌽🌽🌽';
+      default:
+        return '';
+    }
+  };
 
   const getAllCoordinatesAround = (x: number, y: number) => {
     const coordinates = [];
@@ -57,7 +71,7 @@ const FieldGrid: React.FC<Props> = ({
           className={`flex h-20 w-20 items-center justify-center ${color}`}
           onClick={() => onSelect(p.x, p.y, isOwner, isPlantOwner, isUnminted)}
         >
-          { p?.plant?.type || '' }
+          { p?.plant?.type ? getPlantTypeEmoji(p?.plant?.type) : '' }
         </button>
       );
     });

@@ -157,6 +157,9 @@ const Home: NextPage = () => {
             </div>
           ))
         }
+        {userPlots.length === 0 && (
+          <div>You don&apos;t own any plots YET, go take a loan from the bank and buy some!</div>
+        )}
       </div>
       {isBuyPlotModalShown
       && (

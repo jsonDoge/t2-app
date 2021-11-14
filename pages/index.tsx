@@ -227,8 +227,8 @@ const Home: NextPage = () => {
       {isHarvestModalShown
       && (
         <Modal
-          title="Harvest Potato?"
-          description={`You are about to harvest a potato at [X : ${selectedPlot.x} | Y : ${selectedPlot.y}]`}
+          title="Harvest?"
+          description={`You are about to harvest at [X : ${selectedPlot.x} | Y : ${selectedPlot.y}]`}
           confirmText={isLoading ? <Spinner /> : 'Harvest'}
           cancelText="Cancel"
           onConfirm={() => onHarvestConfirm()}

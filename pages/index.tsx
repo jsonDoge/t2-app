@@ -145,7 +145,9 @@ const Home: NextPage = () => {
               name="coordinateX"
               className="input"
               type="number"
-              onChange={(e) => setCenterX(parseInt(e.target.value, 10))}
+              value={centerX}
+              onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setCenterX(parseInt(e.target.value, 10))}
             />
           </label>
         </div>
@@ -157,7 +159,9 @@ const Home: NextPage = () => {
               name="coordinateY"
               className="input"
               type="number"
-              onChange={(e) => setCenterY(parseInt(e.target.value, 10))}
+              value={centerY}
+              onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setCenterY(parseInt(e.target.value, 10))}
             />
           </label>
         </div>

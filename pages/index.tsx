@@ -10,6 +10,7 @@ import plantTypes from '../constants/plantTypes';
 import FieldGrid from '../components/fieldGrid';
 import PlantModal from '../components/plantModal';
 import Spinner from '../components/spinner';
+import Input from '../components/input';
 
 const Home: NextPage = () => {
   const { isLoading: isWalletLoading, wallet }: IWalletContext = useWallet();
@@ -132,45 +133,45 @@ const Home: NextPage = () => {
   return (
     <main className="flex flex-col items-center justify-top w-full h-full flex-1 px-20 mt-20 text-center">
       <div className="mb-2">
-        <span>Farm plots - coordinates [0-999]</span>
-      </div>
-      <div className="mb-2">
         { error && <div className="text-red-500">{error}</div>}
       </div>
-      <div className="flex flex-row items-center justify-center">
-        <div className="mx-2">
-          <label htmlFor="coordinateX">
-            X:
-            <input
+      <div className="flex flex-row gap-3 bg-green-200 p-5 rounded-sm">
+        <div className="flex flex-col items-center justify-center">
+          <div className="flex flex-row items-center justify-center gap-2 mb-2">
+            <div>
+              <label className="block text-gray-700 text-sm font-bold" htmlFor="coordinateX">
+                X
+              </label>
+            </div>
+            <Input
               id="coordinateX"
               name="coordinateX"
-              className="input"
               type="number"
               value={centerX}
               onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setCenterX(parseInt(e.target.value, 10))}
             />
-          </label>
-        </div>
-        <div className="mx-2">
-          <label htmlFor="coordinateY">
-            Y:
-            <input
+          </div>
+          <div className="flex flex-row items-center justify-center gap-2">
+            <label className="block text-gray-700 text-sm font-bold" htmlFor="coordinateY">
+              Y
+            </label>
+            <Input
               id="coordinateY"
               name="coordinateY"
-              className="input"
               type="number"
               value={centerY}
               onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setCenterY(parseInt(e.target.value, 10))}
             />
-          </label>
+          </div>
         </div>
         <div>
+          <div className="my-6" />
           <Button onClick={() => reLoadGrid()}>Load</Button>
         </div>
       </div>
-      <div className="mt-5">
+      <div className="my-5">
         <FieldGrid
           centerX={gridCenterX}
           centerY={gridCenterY}

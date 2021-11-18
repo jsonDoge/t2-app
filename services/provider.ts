@@ -10,6 +10,11 @@ let provider: ethers.providers.JsonRpcProvider;
  */
 const startConnection = (): ethers.providers.JsonRpcProvider => {
   provider = new ethers.providers.JsonRpcProvider(publicRuntimeConfig.ETH_PROVIDER, 420);
+
+  if (!provider) {
+    throw new Error('provider not found');
+  }
+
   return provider;
 };
 

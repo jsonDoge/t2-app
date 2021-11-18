@@ -1,14 +1,25 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import PropTypes from 'prop-types';
 import { useWallet } from '../context/wallet';
+import { getCurrentBlockNumber } from '../services/web3Utils';
 
 const Layout: NextPage = ({ children }) => {
   const { wallet } = useWallet();
   const { asPath } = useRouter();
+
+  const [blockNumber, setBlockNumber] = useState(0);
+
+  useEffect(() => {
+    getCurrentBlockNumber().then(setBlockNumber);
+
+    setInterval(() => {
+      getCurrentBlockNumber().then(setBlockNumber);
+    }, 60000);
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-green-100">
@@ -29,7 +40,18 @@ const Layout: NextPage = ({ children }) => {
           <div className={`px-2 rounded-sm ${asPath === '/bank' && 'bg-green-200'}`}><Link href="/bank"><a><span className="text-bold">Bank</span></a></Link></div>
         </div>
         <div className="flex w-1/3 items-bottom justify-end items-center pr-10">
-          <span className="font-bold">{wallet?.address}</span>
+          <div className="font-bold mr-5">
+            <div className="inline mr-1">
+              Block:
+            </div>
+            <div className="inline">
+              {blockNumber}
+            </div>
+          </div>
+          <div className="font-bold">
+            0x...
+            {wallet?.address.substr(38, 4)}
+          </div>
         </div>
       </header>
       { children }

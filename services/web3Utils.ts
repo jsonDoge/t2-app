@@ -1,4 +1,4 @@
-import { Contract, Wallet } from 'ethers';
+import { Contract, Wallet, providers } from 'ethers';
 
 // services
 import getProvider from './provider';
@@ -32,10 +32,6 @@ export const getContract = (
 ) => {
   const web3Provider = getProvider();
 
-  if (!web3Provider) {
-    throw new Error('provider not found');
-  }
-
   if (options.isSignerRequired && !options.privateKey) {
     throw new Error('wallet key not provided');
   }
@@ -61,8 +57,6 @@ export const getContract = (
 export const getBalance = (address: string) => {
   const web3Provider = getProvider();
 
-  if (!web3Provider) return null;
-
   return web3Provider.getBalance(address);
 };
 
@@ -78,3 +72,9 @@ export const getErc20Balance = (
 };
 
 export const generateWallet = () => Wallet.createRandom();
+
+export const getCurrentBlockNumber = async (): Promise<number> => {
+  const web3Provider: providers.JsonRpcProvider = getProvider();
+
+  return web3Provider.getBlockNumber();
+};

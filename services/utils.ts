@@ -19,10 +19,10 @@ export interface PlotInfo {
   owner: string,
 }
 
-export const getBadgeAddress = (type: string): string => {
-  const badgeAddress: string = publicRuntimeConfig[`C_${type}_BADGE`] || '';
-  if (badgeAddress.length === 0) { throw new Error('invalid plant type'); }
-  return badgeAddress;
+export const getDishAddress = (type: string): string => {
+  const dishAddress: string = publicRuntimeConfig[`C_${type}_DISH`] || '';
+  if (dishAddress.length === 0) { throw new Error('invalid plant type'); }
+  return dishAddress;
 };
 
 export const getProductAddress = (type: string): string => {

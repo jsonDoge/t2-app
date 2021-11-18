@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import { IWalletContext, useWallet } from '../context/wallet';
-import { craftBadge, getBadgeBalance, getProductBalance } from '../services/barn';
+import { craftDish, getDishBalance, getProductBalance } from '../services/barn';
 import plantTypes from '../constants/plantTypes';
 import Button from '../components/button';
 import Spinner from '../components/spinner';
@@ -15,9 +15,9 @@ const Barn: NextPage = () => {
   const [potatoBalance, setPotatoBalance] = useState(0);
   const [carrotBalance, setCarrotBalance] = useState(0);
   const [cornBalance, setCornBalance] = useState(0);
-  const [potatoBadgeBalance, setPotatoBadgeBalance] = useState(0);
-  const [carrotBadgeBalance, setCarrotBadgeBalance] = useState(0);
-  const [cornBadgeBalance, setCornBadgeBalance] = useState(0);
+  const [potatoDishBalance, setPotatoDishBalance] = useState(0);
+  const [carrotDishBalance, setCarrotDishBalance] = useState(0);
+  const [cornDishBalance, setCornDishBalance] = useState(0);
   const [plantType0, setPlantType0] = useState(plantTypes.CARROT);
   const [plantType1, setPlantType1] = useState(plantTypes.CARROT);
   const [plantType2, setPlantType2] = useState(plantTypes.CARROT);
@@ -27,9 +27,9 @@ const Barn: NextPage = () => {
     getProductBalance(walletAddress, plantTypes.CARROT).then(setCarrotBalance);
     getProductBalance(walletAddress, plantTypes.CORN).then(setCornBalance);
 
-    getBadgeBalance(walletAddress, plantTypes.POTATO).then(setPotatoBadgeBalance);
-    getBadgeBalance(walletAddress, plantTypes.CARROT).then(setCarrotBadgeBalance);
-    getBadgeBalance(walletAddress, plantTypes.CORN).then(setCornBadgeBalance);
+    getDishBalance(walletAddress, plantTypes.POTATO).then(setPotatoDishBalance);
+    getDishBalance(walletAddress, plantTypes.CARROT).then(setCarrotDishBalance);
+    getDishBalance(walletAddress, plantTypes.CORN).then(setCornDishBalance);
   };
 
   useEffect(() => {
@@ -38,12 +38,12 @@ const Barn: NextPage = () => {
     refreshBalances(wallet?.address);
   }, [isLoadingWallet, wallet?.address]);
 
-  const onBadgeCraft = async () => {
+  const onDishCraft = async () => {
     setError('');
     if (!wallet?.privateKey) { return; }
     setIsLoading(true);
     try {
-      await craftBadge(plantType0, plantType1, plantType2, wallet?.privateKey);
+      await craftDish(plantType0, plantType1, plantType2, wallet?.privateKey);
     } catch (e) {
       setError('Craft failed or non-existent combo');
       setIsLoading(false);
@@ -75,22 +75,22 @@ const Barn: NextPage = () => {
           <div className="w-2/3 text-right px-10">{cornBalance}</div>
         </div>
         <div className="flex justify-start items-start mt-4">
-          <div className="text-lg">Badges</div>
+          <div className="text-lg">Dishes</div>
         </div>
         <div className="flex flex-row bg-green-200 py-5 rounded-sm">
           <div className="font-bold w-1/3 text-center">3x Potato</div>
-          <div className="w-2/3 text-right px-10">{potatoBadgeBalance}</div>
+          <div className="w-2/3 text-right px-10">{potatoDishBalance}</div>
         </div>
         <div className="flex flex-row bg-green-200 py-5 mt-2 rounded-sm">
           <div className="font-bold w-1/3 text-center">3x Carrot</div>
-          <div className="w-2/3 text-right px-10">{carrotBadgeBalance}</div>
+          <div className="w-2/3 text-right px-10">{carrotDishBalance}</div>
         </div>
         <div className="flex flex-row bg-green-200 py-5 mt-2 rounded-sm">
           <div className="font-bold w-1/3 text-center">3x Corn</div>
-          <div className="w-2/3 text-right px-10">{cornBadgeBalance}</div>
+          <div className="w-2/3 text-right px-10">{cornDishBalance}</div>
         </div>
         <div className="flex justify-start items-start my-5">
-          <div className="text-xl">Craft badge (NFT)</div>
+          <div className="text-xl">Craft dish (NFT)</div>
         </div>
         <div className="mb-2 mt-4">
           <div className="my-2">Ingredients</div>
@@ -123,8 +123,8 @@ const Barn: NextPage = () => {
             {
               !isLoadingWallet
                 ? (
-                  <Button onClick={onBadgeCraft}>
-                    { !isLoading && <div>Try craft badge</div> }
+                  <Button onClick={onDishCraft}>
+                    { !isLoading && <div>Try craft dish</div> }
                     { isLoading && <Spinner /> }
                   </Button>
                 )

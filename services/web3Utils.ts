@@ -7,7 +7,7 @@ import getProvider from './provider';
 import ContractTypes from '../constants/contractTypes';
 
 // contract abis
-import badgeAbi from '../contracts/badge.abi.json';
+import dishAbi from '../contracts/dish.abi.json';
 import erc20Abi from '../contracts/erc20.abi.json';
 import plotAbi from '../contracts/plot.abi.json';
 import farmAbi from '../contracts/farm.abi.json';
@@ -51,8 +51,8 @@ export const getContract = (
       return new Contract(address, erc20Abi, web3ProviderOrSigner);
     case ContractTypes.PLOT:
       return new Contract(address, plotAbi, web3ProviderOrSigner);
-    case ContractTypes.BADGE:
-      return new Contract(address, badgeAbi, web3ProviderOrSigner);
+    case ContractTypes.DISH:
+      return new Contract(address, dishAbi, web3ProviderOrSigner);
     default:
       throw new Error('Unknown contract type');
   }

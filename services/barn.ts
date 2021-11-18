@@ -5,7 +5,7 @@ import { getContract } from './web3Utils';
 
 // constants
 import ContractTypes from '../constants/contractTypes';
-import { getBadgeAddress, getProductAddress } from './utils';
+import { getDishAddress, getProductAddress } from './utils';
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -23,21 +23,21 @@ export const getProductBalance = async (address: string, plantType: string): Pro
   return balance.toNumber();
 };
 
-export const getBadgeBalance = async (address: string, plantType: string): Promise<number> => {
-  const badgeAddress = getBadgeAddress(plantType);
+export const getDishBalance = async (address: string, plantType: string): Promise<number> => {
+  const dishAddress = getDishAddress(plantType);
 
   const options = { isSignerRequired: false };
-  const badge = getContract(
-    badgeAddress,
+  const dish = getContract(
+    dishAddress,
     ContractTypes.ERC20,
     options,
   );
 
-  const balance = await badge.balanceOf(address);
+  const balance = await dish.balanceOf(address);
   return balance.toNumber();
 };
 
-export const craftBadge = async (
+export const craftDish = async (
   plantType0: string, plantType1: string, plantType2: string, privateKey: string,
 ): Promise<void> => {
   const options = { isSignerRequired: true, privateKey };
@@ -69,7 +69,7 @@ export const craftBadge = async (
     options,
   );
 
-  await farm.convertProductsToBadge(
+  await farm.convertProductsToDish(
     productAddress0,
     productAddress1,
     productAddress2,

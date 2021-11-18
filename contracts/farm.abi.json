@@ -64,7 +64,7 @@
         "type": "address"
       }
     ],
-    "name": "convertProductsToBadge",
+    "name": "convertProductsToDish",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

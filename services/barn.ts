@@ -1,7 +1,7 @@
 import getConfig from 'next/config';
 
 // services
-import { getContract } from './web3Utils';
+import { getContract, waitTx } from './web3Utils';
 
 // constants
 import ContractTypes from '../constants/contractTypes';
@@ -58,9 +58,9 @@ export const craftDish = async (
     );
 
     // eslint-disable-next-line no-await-in-loop
-    await productContract.approve(
-      publicRuntimeConfig.C_FARM, allowancePerProduct[productAddress], { gasPrice: 0 },
-    );
+    await waitTx(productContract.approve(
+      publicRuntimeConfig.C_FARM, allowancePerProduct[productAddress],
+    ));
   }
 
   const farm = getContract(
@@ -69,10 +69,9 @@ export const craftDish = async (
     options,
   );
 
-  await farm.convertProductsToDish(
+  await waitTx(farm.convertProductsToDish(
     productAddress0,
     productAddress1,
     productAddress2,
-    { gasPrice: 0 },
-  );
+  ));
 };

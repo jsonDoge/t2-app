@@ -49,8 +49,14 @@ const Layout: NextPage = ({ children }) => {
             </div>
           </div>
           <div className="font-bold">
-            0x...
-            {wallet?.address.substr(38, 4)}
+            <span
+              onClick={() => navigator.clipboard.writeText(wallet?.address || '')}
+              onKeyPress={() => {}}
+              role="button"
+              tabIndex={0}
+            >
+              {`0x... ${wallet?.address.substr(38, 4)}`}
+            </span>
           </div>
         </div>
       </header>

@@ -3,13 +3,18 @@ import getConfig from 'next/config';
 
 const { publicRuntimeConfig } = getConfig();
 
-let provider: ethers.providers.JsonRpcProvider;
+let provider: ethers.providers.StaticJsonRpcProvider;
 
 /**
  * Triggered when provider's websocket is open.
  */
-const startConnection = (): ethers.providers.JsonRpcProvider => {
-  provider = new ethers.providers.JsonRpcProvider(publicRuntimeConfig.ETH_PROVIDER, 420);
+const startConnection = (): ethers.providers.StaticJsonRpcProvider => {
+  provider = new ethers.providers.StaticJsonRpcProvider(
+    publicRuntimeConfig.ETH_PROVIDER,
+    parseInt(publicRuntimeConfig.ETH_CHAIN_ID, 10),
+  );
+
+  provider.pollingInterval = 5000;
 
   if (!provider) {
     throw new Error('provider not found');

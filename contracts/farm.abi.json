@@ -116,7 +116,12 @@
           },
           {
             "internalType": "uint256",
-            "name": "timestamp",
+            "name": "plantedBlockNumber",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "overgrownBlockNumber",
             "type": "uint256"
           },
           {
@@ -128,6 +133,69 @@
         "internalType": "struct Farm.Plant",
         "name": "",
         "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "rightUpperCornerPlotId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getPlotView",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "seed",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "plotId",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "plantedBlockNumber",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "overgrownBlockNumber",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "_userPlantIdIndex",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct Farm.Plant",
+            "name": "plant",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct Farm.PlotView[25]",
+        "name": "",
+        "type": "tuple[25]"
       }
     ],
     "stateMutability": "view",
@@ -199,7 +267,12 @@
           },
           {
             "internalType": "uint256",
-            "name": "timestamp",
+            "name": "plantedBlockNumber",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "overgrownBlockNumber",
             "type": "uint256"
           },
           {

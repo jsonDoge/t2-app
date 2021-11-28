@@ -41,5 +41,10 @@ export const getPlotIdFromCoordinates = (x: number, y: number) => x + y * 1000;
 export const getCoordinatesFromPlotId = (plotId: number): { x: number, y: number } =>
   ({ x: plotId % 1000, y: Math.floor(plotId / 1000) });
 
+export const convertCenterToUpperLeftCorner = (x: number, y: number) => ({
+  x: x - 2 < 0 ? 0 : x - 2,
+  y: y - 2 < 0 ? 0 : y - 2,
+});
+
 export const toSentenceCase = (str: string): string =>
   str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();

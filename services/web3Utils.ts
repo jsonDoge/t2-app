@@ -78,3 +78,5 @@ export const getCurrentBlockNumber = async (): Promise<number> => {
 
   return web3Provider.getBlockNumber();
 };
+
+export const waitTx = async (tx: any): Promise<undefined> => (await tx).wait();

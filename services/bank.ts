@@ -1,7 +1,7 @@
 import getConfig from 'next/config';
 
 // services
-import { getContract } from './web3Utils';
+import { getContract, waitTx } from './web3Utils';
 
 // constants
 import ContractTypes from '../constants/contractTypes';
@@ -21,7 +21,7 @@ export const mintStableToken = async (address: string, privateKey: string) => {
     options,
   );
 
-  await stableToken.mint(address, 100, { gasPrice: 0 });
+  await waitTx(stableToken.mint(address, 100));
 };
 
 export const getStableTokenBalance = async (address: string): Promise<number> => {

@@ -2,7 +2,7 @@ import { Contract, BigNumber } from 'ethers';
 import getConfig from 'next/config';
 
 // services
-import { getContract } from './web3Utils';
+import { getContract, waitTx } from './web3Utils';
 import {
   getCoordinatesFromPlotId,
   getPlotIdFromCoordinates,
@@ -26,19 +26,19 @@ export const plant = async (x: number, y: number, type: string, privateKey: stri
     options,
   );
 
-  await seedContract.approve(publicRuntimeConfig.C_FARM, 1, { gasPrice: 0 });
+  await waitTx(seedContract.approve(publicRuntimeConfig.C_FARM, 1));
 
   const plot: Contract = getContract(
     publicRuntimeConfig.C_PLOT, ContractTypes.PLOT, { isSignerRequired: true, privateKey },
   );
 
   const plotId = getPlotIdFromCoordinates(x, y);
-  await plot.approve(publicRuntimeConfig.C_FARM, plotId, { gasPrice: 0 });
+  await waitTx(plot.approve(publicRuntimeConfig.C_FARM, plotId));
 
   const farm: Contract = getContract(
     publicRuntimeConfig.C_FARM, ContractTypes.FARM, { isSignerRequired: true, privateKey },
   );
-  await farm.plant(seedAddress, plotId, { gasPrice: 0 });
+  await waitTx(farm.plant(seedAddress, plotId));
 };
 
 export const buyPlot = async (x: number, y: number, privateKey: string) => {
@@ -55,10 +55,10 @@ export const buyPlot = async (x: number, y: number, privateKey: string) => {
     options,
   );
 
-  await stableToken.approve(publicRuntimeConfig.C_FARM, 1, { gasPrice: 0 });
+  await waitTx(stableToken.approve(publicRuntimeConfig.C_FARM, 1));
 
   const plotId = getPlotIdFromCoordinates(x, y);
-  await farm.buyPlot(plotId, { gasPrice: 0 });
+  await waitTx(farm.buyPlot(plotId));
 };
 
 export const harvest = async (x: number, y: number, privateKey: string) => {
@@ -70,7 +70,7 @@ export const harvest = async (x: number, y: number, privateKey: string) => {
   );
 
   const plotId = getPlotIdFromCoordinates(x, y);
-  await farm.harvest(plotId, { gasPrice: 0 });
+  await waitTx(farm.harvest(plotId));
 };
 
 export const getUserPlots = async (address: string): Promise<({ x: number, y: number })[]> => {
@@ -97,6 +97,32 @@ export const getUserPlots = async (address: string): Promise<({ x: number, y: nu
   return plotsOwned;
 };
 
+export const getPlotInfos = async (x: number, y: number): Promise<((PlotInfo | undefined)[])> => {
+  const farm: Contract = getContract(
+    publicRuntimeConfig.C_FARM, ContractTypes.FARM, { isSignerRequired: false },
+  );
+
+  const plotId = getPlotIdFromCoordinates(x, y);
+
+  const plots = await farm.getPlotView(plotId);
+
+  return plots.map((p: any) => {
+    if (p.owner === '0x0000000000000000000000000000000000000000') { return undefined; }
+
+    const plantType: string = Object.values(PlantTypes)
+      .filter((t) => publicRuntimeConfig[`C_${t}_SEED`]?.toLowerCase() === p.plant.seed.toLowerCase())[0];
+
+    return {
+      owner: p.owner.toLowerCase(),
+      plant: {
+        type: plantType,
+        owner: p.plant.owner.toLowerCase(),
+      },
+    };
+  });
+};
+
+// Depricated inefficient way
 export const getPlotInfo = async (x: number, y: number): Promise<(PlotInfo | undefined)> => {
   const farm: Contract = getContract(
     publicRuntimeConfig.C_FARM, ContractTypes.FARM, { isSignerRequired: false },

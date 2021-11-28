@@ -3,6 +3,7 @@ module.exports = {
   reactStrictMode: true,
   publicRuntimeConfig: {
     ETH_PROVIDER: process.env.ETH_PROVIDER,
+    ETH_CHAIN_ID: process.env.ETH_CHAIN_ID,
     C_STABLE_TOKEN: process.env.C_STABLE_TOKEN,
     C_FARM_SETTINGS: process.env.C_FARM_SETTINGS,
     C_FARM: process.env.C_FARM,
@@ -16,5 +17,7 @@ module.exports = {
     C_CARROT_SEED: process.env.C_CARROT_SEED,
     C_CARROT_PRODUCT: process.env.C_CARROT_PRODUCT,
     C_CARROT_DISH: process.env.C_CARROT_DISH,
+    C_WEED_PRODUCT: process.env.C_WEED_PRODUCT,
+    SEASON_DURATION_BLOCKS: process.env.SEASON_DURATION_BLOCKS,
   },
 };

@@ -1,7 +1,7 @@
 import getConfig from 'next/config';
 
 // services
-import { getContract } from './web3Utils';
+import { getContract, waitTx } from './web3Utils';
 
 // constants
 import ContractTypes from '../constants/contractTypes';
@@ -25,8 +25,8 @@ export const buySeed = async (plantType: string, privateKey: string) => {
     options,
   );
 
-  await stableToken.approve(publicRuntimeConfig.C_FARM, 1, { gasPrice: 0 });
-  await farm.buySeeds(seedAddress, 1, { gasPrice: 0 });
+  await waitTx(stableToken.approve(publicRuntimeConfig.C_FARM, 1));
+  await waitTx(farm.buySeeds(seedAddress, 1));
 };
 
 export const getSeedBalance = async (address: string, plantType: string): Promise<number> => {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import plantTypes from '../constants/plantTypes';
-import { getPlotInfo } from '../services/farm';
-import { Plot, PlotInfo } from '../services/utils';
+import { getPlotInfos } from '../services/farm';
+import { convertCenterToUpperLeftCorner, Plot, PlotInfo } from '../services/utils';
 import Spinner from './spinner';
 
 interface Props {
@@ -92,8 +92,8 @@ const FieldGrid: React.FC<Props> = ({
   };
 
   const loadGrid = async () => {
-    if (centerX > 999 || centerY > 999 || centerX < 0 || centerY < 0) {
-      onError('Invalid coordinates has to be between 999 and 0');
+    if (centerX > 997 || centerY > 997 || centerX < 2 || centerY < 2) {
+      onError('Invalid center coordinates has to be between 997 and 2');
       return;
     }
     setIsLoading(true);
@@ -102,11 +102,14 @@ const FieldGrid: React.FC<Props> = ({
     setGridYAxis([]);
     setGridXAxis([]);
 
+    const { x: cornerX, y: cornerY } = convertCenterToUpperLeftCorner(centerX, centerY);
     const coordinates = getAllCoordinatesAround(centerX, centerY);
 
-    const plotInfo: (PlotInfo | undefined)[] = await Promise.all(
-      coordinates.map((c) => getPlotInfo(c.x, c.y)),
-    );
+    const plotInfo: (PlotInfo | undefined)[] = await getPlotInfos(cornerX, cornerY);
+
+    // const plotInfo: (PlotInfo | undefined)[] = await Promise.all(
+    //   coordinates.map((c) => getPlotInfo(c.x, c.y)),
+    // );
 
     const plots = plotInfo.map((p, i) => {
       let plot: Plot = { ...coordinates[i] };

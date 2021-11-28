@@ -172,14 +172,16 @@ const Home: NextPage = () => {
         </div>
       </div>
       <div className="my-5">
-        <FieldGrid
-          centerX={gridCenterX}
-          centerY={gridCenterY}
-          walletAddress={wallet?.address}
-          onError={setError}
-          onSelect={onPlotSelect}
-          refreshCounter={gridRefreshCounter}
-        />
+        { process.browser && (
+          <FieldGrid
+            centerX={gridCenterX}
+            centerY={gridCenterY}
+            walletAddress={wallet?.address}
+            onError={setError}
+            onSelect={onPlotSelect}
+            refreshCounter={gridRefreshCounter}
+          />
+        )}
       </div>
       <div className="my-2">
         <div>Plot colors</div>

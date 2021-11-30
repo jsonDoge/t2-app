@@ -6,6 +6,7 @@ import Link from 'next/link';
 import PropTypes from 'prop-types';
 import { useWallet } from '../context/wallet';
 import { getCurrentBlockNumber } from '../services/web3Utils';
+import Background from './background';
 
 const Layout: NextPage = ({ children }) => {
   const { wallet } = useWallet();
@@ -22,12 +23,15 @@ const Layout: NextPage = ({ children }) => {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-green-100">
+    <div className="flex flex-col min-h-screen">
+      <div className="absolute z-0 min-h-screen w-screen">
+        <Background />
+      </div>
       <Head>
         <title>T2 Farm</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <header className="flex flex-row h-16">
+      <header className="flex flex-row h-16 z-10 bg-transparent">
         <div className="flex flex-col w-1/3 justify-center items-start pt-2">
           <h1 className="text-3xl font-bold pl-3">
             TokenToken farm
@@ -38,6 +42,7 @@ const Layout: NextPage = ({ children }) => {
           <div className={`px-2 rounded-sm ${asPath === '/shop' && 'bg-green-200'}`}><Link href="/shop"><a><span className="text-bold">Shop</span></a></Link></div>
           <div className={`px-2 rounded-sm ${asPath === '/barn' && 'bg-green-200'}`}><Link href="/barn"><a><span className="text-bold">Barn</span></a></Link></div>
           <div className={`px-2 rounded-sm ${asPath === '/bank' && 'bg-green-200'}`}><Link href="/bank"><a><span className="text-bold">Bank</span></a></Link></div>
+          <div className={`px-2 rounded-sm ${asPath === '/threeD' && 'bg-green-200'}`}><Link href="/threeD"><a><span className="text-bold">threeD</span></a></Link></div>
         </div>
         <div className="flex w-1/3 items-bottom justify-end items-center pr-10">
           <div className="font-bold mr-5">
@@ -60,7 +65,9 @@ const Layout: NextPage = ({ children }) => {
           </div>
         </div>
       </header>
-      { children }
+      <div className="z-10 bg-transparent">
+        { children }
+      </div>
       <footer className="flex w-full h-12 items-center justify-center">
         Powered by... electricity and tears ¯\_(ツ)_/¯
       </footer>

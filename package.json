@@ -21,13 +21,15 @@
   },
   "homepage": "https://github.com/Matas555/t2-app#readme",
   "dependencies": {
+    "@react-three/fiber": "^7.0.21",
     "@typescript-eslint/eslint-plugin": "^5.1.0",
     "ethers": "^5.4.7",
     "next": "12.0.3",
     "prop-types": "^15.7.2",
     "react": "17.0.2",
     "react-dom": "17.0.2",
-    "tailwindcss": "^2.2.19"
+    "tailwindcss": "^2.2.19",
+    "three": "^0.135.0"
   },
   "devDependencies": {
     "@types/react": "17.0.24",

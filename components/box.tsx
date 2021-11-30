@@ -11,11 +11,22 @@ const KEY_CODES = {
   KeyD: 'd',
 };
 
+const coordinates = [
+  [0, 0],
+  [2.1, 2.1],
+  [2.1, -2.1],
+  [-2.1, 2.1],
+  [-2.1, -2.1],
+  [2.1, 0],
+  [0, 2.1],
+  [0, -2.1],
+  [-2.1, 0],
+];
+
 const validKeys = ['KeyW', 'KeyA', 'KeyS', 'KeyD'];
 
 const Box: React.FC<{}> = () => {
   const { size, set } = useThree();
-  const boxRef = useRef();
   const planeRef = useRef();
   const [ref, setRef] = useState<THREE.PerspectiveCamera>();
 
@@ -25,12 +36,10 @@ const Box: React.FC<{}> = () => {
 
   useFrame((state) => {
     if (keysDown.current.w) {
-      // state.camera.position.z -= 0.1;
       state.camera.position.y += 0.075;
       state.camera.position.x -= 0.075;
     }
     if (keysDown.current.s) {
-      // state.camera.position.z += 0.1;
       state.camera.position.y -= 0.075;
       state.camera.position.x += 0.075;
     }
@@ -77,7 +86,15 @@ const Box: React.FC<{}> = () => {
 
   return (
     <>
-      <pointLight intensity={0.4} color="yellow" position={[5, 0, 20]} />
+      <pointLight
+        intensity={3}
+        color="#FDF3c6"
+        castShadow
+        distance={100}
+        position={[30, 30, 20]}
+        shadow-mapSize-height={512}
+        shadow-mapSize-width={512}
+      />
       <perspectiveCamera
         ref={setRef}
         aspect={size.width / size.height}
@@ -85,27 +102,43 @@ const Box: React.FC<{}> = () => {
         position={[-2, 1, 7]}
         near={0.1}
         far={100}
-        rotation={[45 * (Math.PI / 180), 45 * (Math.PI / 180), 35 * (Math.PI / 180)]}
+        rotation={[40 * (Math.PI / 180), 40 * (Math.PI / 180), 40 * (Math.PI / 180)]}
         onUpdate={(self: any) => self.updateProjectionMatrix()}
       />
-      <mesh
-        ref={boxRef}
-        position={[0, 0, 5]}
-      >
-        <boxGeometry args={[0, 1, 1]} />
-        <meshStandardMaterial color="green" />
-      </mesh>
+      {
+        coordinates.map((c) => (
+          <mesh
+            position={[...c, 0.1]}
+            castShadow
+            receiveShadow={false}
+            onPointerOver={(self) => {
+              self.eventObject.material.color = {
+                r: 0.2578125, g: 0.74609375, b: 0.34765625,
+              };
+            }}
+            onPointerOut={(self) => {
+              self.eventObject.material.color = {
+                r: 0.19806931954941637, g: 0.5332764040016892, b: 0.24620132669705552,
+              };
+            }}
+          >
+            <boxGeometry args={[2, 2, 0.2]} />
+            <meshStandardMaterial color="#7BC188" />
+          </mesh>
+        ))
+      }
+
       <mesh
         ref={planeRef}
         rotation={[0, 0, 0]}
-        position={[0, -2, 0]}
+        position={[0, 0, 0]}
+        receiveShadow
       >
         <planeGeometry
-          args={[15, 15]}
-          // side={THREE.DoubleSide}
+          args={[10000, 10000]}
         />
         <meshStandardMaterial
-          color="#A0785A"
+          color="#DCAB80"
         />
       </mesh>
     </>

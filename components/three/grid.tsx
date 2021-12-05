@@ -3,6 +3,7 @@ import React, {
   useRef, useState, useLayoutEffect, useEffect, createRef,
 } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
+import Cube from './cube';
 
 const KEY_CODES = {
   KeyW: 'w',
@@ -53,7 +54,6 @@ const fillGridPositions = (grid: Array<Array<THREE.Mesh>>, size: number) => {
 };
 
 const fillSurroundRowPositions = (grid: Array<Array<THREE.Mesh>>, size: number) => {
-  console.log('fillSurroundRowPositions ~ grid', grid);
   const minValue = ((size - 1) / -2) * 2.1;
 
   // along Y axis
@@ -435,6 +435,7 @@ const Grid: React.FC<{}> = () => {
         )))
       }
 
+      <Cube />
       <mesh
         ref={planeRef}
         rotation={[0, 0, 0]}

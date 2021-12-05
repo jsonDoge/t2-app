@@ -1,10 +1,10 @@
 import React from 'react';
 import { Canvas } from '@react-three/fiber';
-import Box from './box';
+import Grid from './three/grid';
 
 const Background: React.FC<{}> = () => (
   <Canvas shadows className="min-h-screen w-screen">
-    <Box />
+    <Grid />
   </Canvas>
 );
 

@@ -3,7 +3,8 @@ import React, {
   useRef, useState, useLayoutEffect, useEffect, createRef,
 } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
-import Cube from './cube';
+import Tree from './tree';
+import Fern from './fern';
 
 const KEY_CODES = {
   KeyW: 'w',
@@ -90,9 +91,10 @@ const fillSurroundRowPositions = (grid: Array<Array<THREE.Mesh>>, size: number) 
 const validKeys = ['KeyW', 'KeyA', 'KeyS', 'KeyD'];
 
 const Grid: React.FC<{}> = () => {
-  const { size, set } = useThree();
+  const { size, set, scene } = useThree();
   const planeRef = useRef();
   const lightRef = useRef();
+  const orthCameraRef = useRef();
 
   const mainPlotRefs = generateMainGrid(gridSize);
   const surroundPlotRefs = generateSurroundRows(gridSize);
@@ -137,6 +139,19 @@ const Grid: React.FC<{}> = () => {
   useEffect(() => {
     fillGridPositions(mainPlotRefs, gridSize);
     fillSurroundRowPositions(surroundPlotRefs, gridSize + 2);
+  });
+
+  // add target for manipulation
+  useEffect(() => {
+    scene.add(lightRef.current.target);
+    orthCameraRef.current.left = -20;
+    orthCameraRef.current.right = 20;
+    orthCameraRef.current.top = 20;
+    orthCameraRef.current.bottom = -20;
+    orthCameraRef.current.near = 0.1;
+    orthCameraRef.current.far = 2000;
+    lightRef.current.shadow.camera = orthCameraRef.current;
+    // orthCameraRef.current.far = 4000;
   });
 
   // ascention/descention
@@ -314,6 +329,8 @@ const Grid: React.FC<{}> = () => {
       state.camera.position.x -= 0.075;
       lightRef.current.position.y += 0.075;
       lightRef.current.position.x -= 0.075;
+      lightRef.current.target.position.y += 0.075;
+      lightRef.current.target.position.x -= 0.075;
     }
 
     if (keysDown.current.s) {
@@ -321,6 +338,8 @@ const Grid: React.FC<{}> = () => {
       state.camera.position.x += 0.075;
       lightRef.current.position.y -= 0.075;
       lightRef.current.position.x += 0.075;
+      lightRef.current.target.position.y -= 0.075;
+      lightRef.current.target.position.x += 0.075;
     }
 
     if (keysDown.current.a) {
@@ -328,6 +347,8 @@ const Grid: React.FC<{}> = () => {
       state.camera.position.x -= 0.075;
       lightRef.current.position.y -= 0.075;
       lightRef.current.position.x -= 0.075;
+      lightRef.current.target.position.y -= 0.075;
+      lightRef.current.target.position.x -= 0.075;
     }
 
     if (keysDown.current.d) {
@@ -335,6 +356,8 @@ const Grid: React.FC<{}> = () => {
       state.camera.position.x += 0.075;
       lightRef.current.position.y += 0.075;
       lightRef.current.position.x += 0.075;
+      lightRef.current.target.position.y += 0.075;
+      lightRef.current.target.position.x += 0.075;
     }
 
     state.camera.updateProjectionMatrix();
@@ -368,25 +391,30 @@ const Grid: React.FC<{}> = () => {
 
   return (
     <>
-      <pointLight
+      <ambientLight
+        intensity={0.05}
+      />
+      <directionalLight
         ref={lightRef}
-        intensity={0.8}
+        intensity={0.4}
         color="#FDF3c6"
         castShadow
         distance={100}
-        position={[-60, -30, 30]}
+        position={[120, 80, 60, 0, 100]}
         shadow-mapSize-height={2048}
         shadow-mapSize-width={2048}
-        // shadow-bias={-0.0005}
         shadow-radius={2}
+      />
+      <orthographicCamera
+        ref={orthCameraRef}
       />
       <perspectiveCamera
         ref={setRef}
         aspect={size.width / size.height}
-        fov={55}
+        fov={65}
         position={[10, -8.5, 10]}
-        near={0.1}
-        far={100}
+        near={1}
+        far={10000}
         rotation={[30 * (Math.PI / 180), 30 * (Math.PI / 180), 40 * (Math.PI / 180)]}
         onUpdate={(self: any) => self.updateProjectionMatrix()}
       />
@@ -434,8 +462,8 @@ const Grid: React.FC<{}> = () => {
           </mesh>
         )))
       }
-
-      <Cube />
+      <Fern />
+      <Tree position={[5, 10, 0]}/>
       <mesh
         ref={planeRef}
         rotation={[0, 0, 0]}

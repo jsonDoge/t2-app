@@ -151,7 +151,6 @@ const Grid: React.FC<{}> = () => {
     orthCameraRef.current.near = 0.1;
     orthCameraRef.current.far = 2000;
     lightRef.current.shadow.camera = orthCameraRef.current;
-    // orthCameraRef.current.far = 4000;
   });
 
   // ascention/descention
@@ -463,7 +462,7 @@ const Grid: React.FC<{}> = () => {
         )))
       }
       <Fern />
-      <Tree position={[5, 10, 0]}/>
+      <Tree position={[5, 10, 0]} />
       <mesh
         ref={planeRef}
         rotation={[0, 0, 0]}

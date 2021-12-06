@@ -1,4 +1,4 @@
-import React, { Suspense, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useGLTF } from '@react-three/drei';
 
 useGLTF.preload('/tree.gltf');

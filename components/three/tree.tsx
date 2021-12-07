@@ -1,4 +1,4 @@
-import React, { Suspense, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useGLTF } from '@react-three/drei';
 
 useGLTF.preload('/tree.gltf');
@@ -12,18 +12,16 @@ const Tree: React.FC<Props> = (props) => {
   const { nodes, materials } = useGLTF('/tree.gltf');
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <group ref={group} {...props}>
-        <mesh
-          scale={[0.5, 0.5, 0.5]}
-          rotation={[90 * (Math.PI / 180), 0, 0]}
-          castShadow
-          receiveShadow
-          geometry={nodes.Cube.geometry}
-          material={materials.Material}
-        />
-      </group>
-    </Suspense>
+    <group ref={group} {...props}>
+      <mesh
+        scale={[0.5, 0.5, 0.5]}
+        rotation={[90 * (Math.PI / 180), 0, 0]}
+        castShadow
+        receiveShadow
+        geometry={nodes.Cube.geometry}
+        material={materials.Material}
+      />
+    </group>
   );
 };
 

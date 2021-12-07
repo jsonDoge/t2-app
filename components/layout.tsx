@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -25,7 +25,9 @@ const Layout: NextPage = ({ children }) => {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="absolute z-0 min-h-screen w-screen">
-        <Background />
+        <Suspense fallback={<div>Loading...</div>}>
+          <Background />
+        </Suspense>
       </div>
       <Head>
         <title>T2 Farm</title>

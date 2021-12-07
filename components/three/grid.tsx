@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-param-reassign */
 import React, {
   useRef, useState, useLayoutEffect, useEffect, createRef,
@@ -139,7 +140,7 @@ const Grid: React.FC<{}> = () => {
   useEffect(() => {
     fillGridPositions(mainPlotRefs, gridSize);
     fillSurroundRowPositions(surroundPlotRefs, gridSize + 2);
-  });
+  }, []);
 
   // add target for manipulation
   useEffect(() => {
@@ -151,7 +152,7 @@ const Grid: React.FC<{}> = () => {
     orthCameraRef.current.near = 0.1;
     orthCameraRef.current.far = 2000;
     lightRef.current.shadow.camera = orthCameraRef.current;
-  });
+  }, []);
 
   // ascention/descention
   useFrame(() => {

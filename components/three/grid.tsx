@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-param-reassign */
 import React, {
-  useRef, useState, useLayoutEffect, useEffect, createRef,
+  useRef, useState, useLayoutEffect, useEffect,
 } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import Tree from './tree';

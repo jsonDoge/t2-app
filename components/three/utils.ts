@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import { createRef } from 'react';
 
 const generateMainGrid = (size: number): Array<Array<THREE.Mesh>> => {
@@ -117,7 +118,7 @@ const resetSurroundPlotsAfterDescention = (surroundPlotRefs: Array<Array<THREE.M
 
 const updatePlotPositionAfterAscention = (
   mainPlotRefs: Array<Array<THREE.Mesh>>,
-  surroundPlotRefs: Array<Array<THREE.Mesh>>
+  surroundPlotRefs: Array<Array<THREE.Mesh>>,
 ) => {
   if (surroundPlotRefs[0][0].current.isAscended) {
     // move all main grid down

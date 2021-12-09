@@ -13,7 +13,6 @@ const Potato: React.FC<{}> = (props) => {
     <group ref={group} {...props}>
       <mesh
         scale={[0.1, 0.1, 0.1]}
-        // rotation={[90 * (Math.PI / 180), 0, 0]}
         castShadow
         receiveShadow
         geometry={nodes.Cube.geometry}

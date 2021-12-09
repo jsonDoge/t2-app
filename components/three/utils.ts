@@ -251,8 +251,7 @@ const updateCameraAndLightPositionOnKeyDown = (state, lightRef, keysDown) => {
     lightRef.current.target.position.y += 0.075;
     lightRef.current.target.position.x += 0.075;
   }
-
-}
+};
 
 export {
   fillGridPositions,

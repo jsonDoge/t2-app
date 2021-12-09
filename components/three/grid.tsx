@@ -253,7 +253,7 @@ const Grid: React.FC<{}> = () => {
       <Weed position={[4.5, 0.3, 0.3]} />
       {
         (
-          new Array(100).fill().map(
+          new Array(100).fill(undefined).map(
             () => (
               <Grass1
                 position={[getRand(-20, 20), getRand(-20, 20), 0]}
@@ -265,7 +265,7 @@ const Grid: React.FC<{}> = () => {
       }
       {
         (
-          new Array(10).fill().map(
+          new Array(10).fill(undefined).map(
             () => (
               <>
                 <Fern

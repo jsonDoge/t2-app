@@ -12,6 +12,9 @@ import {
   fillSurroundRowPositions,
   generateMainGrid,
   generateSurroundRows,
+  resetSurroundPlotsAfterDescention,
+  updateCameraAndLightPositionOnKeyDown,
+  updatePlotPositionAfterAscention,
 } from './utils';
 
 const KEY_CODES = {
@@ -96,122 +99,10 @@ const Grid: React.FC<{}> = () => {
 
   // move plots after rise/lower animation finished
   useFrame(() => {
-    if (surroundPlotRefs[0][0].current.isDescended) {
-      surroundPlotRefs[0].forEach((c) => {
-        c.current.isDescended = false;
-        c.current.castShadow = false;
-      });
-    } else if (surroundPlotRefs[1][0].current.isDescended) {
-      surroundPlotRefs[1].forEach((c) => {
-        c.current.isDescended = false;
-        c.current.castShadow = false;
-      });
-    } else if (surroundPlotRefs[2][0].current.isDescended) {
-      surroundPlotRefs[2].forEach((c) => {
-        c.current.isDescended = false;
-        c.current.castShadow = false;
-      });
-    } else if (surroundPlotRefs[3][0].current.isDescended) {
-      surroundPlotRefs[3].forEach((c) => {
-        c.current.isDescended = false;
-        c.current.castShadow = false;
-      });
-    }
+    resetSurroundPlotsAfterDescention(surroundPlotRefs);
 
     // HANDLING ascended movement
-    if (surroundPlotRefs[0][0].current.isAscended) {
-      // move all main grid down
-      mainPlotRefs.forEach((r) => r.forEach((c) => {
-        c.current.position.y -= 2.1;
-      }));
-
-      surroundPlotRefs[1].forEach((c) => {
-        c.current.position.z = 0.12;
-        c.current.position.y -= 2.1;
-        c.current.isDescending = true;
-        c.current.castShadow = true;
-      });
-
-      surroundPlotRefs[0].forEach((c) => {
-        c.current.position.z = -0.12;
-        c.current.position.y -= 2.1;
-        c.current.isAscended = false;
-        c.current.castShadow = false;
-      });
-
-      [...surroundPlotRefs[2], ...surroundPlotRefs[3]].forEach((c) => {
-        c.current.position.y -= 2.1;
-      });
-    } else if (surroundPlotRefs[1][0].current.isAscended) {
-      // move all main grid up
-      mainPlotRefs.forEach((r) => r.forEach((c) => {
-        c.current.position.y += 2.1;
-      }));
-
-      surroundPlotRefs[0].forEach((c) => {
-        c.current.position.z = 0.12;
-        c.current.position.y += 2.1;
-        c.current.castShadow = true;
-        c.current.isDescending = true;
-      });
-
-      surroundPlotRefs[1].forEach((c) => {
-        c.current.position.z = -0.12;
-        c.current.position.y += 2.1;
-        c.current.isAscended = false;
-        c.current.castShadow = false;
-      });
-
-      [...surroundPlotRefs[2], ...surroundPlotRefs[3]].forEach((c) => {
-        c.current.position.y += 2.1;
-      });
-    } else if (surroundPlotRefs[2][0].current.isAscended) {
-      // move all main grid left
-      mainPlotRefs.forEach((r) => r.forEach((c) => {
-        c.current.position.x -= 2.1;
-      }));
-
-      surroundPlotRefs[3].forEach((c) => {
-        c.current.position.z = 0.12;
-        c.current.position.x -= 2.1;
-        c.current.castShadow = true;
-        c.current.isDescending = true;
-      });
-
-      surroundPlotRefs[2].forEach((c) => {
-        c.current.position.z = -0.12;
-        c.current.position.x -= 2.1;
-        c.current.isAscended = false;
-        c.current.castShadow = false;
-      });
-
-      [...surroundPlotRefs[0], ...surroundPlotRefs[1]].forEach((c) => {
-        c.current.position.x -= 2.1;
-      });
-    } else if (surroundPlotRefs[3][0].current.isAscended) {
-      // move all main grid right
-      mainPlotRefs.forEach((r) => r.forEach((c) => {
-        c.current.position.x += 2.1;
-      }));
-
-      surroundPlotRefs[2].forEach((c) => {
-        c.current.position.z = 0.12;
-        c.current.position.x += 2.1;
-        c.current.isDescending = true;
-        c.current.castShadow = true;
-      });
-
-      surroundPlotRefs[3].forEach((c) => {
-        c.current.position.z = -0.12;
-        c.current.position.x += 2.1;
-        c.current.isAscended = false;
-        c.current.castShadow = false;
-      });
-
-      [...surroundPlotRefs[0], ...surroundPlotRefs[1]].forEach((c) => {
-        c.current.position.x += 2.1;
-      });
-    }
+    updatePlotPositionAfterAscention(mainPlotRefs, surroundPlotRefs);
   });
 
   useFrame((state) => {
@@ -229,55 +120,20 @@ const Grid: React.FC<{}> = () => {
       cameraPlotDeviation.current.x = cameraPlotDeviationX;
     }
 
-    if (keysDown.current.w) {
-      state.camera.position.y += 0.075;
-      state.camera.position.x -= 0.075;
-      lightRef.current.position.y += 0.075;
-      lightRef.current.position.x -= 0.075;
-      lightRef.current.target.position.y += 0.075;
-      lightRef.current.target.position.x -= 0.075;
-    }
-
-    if (keysDown.current.s) {
-      state.camera.position.y -= 0.075;
-      state.camera.position.x += 0.075;
-      lightRef.current.position.y -= 0.075;
-      lightRef.current.position.x += 0.075;
-      lightRef.current.target.position.y -= 0.075;
-      lightRef.current.target.position.x += 0.075;
-    }
-
-    if (keysDown.current.a) {
-      state.camera.position.y -= 0.075;
-      state.camera.position.x -= 0.075;
-      lightRef.current.position.y -= 0.075;
-      lightRef.current.position.x -= 0.075;
-      lightRef.current.target.position.y -= 0.075;
-      lightRef.current.target.position.x -= 0.075;
-    }
-
-    if (keysDown.current.d) {
-      state.camera.position.y += 0.075;
-      state.camera.position.x += 0.075;
-      lightRef.current.position.y += 0.075;
-      lightRef.current.position.x += 0.075;
-      lightRef.current.target.position.y += 0.075;
-      lightRef.current.target.position.x += 0.075;
-    }
-
+    updateCameraAndLightPositionOnKeyDown(state, lightRef, keysDown);
     state.camera.updateProjectionMatrix();
   });
 
   useLayoutEffect(() => set({ camera: ref }), [ref, set]);
 
-  const handleDownWasd = (e: KeyboardEvent) => {
+  const updateWasdStateOnDown = (e: KeyboardEvent) => {
     if (!validKeys.includes(e.code)) { return; }
 
     const key: string = KEY_CODES[e.code];
     keysDown.current[key] = true;
   };
 
-  const handleUpWasd = (e: KeyboardEvent) => {
+  const updateWasdStateOnUp = (e: KeyboardEvent) => {
     if (!validKeys.includes(e.code)) { return; }
 
     const key: string = KEY_CODES[e.code];
@@ -285,12 +141,12 @@ const Grid: React.FC<{}> = () => {
   };
 
   useEffect(() => {
-    window.addEventListener('keypress', handleDownWasd);
-    window.addEventListener('keyup', handleUpWasd);
+    window.addEventListener('keypress', updateWasdStateOnDown);
+    window.addEventListener('keyup', updateWasdStateOnUp);
 
     return () => {
-      window.removeEventListener('keypress', handleDownWasd);
-      window.removeEventListener('keyup', handleUpWasd);
+      window.removeEventListener('keypress', updateWasdStateOnDown);
+      window.removeEventListener('keyup', updateWasdStateOnUp);
     };
   }, []);
 

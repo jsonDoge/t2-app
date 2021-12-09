@@ -91,10 +91,175 @@ const ascendDescendPlots = (plotRefs: Array<Array<THREE.Mesh>>) => {
   }));
 };
 
+const resetSurroundPlotsAfterDescention = (surroundPlotRefs: Array<Array<THREE.Mesh>>) => {
+  if (surroundPlotRefs[0][0].current.isDescended) {
+    surroundPlotRefs[0].forEach((c) => {
+      c.current.isDescended = false;
+      c.current.castShadow = false;
+    });
+  } else if (surroundPlotRefs[1][0].current.isDescended) {
+    surroundPlotRefs[1].forEach((c) => {
+      c.current.isDescended = false;
+      c.current.castShadow = false;
+    });
+  } else if (surroundPlotRefs[2][0].current.isDescended) {
+    surroundPlotRefs[2].forEach((c) => {
+      c.current.isDescended = false;
+      c.current.castShadow = false;
+    });
+  } else if (surroundPlotRefs[3][0].current.isDescended) {
+    surroundPlotRefs[3].forEach((c) => {
+      c.current.isDescended = false;
+      c.current.castShadow = false;
+    });
+  }
+};
+
+const updatePlotPositionAfterAscention = (
+  mainPlotRefs: Array<Array<THREE.Mesh>>,
+  surroundPlotRefs: Array<Array<THREE.Mesh>>
+) => {
+  if (surroundPlotRefs[0][0].current.isAscended) {
+    // move all main grid down
+    mainPlotRefs.forEach((r) => r.forEach((c) => {
+      c.current.position.y -= 2.1;
+    }));
+
+    surroundPlotRefs[1].forEach((c) => {
+      c.current.position.z = 0.12;
+      c.current.position.y -= 2.1;
+      c.current.isDescending = true;
+      c.current.castShadow = true;
+    });
+
+    surroundPlotRefs[0].forEach((c) => {
+      c.current.position.z = -0.12;
+      c.current.position.y -= 2.1;
+      c.current.isAscended = false;
+      c.current.castShadow = false;
+    });
+
+    [...surroundPlotRefs[2], ...surroundPlotRefs[3]].forEach((c) => {
+      c.current.position.y -= 2.1;
+    });
+  } else if (surroundPlotRefs[1][0].current.isAscended) {
+    // move all main grid up
+    mainPlotRefs.forEach((r) => r.forEach((c) => {
+      c.current.position.y += 2.1;
+    }));
+
+    surroundPlotRefs[0].forEach((c) => {
+      c.current.position.z = 0.12;
+      c.current.position.y += 2.1;
+      c.current.castShadow = true;
+      c.current.isDescending = true;
+    });
+
+    surroundPlotRefs[1].forEach((c) => {
+      c.current.position.z = -0.12;
+      c.current.position.y += 2.1;
+      c.current.isAscended = false;
+      c.current.castShadow = false;
+    });
+
+    [...surroundPlotRefs[2], ...surroundPlotRefs[3]].forEach((c) => {
+      c.current.position.y += 2.1;
+    });
+  } else if (surroundPlotRefs[2][0].current.isAscended) {
+    // move all main grid left
+    mainPlotRefs.forEach((r) => r.forEach((c) => {
+      c.current.position.x -= 2.1;
+    }));
+
+    surroundPlotRefs[3].forEach((c) => {
+      c.current.position.z = 0.12;
+      c.current.position.x -= 2.1;
+      c.current.castShadow = true;
+      c.current.isDescending = true;
+    });
+
+    surroundPlotRefs[2].forEach((c) => {
+      c.current.position.z = -0.12;
+      c.current.position.x -= 2.1;
+      c.current.isAscended = false;
+      c.current.castShadow = false;
+    });
+
+    [...surroundPlotRefs[0], ...surroundPlotRefs[1]].forEach((c) => {
+      c.current.position.x -= 2.1;
+    });
+  } else if (surroundPlotRefs[3][0].current.isAscended) {
+    // move all main grid right
+    mainPlotRefs.forEach((r) => r.forEach((c) => {
+      c.current.position.x += 2.1;
+    }));
+
+    surroundPlotRefs[2].forEach((c) => {
+      c.current.position.z = 0.12;
+      c.current.position.x += 2.1;
+      c.current.isDescending = true;
+      c.current.castShadow = true;
+    });
+
+    surroundPlotRefs[3].forEach((c) => {
+      c.current.position.z = -0.12;
+      c.current.position.x += 2.1;
+      c.current.isAscended = false;
+      c.current.castShadow = false;
+    });
+
+    [...surroundPlotRefs[0], ...surroundPlotRefs[1]].forEach((c) => {
+      c.current.position.x += 2.1;
+    });
+  }
+};
+
+const updateCameraAndLightPositionOnKeyDown = (state, lightRef, keysDown) => {
+  if (keysDown.current.w) {
+    state.camera.position.y += 0.075;
+    state.camera.position.x -= 0.075;
+    lightRef.current.position.y += 0.075;
+    lightRef.current.position.x -= 0.075;
+    lightRef.current.target.position.y += 0.075;
+    lightRef.current.target.position.x -= 0.075;
+  }
+
+  if (keysDown.current.s) {
+    state.camera.position.y -= 0.075;
+    state.camera.position.x += 0.075;
+    lightRef.current.position.y -= 0.075;
+    lightRef.current.position.x += 0.075;
+    lightRef.current.target.position.y -= 0.075;
+    lightRef.current.target.position.x += 0.075;
+  }
+
+  if (keysDown.current.a) {
+    state.camera.position.y -= 0.075;
+    state.camera.position.x -= 0.075;
+    lightRef.current.position.y -= 0.075;
+    lightRef.current.position.x -= 0.075;
+    lightRef.current.target.position.y -= 0.075;
+    lightRef.current.target.position.x -= 0.075;
+  }
+
+  if (keysDown.current.d) {
+    state.camera.position.y += 0.075;
+    state.camera.position.x += 0.075;
+    lightRef.current.position.y += 0.075;
+    lightRef.current.position.x += 0.075;
+    lightRef.current.target.position.y += 0.075;
+    lightRef.current.target.position.x += 0.075;
+  }
+
+}
+
 export {
   fillGridPositions,
   generateMainGrid,
   generateSurroundRows,
   fillSurroundRowPositions,
   ascendDescendPlots,
+  resetSurroundPlotsAfterDescention,
+  updatePlotPositionAfterAscention,
+  updateCameraAndLightPositionOnKeyDown,
 };

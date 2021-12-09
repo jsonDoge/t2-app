@@ -37,7 +37,10 @@ const Grid: React.FC<{}> = () => {
   const mainPlotRefs = generateMainGrid(gridSize);
   const surroundPlotRefs = generateSurroundRows(gridSize);
 
-  const [ref, setRef] = useState<THREE.PerspectiveCamera>();
+  const [
+    perspectiveCameraRef,
+    setPerspectiveCameraRef,
+  ] = useState<THREE.PerspectiveCamera>();
 
   const cameraPlotDeviation = useRef({ x: 0, y: 0 });
   const keysDown = useRef({
@@ -80,6 +83,7 @@ const Grid: React.FC<{}> = () => {
   }, []);
 
   // add target for manipulation
+  // orthCamera to set shadow limits (to not be cut off)
   useEffect(() => {
     scene.add(lightRef.current.target);
     orthCameraRef.current.left = -20;
@@ -124,7 +128,10 @@ const Grid: React.FC<{}> = () => {
     state.camera.updateProjectionMatrix();
   });
 
-  useLayoutEffect(() => set({ camera: ref }), [ref, set]);
+  useLayoutEffect(
+    () => set({ camera: perspectiveCameraRef }),
+    [perspectiveCameraRef, set],
+  );
 
   const updateWasdStateOnDown = (e: KeyboardEvent) => {
     if (!validKeys.includes(e.code)) { return; }
@@ -170,7 +177,7 @@ const Grid: React.FC<{}> = () => {
         ref={orthCameraRef}
       />
       <perspectiveCamera
-        ref={setRef}
+        ref={setPerspectiveCameraRef}
         aspect={size.width / size.height}
         fov={65}
         position={[10, -8.5, 10]}

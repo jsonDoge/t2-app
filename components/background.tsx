@@ -4,7 +4,7 @@ import Grid from './three/grid';
 
 const Background: React.FC<{}> = () => (
   <Canvas shadows className="min-h-screen w-screen">
-    <Suspense fallback={(<p>Loading</p>)}>
+    <Suspense fallback={(<>Loading...</>)}>
       <Grid />
     </Suspense>
   </Canvas>

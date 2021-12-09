@@ -245,6 +245,11 @@ const Grid: React.FC<{}> = () => {
           color="#DCAB80"
         />
       </mesh>
+      <gridHelper
+        rotation={[90 * (Math.PI / 180), 0, 0]}
+        position={[1.1, 1.1, 0]}
+        args={[2100, 1000, '#382A21', '#382A21']}
+      />
     </>
   );
 };

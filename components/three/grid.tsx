@@ -16,6 +16,12 @@ import {
   updateCameraAndLightPositionOnKeyDown,
   updatePlotPositionAfterAscention,
 } from './utils';
+import Plant from './plant';
+import Corn from './corn';
+import Potato from './potato';
+import Carrot from './carrot';
+import Weed from './weed';
+import Grass1 from './grass1';
 
 const KEY_CODES = {
   KeyW: 'w',
@@ -147,6 +153,8 @@ const Grid: React.FC<{}> = () => {
     keysDown.current[key] = false;
   };
 
+  const getRand = (min, max) => min + Math.random() * (max - min);
+
   useEffect(() => {
     window.addEventListener('keypress', updateWasdStateOnDown);
     window.addEventListener('keyup', updateWasdStateOnUp);
@@ -230,8 +238,49 @@ const Grid: React.FC<{}> = () => {
           </mesh>
         )))
       }
-      <Fern />
-      <Tree position={[5, 10, 0]} />
+      <Plant position={[4.5, 4, 0.2]} />
+      <Corn position={[6.4, 3.9, 0.3]} />
+      <Corn position={[5.9, 3.9, 0.3]} />
+      <Corn position={[6.9, 3.9, 0.3]} />
+      <Potato position={[6.4, 2, 0.3]} />
+      <Potato position={[5.9, 2, 0.3]} />
+      <Potato position={[6.9, 2, 0.3]} />
+      <Carrot position={[6.4, -0.3, 0.24]} />
+      <Carrot position={[5.9, -0.3, 0.24]} />
+      <Carrot position={[6.9, -0.3, 0.24]} />
+      <Weed position={[3.9, -0.5, 0.3]} rotation={[0, 0, 90 * (Math.PI / 180)]} />
+      <Weed position={[5, -0.5, 0.3]} rotation={[0, 0, 45 * (Math.PI / 180)]} />
+      <Weed position={[4.5, 0.3, 0.3]} />
+      {
+        (
+          new Array(100).fill().map(
+            () => (
+              <Grass1
+                position={[getRand(-20, 20), getRand(-20, 20), 0]}
+                rotation={[0, 0, getRand(0, 360) * (Math.PI / 180)]}
+              />
+            ),
+          )
+        )
+      }
+      {
+        (
+          new Array(10).fill().map(
+            () => (
+              <>
+                <Fern
+                  position={[getRand(-20, 20), getRand(-20, 20), 0]}
+                  rotation={[0, 0, (Math.round(getRand(0, 4)) * 90) * (Math.PI / 180)]}
+                />
+                <Tree
+                  position={[getRand(-20, 20), getRand(-20, 20), 0]}
+                  rotation={[0, 0, (Math.round(getRand(0, 4)) * 90) * (Math.PI / 180)]}
+                />
+              </>
+            ),
+          )
+        )
+      }
       <mesh
         ref={planeRef}
         rotation={[0, 0, 0]}

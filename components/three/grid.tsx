@@ -6,6 +6,13 @@ import React, {
 import { useThree, useFrame } from '@react-three/fiber';
 import Tree from './tree';
 import Fern from './fern';
+import {
+  ascendDescendPlots,
+  fillGridPositions,
+  fillSurroundRowPositions,
+  generateMainGrid,
+  generateSurroundRows,
+} from './utils';
 
 const KEY_CODES = {
   KeyW: 'w',
@@ -15,79 +22,6 @@ const KEY_CODES = {
 };
 
 const gridSize = 7;
-
-const generateMainGrid = (size: number) => {
-  const mainRefs: Array<Array<THREE.Mesh>> = [];
-  for (let y = 0; y < size; y += 1) {
-    if (!mainRefs[y]) { mainRefs[y] = []; }
-    for (let x = 0; x < size; x += 1) {
-      const plotRef = createRef<THREE.Mesh>();
-      mainRefs[y][x] = plotRef;
-    }
-  }
-  return mainRefs;
-};
-
-// rows [0, 1] - along side y , [2, 3] - along side x
-const generateSurroundRows = (size: number) => {
-  const surroundRefs: Array<Array<THREE.Mesh>> = [];
-  for (let y = 0; y < 4; y += 1) {
-    if (!surroundRefs[y]) { surroundRefs[y] = []; }
-
-    for (let x = 0; x < size; x += 1) {
-      const plotRef = createRef<THREE.Mesh>();
-      surroundRefs[y][x] = plotRef;
-    }
-  }
-  return surroundRefs;
-};
-
-const fillGridPositions = (grid: Array<Array<THREE.Mesh>>, size: number) => {
-  const minValue = ((size - 1) / -2) * 2.1;
-
-  grid.forEach((row: Array<THREE.Mesh>, rowIndex: number) => {
-    row.forEach((ref: THREE.Mesh, columnIndex: number) => {
-      ref.current.position.x = minValue + columnIndex * 2.1;
-      ref.current.position.y = minValue + rowIndex * 2.1;
-      ref.current.position.z = -0.12;
-      ref.current.isAscending = true;
-    });
-  });
-};
-
-const fillSurroundRowPositions = (grid: Array<Array<THREE.Mesh>>, size: number) => {
-  const minValue = ((size - 1) / -2) * 2.1;
-
-  // along Y axis
-  grid[0].forEach((ref, columnIndex) => {
-    ref.current.position.x = minValue + (columnIndex + 1) * 2.1;
-    ref.current.position.y = minValue;
-    ref.current.position.z = -0.12;
-    ref.current.castShadow = false;
-  });
-
-  grid[1].forEach((ref, columnIndex) => {
-    ref.current.position.x = minValue + (columnIndex + 1) * 2.1;
-    ref.current.position.y = minValue + (size - 1) * 2.1;
-    ref.current.position.z = -0.12;
-    ref.current.castShadow = false;
-  });
-
-  // along X axis
-  grid[2].forEach((ref, columnIndex) => {
-    ref.current.position.x = minValue;
-    ref.current.position.y = minValue + (columnIndex + 1) * 2.1;
-    ref.current.position.z = -0.12;
-    ref.current.castShadow = false;
-  });
-
-  grid[3].forEach((ref, columnIndex) => {
-    ref.current.position.x = minValue + (size - 1) * 2.1;
-    ref.current.position.y = minValue + (columnIndex + 1) * 2.1;
-    ref.current.position.z = -0.12;
-    ref.current.castShadow = false;
-  });
-};
 
 const validKeys = ['KeyW', 'KeyA', 'KeyS', 'KeyD'];
 
@@ -156,37 +90,8 @@ const Grid: React.FC<{}> = () => {
 
   // ascention/descention
   useFrame(() => {
-    mainPlotRefs.forEach((r) => r.forEach((c) => {
-      if (c.current.isAscending) {
-        c.current.position.z += 0.02;
-        if (c.current.position.z >= 0.1) {
-          c.current.isAscending = false;
-          c.current.isAscended = true;
-        }
-      } else if (c.current.isDescending) {
-        c.current.position.z -= 0.02;
-        if (c.current.position.z < -0.11) {
-          c.current.isDescending = false;
-          c.current.isDescended = true;
-        }
-      }
-    }));
-
-    surroundPlotRefs.forEach((r) => r.forEach((c) => {
-      if (c.current.isAscending) {
-        c.current.position.z += 0.02;
-        if (c.current.position.z >= 0.1) {
-          c.current.isAscending = false;
-          c.current.isAscended = true;
-        }
-      } else if (c.current.isDescending) {
-        c.current.position.z -= 0.02;
-        if (c.current.position.z < -0.11) {
-          c.current.isDescending = false;
-          c.current.isDescended = true;
-        }
-      }
-    }));
+    ascendDescendPlots(mainPlotRefs);
+    ascendDescendPlots(surroundPlotRefs);
   });
 
   // move plots after rise/lower animation finished

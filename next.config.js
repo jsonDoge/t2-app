@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   reactStrictMode: true,
   publicRuntimeConfig: {
     ETH_PROVIDER: process.env.ETH_PROVIDER,

@@ -1,12 +1,17 @@
-import React, { Suspense, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import PropTypes from 'prop-types';
 import { useWallet } from '../context/wallet';
 import { getCurrentBlockNumber } from '../services/web3Utils';
-import Background from './background';
+
+const DynamicBacground = dynamic(
+  () => import('./background'),
+  { loading: () => <div>Loading...</div>, ssr: false },
+);
 
 const Layout: NextPage = ({ children }) => {
   const { wallet } = useWallet();
@@ -25,9 +30,7 @@ const Layout: NextPage = ({ children }) => {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="absolute z-0 min-h-screen w-screen">
-        <Suspense fallback={<div>Loading...</div>}>
-          <Background />
-        </Suspense>
+        <DynamicBacground />
       </div>
       <Head>
         <title>T2 Farm</title>

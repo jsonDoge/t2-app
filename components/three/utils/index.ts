@@ -215,41 +215,107 @@ const updatePlotPositionAfterAscention = (
   }
 };
 
-const updateCameraAndLightPositionOnKeyDown = (state, lightRef, keysDown) => {
+const updateGrid = (
+  deviationX: number,
+  deviationY: number,
+  surroundRefs: Array<Array<THREE.Mesh>>,
+): void => {
+  if (deviationY > 0) {
+    surroundRefs[1].forEach((c) => {
+      c.current.isAscending = true;
+      c.current.castShadow = true;
+    });
+  } else if (deviationY < 0) {
+    surroundRefs[0].forEach((c) => {
+      c.current.isAscending = true;
+      c.current.castShadow = true;
+    });
+  }
+
+  if (deviationX > 0) {
+    surroundRefs[3].forEach((c) => {
+      c.current.isAscending = true;
+      c.current.castShadow = true;
+    });
+  } else if (deviationX < 0) {
+    surroundRefs[2].forEach((c) => {
+      c.current.isAscending = true;
+      c.current.castShadow = true;
+    });
+  }
+};
+
+const updatePositionOnKeyDown = (position: { x: number, y: number }, keysDown) => {
   if (keysDown.current.w) {
-    state.camera.position.y += 0.075;
-    state.camera.position.x -= 0.075;
-    lightRef.current.position.y += 0.075;
-    lightRef.current.position.x -= 0.075;
-    lightRef.current.target.position.y += 0.075;
-    lightRef.current.target.position.x -= 0.075;
+    position.y += 0.075;
+    position.x -= 0.075;
   }
 
   if (keysDown.current.s) {
-    state.camera.position.y -= 0.075;
-    state.camera.position.x += 0.075;
-    lightRef.current.position.y -= 0.075;
-    lightRef.current.position.x += 0.075;
-    lightRef.current.target.position.y -= 0.075;
-    lightRef.current.target.position.x += 0.075;
+    position.y -= 0.075;
+    position.x += 0.075;
   }
 
   if (keysDown.current.a) {
-    state.camera.position.y -= 0.075;
-    state.camera.position.x -= 0.075;
-    lightRef.current.position.y -= 0.075;
-    lightRef.current.position.x -= 0.075;
-    lightRef.current.target.position.y -= 0.075;
-    lightRef.current.target.position.x -= 0.075;
+    position.y -= 0.075;
+    position.x -= 0.075;
   }
 
   if (keysDown.current.d) {
-    state.camera.position.y += 0.075;
-    state.camera.position.x += 0.075;
-    lightRef.current.position.y += 0.075;
-    lightRef.current.position.x += 0.075;
-    lightRef.current.target.position.y += 0.075;
-    lightRef.current.target.position.x += 0.075;
+    position.y += 0.075;
+    position.x += 0.075;
+  }
+};
+
+const updateBackgroundObjectsOnKeyDown = (
+  centerPosition: { x: number, y: number },
+  lastDeviationRef: { current: { x: number, y: number } },
+  backgroundObjectPositions: Array<[number, number, number]>,
+) => {
+  const centerPositionDeviationX = Math.floor((centerPosition.x) / 2.1);
+  const centerPositionDeviationY = Math.floor((centerPosition.y) / 2.1);
+
+  if (lastDeviationRef.current.x !== centerPositionDeviationX
+    || lastDeviationRef.current.y !== centerPositionDeviationY) {
+    updateBackgroundObjects(
+      centerPositionDeviationX - lastDeviationRef.current.x,
+      centerPositionDeviationY - lastDeviationRef.current.y,
+      backgroundObjectPositions,
+    );
+
+    lastDeviationRef.current.y = centerPositionDeviationY;
+    lastDeviationRef.current.x = centerPositionDeviationX;
+  }
+};
+
+const updateBackgroundObjects = (
+  deviationX: number,
+  deviationY: number,
+  backgroundObjectPositions: Array<[number, number, number]>,
+): void => {
+  if (deviationY > 0) {
+    updateBackgroundObjects
+    surroundRefs[1].forEach((c) => {
+      c.current.isAscending = true;
+      c.current.castShadow = true;
+    });
+  } else if (deviationY < 0) {
+    surroundRefs[0].forEach((c) => {
+      c.current.isAscending = true;
+      c.current.castShadow = true;
+    });
+  }
+
+  if (deviationX > 0) {
+    surroundRefs[3].forEach((c) => {
+      c.current.isAscending = true;
+      c.current.castShadow = true;
+    });
+  } else if (deviationX < 0) {
+    surroundRefs[2].forEach((c) => {
+      c.current.isAscending = true;
+      c.current.castShadow = true;
+    });
   }
 };
 
@@ -261,5 +327,7 @@ export {
   ascendDescendPlots,
   resetSurroundPlotsAfterDescention,
   updatePlotPositionAfterAscention,
-  updateCameraAndLightPositionOnKeyDown,
+  updatePositionOnKeyDown,
+  updateGrid,
+  updateBackgroundObjectsOnKeyDown,
 };

@@ -1,11 +1,22 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-param-reassign */
 import React, {
-  useRef, useState, useLayoutEffect, useEffect,
+  useRef, useState, useLayoutEffect, useEffect, createRef,
 } from 'react';
+import * as THREE from 'three';
 import { useThree, useFrame } from '@react-three/fiber';
+
+// Objects
 import Tree from './tree';
 import Fern from './fern';
+import Plant from './plant';
+import Corn from './corn';
+import Potato from './potato';
+import Carrot from './carrot';
+import Weed from './weed';
+import Grass1 from './grass1';
+
+// Utils
 import {
   ascendDescendPlots,
   fillGridPositions,
@@ -13,15 +24,17 @@ import {
   generateMainGrid,
   generateSurroundRows,
   resetSurroundPlotsAfterDescention,
-  updateCameraAndLightPositionOnKeyDown,
+  updateGrid,
   updatePlotPositionAfterAscention,
+  updatePositionOnKeyDown,
 } from './utils';
-import Plant from './plant';
-import Corn from './corn';
-import Potato from './potato';
-import Carrot from './carrot';
-import Weed from './weed';
-import Grass1 from './grass1';
+import {
+  createPositionCompareFn,
+  createRotationCompareFn,
+  fillBackgroundObjects,
+  updateBackgroundObjectsToSpecs,
+} from './utils/background';
+import { ObjectSpecs } from './utils/interfaces';
 
 const KEY_CODES = {
   KeyW: 'w',
@@ -38,6 +51,20 @@ const Grid: React.FC<{}> = () => {
   const { size, set, scene } = useThree();
   const planeRef = useRef();
   const lightRef = useRef();
+  const backgroundTreeRefs = new Array(100).fill(undefined).map(() => createRef<THREE.Mesh>());
+  const backgroundTreeSpecsRef = useRef<Array<ObjectSpecs>>([]);
+  const centerRef = useRef({ x: -7, y: -7 });
+
+  // TODO: to be used after background object rendering
+  const invisiblePerimiter = {
+    x: 12,
+    y: 12,
+  };
+  const renderbackgroundPerimter = useRef({
+    x: 30,
+    y: 30,
+  });
+
   const orthCameraRef = useRef();
 
   const mainPlotRefs = generateMainGrid(gridSize);
@@ -52,46 +79,28 @@ const Grid: React.FC<{}> = () => {
   const keysDown = useRef({
     w: false, a: false, s: false, d: false,
   });
-
-  const updateGrid = (
-    deviationX: number,
-    deviationY: number,
-    surroundRefs: Array<Array<THREE.Mesh>>,
-  ): void => {
-    if (deviationY > 0) {
-      surroundRefs[1].forEach((c) => {
-        c.current.isAscending = true;
-        c.current.castShadow = true;
-      });
-    } else if (deviationY < 0) {
-      surroundRefs[0].forEach((c) => {
-        c.current.isAscending = true;
-        c.current.castShadow = true;
-      });
-    }
-
-    if (deviationX > 0) {
-      surroundRefs[3].forEach((c) => {
-        c.current.isAscending = true;
-        c.current.castShadow = true;
-      });
-    } else if (deviationX < 0) {
-      surroundRefs[2].forEach((c) => {
-        c.current.isAscending = true;
-        c.current.castShadow = true;
-      });
-    }
-  };
+  const treePositionCompareFn = createPositionCompareFn('1');
+  const treeRotationCompareFn = createRotationCompareFn(1);
 
   useEffect(() => {
     fillGridPositions(mainPlotRefs, gridSize);
     fillSurroundRowPositions(surroundPlotRefs, gridSize + 2);
+    backgroundTreeSpecsRef.current = fillBackgroundObjects(
+      0,
+      0,
+      gridSize + 20,
+      treePositionCompareFn,
+      treeRotationCompareFn,
+    );
   }, []);
 
   // add target for manipulation
   // orthCamera to set shadow limits (to not be cut off)
   useEffect(() => {
+    // target
     scene.add(lightRef.current.target);
+
+    // orthCamera for shadowing
     orthCameraRef.current.left = -20;
     orthCameraRef.current.right = 20;
     orthCameraRef.current.top = 20;
@@ -117,7 +126,7 @@ const Grid: React.FC<{}> = () => {
 
   useFrame((state) => {
     const cameraPlotDeviationX = Math.floor((state.camera.position.x - 10) / 2.1);
-    const cameraPlotDevationY = Math.floor((state.camera.position.y - 8.5) / 2.1);
+    const cameraPlotDevationY = Math.floor((state.camera.position.y - 10) / 2.1);
 
     if (cameraPlotDeviation.current.x !== cameraPlotDeviationX
       || cameraPlotDeviation.current.y !== cameraPlotDevationY) {
@@ -128,9 +137,32 @@ const Grid: React.FC<{}> = () => {
       );
       cameraPlotDeviation.current.y = cameraPlotDevationY;
       cameraPlotDeviation.current.x = cameraPlotDeviationX;
+
+      centerRef.current.y = -7 + cameraPlotDeviation.current.y;
+      centerRef.current.x = -7 + cameraPlotDeviation.current.x;
+
+      backgroundTreeSpecsRef.current = fillBackgroundObjects(
+        centerRef.current.x,
+        centerRef.current.y,
+        gridSize + 20,
+        treePositionCompareFn,
+        treeRotationCompareFn,
+      );
+
+      if (backgroundTreeRefs.length !== 0) {
+        updateBackgroundObjectsToSpecs(
+          backgroundTreeRefs,
+          backgroundTreeSpecsRef,
+        );
+      }
     }
 
-    updateCameraAndLightPositionOnKeyDown(state, lightRef, keysDown);
+    updatePositionOnKeyDown(state.camera.position, keysDown);
+    updatePositionOnKeyDown(lightRef.current.position, keysDown);
+    updatePositionOnKeyDown(lightRef.current.target.position, keysDown);
+    updatePositionOnKeyDown(centerRef.current, keysDown);
+
+    // updateBackgroundObjectsOnKeyDown();
     state.camera.updateProjectionMatrix();
   });
 
@@ -153,7 +185,7 @@ const Grid: React.FC<{}> = () => {
     keysDown.current[key] = false;
   };
 
-  const getRand = (min, max) => min + Math.random() * (max - min);
+  const getRand = (min: number, max: number) => min + Math.random() * (max - min);
 
   useEffect(() => {
     window.addEventListener('keypress', updateWasdStateOnDown);
@@ -188,7 +220,7 @@ const Grid: React.FC<{}> = () => {
         ref={setPerspectiveCameraRef}
         aspect={size.width / size.height}
         fov={65}
-        position={[10, -8.5, 10]}
+        position={[10, -10, 10]}
         near={1}
         far={10000}
         rotation={[30 * (Math.PI / 180), 30 * (Math.PI / 180), 40 * (Math.PI / 180)]}
@@ -238,6 +270,7 @@ const Grid: React.FC<{}> = () => {
           </mesh>
         )))
       }
+      <Fern position={[-6, 6, 0.2]} />
       <Plant position={[4.5, 4, 0.2]} />
       <Corn position={[6.4, 3.9, 0.3]} />
       <Corn position={[5.9, 3.9, 0.3]} />
@@ -265,18 +298,11 @@ const Grid: React.FC<{}> = () => {
       }
       {
         (
-          new Array(10).fill(undefined).map(
-            () => (
-              <>
-                <Fern
-                  position={[getRand(-20, 20), getRand(-20, 20), 0]}
-                  rotation={[0, 0, (Math.round(getRand(0, 4)) * 90) * (Math.PI / 180)]}
-                />
-                <Tree
-                  position={[getRand(-20, 20), getRand(-20, 20), 0]}
-                  rotation={[0, 0, (Math.round(getRand(0, 4)) * 90) * (Math.PI / 180)]}
-                />
-              </>
+          backgroundTreeRefs.map(
+            (ref) => (
+              <Tree
+                reference={ref}
+              />
             ),
           )
         )

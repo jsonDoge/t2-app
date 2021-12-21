@@ -8,7 +8,7 @@ import { useThree, useFrame } from '@react-three/fiber';
 
 // Objects
 import Tree from './tree';
-import Fern from './fern';
+import Fir from './fir';
 import Plant from './plant';
 import Corn from './corn';
 import Potato from './potato';
@@ -52,7 +52,9 @@ const Grid: React.FC<{}> = () => {
   const planeRef = useRef();
   const lightRef = useRef();
   const backgroundTreeRefs = new Array(100).fill(undefined).map(() => createRef<THREE.Mesh>());
+  const backgroundFirRefs = new Array(100).fill(undefined).map(() => createRef<THREE.Mesh>());
   const backgroundTreeSpecsRef = useRef<Array<ObjectSpecs>>([]);
+  const backgroundFirSpecsRef = useRef<Array<ObjectSpecs>>([]);
   const centerRef = useRef({ x: -7, y: -7 });
 
   // TODO: to be used after background object rendering
@@ -81,6 +83,40 @@ const Grid: React.FC<{}> = () => {
   });
   const treePositionCompareFn = createPositionCompareFn('1');
   const treeRotationCompareFn = createRotationCompareFn(1);
+  const firPositionCompareFn = createPositionCompareFn('2');
+  const firRotationCompareFn = createRotationCompareFn(2);
+
+  const updateBackgroundObjects = () => {
+    backgroundTreeSpecsRef.current = fillBackgroundObjects(
+      centerRef.current.x,
+      centerRef.current.y,
+      gridSize + 20,
+      treePositionCompareFn,
+      treeRotationCompareFn,
+    );
+
+    backgroundFirSpecsRef.current = fillBackgroundObjects(
+      centerRef.current.x,
+      centerRef.current.y,
+      gridSize + 20,
+      firPositionCompareFn,
+      firRotationCompareFn,
+    );
+
+    if (backgroundTreeRefs.length !== 0) {
+      updateBackgroundObjectsToSpecs(
+        backgroundTreeRefs,
+        backgroundTreeSpecsRef,
+      );
+    }
+
+    if (backgroundFirRefs.length !== 0) {
+      updateBackgroundObjectsToSpecs(
+        backgroundFirRefs,
+        backgroundFirSpecsRef,
+      );
+    }
+  };
 
   useEffect(() => {
     fillGridPositions(mainPlotRefs, gridSize);
@@ -141,20 +177,7 @@ const Grid: React.FC<{}> = () => {
       centerRef.current.y = -7 + cameraPlotDeviation.current.y;
       centerRef.current.x = -7 + cameraPlotDeviation.current.x;
 
-      backgroundTreeSpecsRef.current = fillBackgroundObjects(
-        centerRef.current.x,
-        centerRef.current.y,
-        gridSize + 20,
-        treePositionCompareFn,
-        treeRotationCompareFn,
-      );
-
-      if (backgroundTreeRefs.length !== 0) {
-        updateBackgroundObjectsToSpecs(
-          backgroundTreeRefs,
-          backgroundTreeSpecsRef,
-        );
-      }
+      updateBackgroundObjects();
     }
 
     updatePositionOnKeyDown(state.camera.position, keysDown);
@@ -198,20 +221,7 @@ const Grid: React.FC<{}> = () => {
   }, []);
 
   useEffect(() => {
-    backgroundTreeSpecsRef.current = fillBackgroundObjects(
-      centerRef.current.x,
-      centerRef.current.y,
-      gridSize + 20,
-      treePositionCompareFn,
-      treeRotationCompareFn,
-    );
-
-    if (backgroundTreeRefs.length !== 0) {
-      updateBackgroundObjectsToSpecs(
-        backgroundTreeRefs,
-        backgroundTreeSpecsRef,
-      );
-    }
+    updateBackgroundObjects();
   }, []);
   return (
     <>
@@ -286,7 +296,6 @@ const Grid: React.FC<{}> = () => {
           </mesh>
         )))
       }
-      <Fern position={[-6, 6, 0.2]} />
       <Plant position={[4.5, 4, 0.2]} />
       <Corn position={[6.4, 3.9, 0.3]} />
       <Corn position={[5.9, 3.9, 0.3]} />
@@ -315,11 +324,14 @@ const Grid: React.FC<{}> = () => {
       {
         (
           backgroundTreeRefs.map(
-            (ref) => (
-              <Tree
-                reference={ref}
-              />
-            ),
+            (ref) => (<Tree reference={ref} />),
+          )
+        )
+      }
+      {
+        (
+          backgroundFirRefs.map(
+            (ref) => (<Fir reference={ref} />),
           )
         )
       }

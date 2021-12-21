@@ -197,6 +197,22 @@ const Grid: React.FC<{}> = () => {
     };
   }, []);
 
+  useEffect(() => {
+    backgroundTreeSpecsRef.current = fillBackgroundObjects(
+      centerRef.current.x,
+      centerRef.current.y,
+      gridSize + 20,
+      treePositionCompareFn,
+      treeRotationCompareFn,
+    );
+
+    if (backgroundTreeRefs.length !== 0) {
+      updateBackgroundObjectsToSpecs(
+        backgroundTreeRefs,
+        backgroundTreeSpecsRef,
+      );
+    }
+  }, []);
   return (
     <>
       <ambientLight

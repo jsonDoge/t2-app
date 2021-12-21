@@ -18,10 +18,9 @@ const Tree: React.FC<Props> = (props) => {
     : true;
 
   useEffect(() => {
+    // TODO: find better way to assign reference
     if (props.reference) {
       props.reference.current = group.current;
-      const { position } = props.reference.current;
-      ([position.x, position.y, position.z] = [-100, -100, -100]);
     }
   }, [props.reference]);
 

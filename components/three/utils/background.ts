@@ -22,11 +22,14 @@ const fillBackgroundObjects = (
     x0: sx0, x1: sx1, y0: sy0, y1: sy1,
   } = semiTransparentCoordinates;
   for (let y = lowestY; y < lowestY + size; y += 1) {
+    if (y < 0) { continue; }
     for (let x = lowestX; x < lowestX + size; x += 1) {
-      const doFillPosition = pseudoRand(x, y, 10, positionCompareFn);
+      if (x < 0) { continue; }
+
+      const doFillPosition = pseudoRand(x, y, 1000, positionCompareFn);
 
       if (doFillPosition) {
-        const rotation = pseudoRand(x, y, 4, rotationCompareFn);
+        const rotation = pseudoRand(x, y, 4, rotationCompareFn) || 0;
 
         const isInvisible = x >= x0 && x <= x1 && y >= y0 && y <= y1;
         const isSemiTransparent = x >= sx0 && x <= sx1 && y >= sy0 && y <= sy1;
@@ -35,6 +38,48 @@ const fillBackgroundObjects = (
           isVisible: !isInvisible,
           isSemiTransparent,
           position: [x * 2.1, y * 2.1, 0],
+          rotation: [90 * (Math.PI / 180), rotation * (Math.PI / 180), 0],
+        });
+      }
+    }
+  }
+  return specs;
+};
+
+const fillBackgroundObjectsGrass = (
+  lowestX: number,
+  lowestY: number,
+  size: number,
+  invisibleCoordinates: { x0: number, y0: number, x1: number, y1: number },
+  semiTransparentCoordinates: { x0: number, y0: number, x1: number, y1: number },
+  positionCompareFn: PositionCompareFn,
+  rotationCompareFn: RotationCompareFn,
+  positionInterval = 1,
+) => {
+  const specs: Array<ObjectSpecs> = [];
+  const {
+    x0, x1, y0, y1,
+  } = invisibleCoordinates;
+  const {
+    x0: sx0, x1: sx1, y0: sy0, y1: sy1,
+  } = semiTransparentCoordinates;
+  for (let y = lowestY; y < lowestY + size; y += positionInterval) {
+    if (y < 0) { continue; }
+    for (let x = lowestX; x < lowestX + size; x += positionInterval) {
+      if (x < 0) { continue; }
+
+      const doFillPosition = pseudoRand(Math.floor(x), Math.floor(y), 10, positionCompareFn);
+
+      if (doFillPosition) {
+        const rotation = pseudoRand(x, y, 4, rotationCompareFn) || 0;
+
+        const isInvisible = x >= x0 * 2.1 && x <= x1 * 2.1 && y >= y0 * 2.1 && y <= y1 * 2.1;
+        const isSemiTransparent = x >= sx0 * 2.1 && x <= sx1 * 2.1 && y >= sy0 * 2.1 && y <= sy1 * 2.1;
+
+        specs.push({
+          isVisible: !isInvisible,
+          isSemiTransparent,
+          position: [Math.floor(x), Math.floor(y), 0],
           rotation: [90 * (Math.PI / 180), rotation * (Math.PI / 180), 0],
         });
       }
@@ -110,6 +155,7 @@ const getSemiTransparentPerimeter = (center: { x: number, y: number }) =>
 
 export {
   fillBackgroundObjects,
+  fillBackgroundObjectsGrass,
   createPositionCompareFn,
   createRotationCompareFn,
   updateBackgroundObjectsToSpecs,

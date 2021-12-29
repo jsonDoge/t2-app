@@ -32,6 +32,7 @@ import {
   createPositionCompareFn,
   createRotationCompareFn,
   fillBackgroundObjects,
+  fillBackgroundObjectsGrass,
   getInvisiblePerimeter,
   getSemiTransparentPerimeter,
   updateBackgroundObjectsToSpecs,
@@ -55,13 +56,15 @@ const Grid: React.FC<{}> = () => {
   const lightRef = useRef();
   const backgroundTreeRefs = new Array(100).fill(undefined).map(() => createRef<THREE.Mesh>());
   const backgroundFirRefs = new Array(100).fill(undefined).map(() => createRef<THREE.Mesh>());
+  const backgroundGrassRefs = new Array(400).fill(undefined).map(() => createRef<THREE.Mesh>());
   const backgroundTreeSpecsRef = useRef<Array<ObjectSpecs>>([]);
   const backgroundFirSpecsRef = useRef<Array<ObjectSpecs>>([]);
+  const backgroundGrassSpecsRef = useRef<Array<ObjectSpecs>>([]);
   const centerRef = useRef({ x: 0, y: 0 });
 
   const backgroundPlantOffset = {
-    x: -10,
-    y: -10,
+    x: -15,
+    y: -15,
   };
 
   const orthCameraRef = useRef();
@@ -82,14 +85,16 @@ const Grid: React.FC<{}> = () => {
   const treeRotationCompareFn = createRotationCompareFn(1);
   const firPositionCompareFn = createPositionCompareFn('2');
   const firRotationCompareFn = createRotationCompareFn(2);
+  const grassPositionCompareFn = createPositionCompareFn('3');
+  const grassRotationCompareFn = createRotationCompareFn(3);
 
-  const updateBackgroundObjects = () => {
+  const fillBackground = () => {
     const invisibleCoordinates = getInvisiblePerimeter(centerRef.current);
     const semiTransparentCoordinates = getSemiTransparentPerimeter(centerRef.current);
     backgroundTreeSpecsRef.current = fillBackgroundObjects(
       centerRef.current.x + backgroundPlantOffset.x,
       centerRef.current.y + backgroundPlantOffset.y,
-      gridSize + 20,
+      30,
       invisibleCoordinates,
       semiTransparentCoordinates,
       treePositionCompareFn,
@@ -99,13 +104,25 @@ const Grid: React.FC<{}> = () => {
     backgroundFirSpecsRef.current = fillBackgroundObjects(
       centerRef.current.x + backgroundPlantOffset.x,
       centerRef.current.y + backgroundPlantOffset.y,
-      gridSize + 20,
+      30,
       invisibleCoordinates,
       semiTransparentCoordinates,
       firPositionCompareFn,
       firRotationCompareFn,
     );
 
+    backgroundGrassSpecsRef.current = fillBackgroundObjectsGrass(
+      (centerRef.current.x + backgroundPlantOffset.x) * 2.1,
+      (centerRef.current.y + backgroundPlantOffset.y) * 2.1,
+      30 * 2.1,
+      invisibleCoordinates,
+      semiTransparentCoordinates,
+      grassPositionCompareFn,
+      grassRotationCompareFn,
+    );
+  };
+
+  const updateBackground = () => {
     if (backgroundTreeRefs.length !== 0) {
       updateBackgroundObjectsToSpecs(
         backgroundTreeRefs,
@@ -119,31 +136,24 @@ const Grid: React.FC<{}> = () => {
         backgroundFirSpecsRef,
       );
     }
+
+    if (backgroundGrassRefs.length !== 0) {
+      updateBackgroundObjectsToSpecs(
+        backgroundGrassRefs,
+        backgroundGrassSpecsRef,
+      );
+    }
+  };
+
+  const updateBackgroundObjects = () => {
+    fillBackground();
+    updateBackground();
   };
 
   useEffect(() => {
-    const invisibleCoordinates = getInvisiblePerimeter(centerRef.current);
-    const semiTransparentCoordinates = getSemiTransparentPerimeter(centerRef.current);
+    fillBackground();
     fillGridPositions(mainPlotRefs, gridSize);
     fillSurroundRowPositions(surroundPlotRefs, gridSize + 2);
-    backgroundTreeSpecsRef.current = fillBackgroundObjects(
-      centerRef.current.x + backgroundPlantOffset.x,
-      centerRef.current.y + backgroundPlantOffset.y,
-      gridSize + 20,
-      invisibleCoordinates,
-      semiTransparentCoordinates,
-      treePositionCompareFn,
-      treeRotationCompareFn,
-    );
-    backgroundFirSpecsRef.current = fillBackgroundObjects(
-      centerRef.current.x + backgroundPlantOffset.x,
-      centerRef.current.y + backgroundPlantOffset.y,
-      gridSize + 20,
-      invisibleCoordinates,
-      semiTransparentCoordinates,
-      firPositionCompareFn,
-      firRotationCompareFn,
-    );
   }, []);
 
   // add target for manipulation
@@ -326,18 +336,6 @@ const Grid: React.FC<{}> = () => {
       <Weed position={[4.5, 0.3, 0.3]} />
       {
         (
-          new Array(100).fill(undefined).map(
-            () => (
-              <Grass1
-                position={[getRand(-20, 20), getRand(-20, 20), 0]}
-                rotation={[0, 0, getRand(0, 360) * (Math.PI / 180)]}
-              />
-            ),
-          )
-        )
-      }
-      {
-        (
           backgroundTreeRefs.map(
             (ref) => (<Tree reference={ref} />),
           )
@@ -347,6 +345,13 @@ const Grid: React.FC<{}> = () => {
         (
           backgroundFirRefs.map(
             (ref) => (<Fir reference={ref} />),
+          )
+        )
+      }
+      {
+        (
+          backgroundGrassRefs.map(
+            (ref) => (<Grass1 reference={ref} />),
           )
         )
       }

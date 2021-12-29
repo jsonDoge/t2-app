@@ -4,18 +4,12 @@ import { useGLTF } from '@react-three/drei';
 useGLTF.preload('/tree.gltf');
 
 interface Props {
-  position: [number, number, number],
-  visible: boolean,
   reference: any
 }
 
 const Tree: React.FC<Props> = (props) => {
   const group = useRef();
   const { nodes, materials } = useGLTF('/tree.gltf');
-
-  materials.Material.visible = props.visible !== undefined
-    ? props.visible
-    : true;
 
   useEffect(() => {
     // TODO: find better way to assign reference
@@ -25,7 +19,7 @@ const Tree: React.FC<Props> = (props) => {
   }, [props.reference]);
 
   return (
-    <group visible={props.visible}>
+    <group>
       <mesh
         ref={group}
         scale={[0.5, 0.5, 0.5]}
@@ -33,7 +27,11 @@ const Tree: React.FC<Props> = (props) => {
         receiveShadow
         geometry={nodes.Cube.geometry}
         material={materials.Material}
-      />
+      >
+        <meshStandardMaterial
+          {...materials.Material}
+        />
+      </mesh>
     </group>
   );
 };

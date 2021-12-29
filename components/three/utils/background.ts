@@ -9,10 +9,18 @@ const fillBackgroundObjects = (
   lowestX: number,
   lowestY: number,
   size: number,
+  invisibleCoordinates: { x0: number, y0: number, x1: number, y1: number },
+  semiTransparentCoordinates: { x0: number, y0: number, x1: number, y1: number },
   positionCompareFn: PositionCompareFn,
   rotationCompareFn: RotationCompareFn,
 ) => {
   const specs: Array<ObjectSpecs> = [];
+  const {
+    x0, x1, y0, y1,
+  } = invisibleCoordinates;
+  const {
+    x0: sx0, x1: sx1, y0: sy0, y1: sy1,
+  } = semiTransparentCoordinates;
   for (let y = lowestY; y < lowestY + size; y += 1) {
     for (let x = lowestX; x < lowestX + size; x += 1) {
       const doFillPosition = pseudoRand(x, y, 10, positionCompareFn);
@@ -20,7 +28,12 @@ const fillBackgroundObjects = (
       if (doFillPosition) {
         const rotation = pseudoRand(x, y, 4, rotationCompareFn);
 
+        const isInvisible = x >= x0 && x <= x1 && y >= y0 && y <= y1;
+        const isSemiTransparent = x >= sx0 && x <= sx1 && y >= sy0 && y <= sy1;
+
         specs.push({
+          isVisible: !isInvisible,
+          isSemiTransparent,
           position: [x * 2.1, y * 2.1, 0],
           rotation: [90 * (Math.PI / 180), rotation * (Math.PI / 180), 0],
         });
@@ -59,6 +72,16 @@ const updateBackgroundObjectsToSpecs = (
         ref.current.rotation.y,
         ref.current.rotation.z,
       ] = specsRef.current[i].rotation);
+
+      if (specsRef.current[i].isSemiTransparent) {
+        ref.current.material.opacity = 0.1;
+        ref.current.material.transparent = true;
+      } else {
+        ref.current.material.opacity = 1;
+        ref.current.material.transparent = false;
+      }
+
+      ref.current.visible = specsRef.current[i].isVisible;
     } else {
       ([
         ref.current.position.x,
@@ -69,9 +92,27 @@ const updateBackgroundObjectsToSpecs = (
   });
 };
 
+const getInvisiblePerimeter = (center: { x: number, y: number }) =>
+  ({
+    x0: center.x - 4,
+    y0: center.y - 4,
+    x1: center.x + 4,
+    y1: center.y + 4,
+  });
+
+const getSemiTransparentPerimeter = (center: { x: number, y: number }) =>
+  ({
+    x0: center.x - 7,
+    y0: center.y - 7,
+    x1: center.x + 7,
+    y1: center.y + 7,
+  });
+
 export {
   fillBackgroundObjects,
   createPositionCompareFn,
   createRotationCompareFn,
   updateBackgroundObjectsToSpecs,
+  getInvisiblePerimeter,
+  getSemiTransparentPerimeter,
 };

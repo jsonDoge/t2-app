@@ -32,6 +32,8 @@ import {
   createPositionCompareFn,
   createRotationCompareFn,
   fillBackgroundObjects,
+  getInvisiblePerimeter,
+  getSemiTransparentPerimeter,
   updateBackgroundObjectsToSpecs,
 } from './utils/background';
 import { ObjectSpecs } from './utils/interfaces';
@@ -55,17 +57,12 @@ const Grid: React.FC<{}> = () => {
   const backgroundFirRefs = new Array(100).fill(undefined).map(() => createRef<THREE.Mesh>());
   const backgroundTreeSpecsRef = useRef<Array<ObjectSpecs>>([]);
   const backgroundFirSpecsRef = useRef<Array<ObjectSpecs>>([]);
-  const centerRef = useRef({ x: -7, y: -7 });
+  const centerRef = useRef({ x: 0, y: 0 });
 
-  // TODO: to be used after background object rendering
-  const invisiblePerimiter = {
-    x: 12,
-    y: 12,
+  const backgroundPlantOffset = {
+    x: -10,
+    y: -10,
   };
-  const renderbackgroundPerimter = useRef({
-    x: 30,
-    y: 30,
-  });
 
   const orthCameraRef = useRef();
 
@@ -87,18 +84,24 @@ const Grid: React.FC<{}> = () => {
   const firRotationCompareFn = createRotationCompareFn(2);
 
   const updateBackgroundObjects = () => {
+    const invisibleCoordinates = getInvisiblePerimeter(centerRef.current);
+    const semiTransparentCoordinates = getSemiTransparentPerimeter(centerRef.current);
     backgroundTreeSpecsRef.current = fillBackgroundObjects(
-      centerRef.current.x,
-      centerRef.current.y,
+      centerRef.current.x + backgroundPlantOffset.x,
+      centerRef.current.y + backgroundPlantOffset.y,
       gridSize + 20,
+      invisibleCoordinates,
+      semiTransparentCoordinates,
       treePositionCompareFn,
       treeRotationCompareFn,
     );
 
     backgroundFirSpecsRef.current = fillBackgroundObjects(
-      centerRef.current.x,
-      centerRef.current.y,
+      centerRef.current.x + backgroundPlantOffset.x,
+      centerRef.current.y + backgroundPlantOffset.y,
       gridSize + 20,
+      invisibleCoordinates,
+      semiTransparentCoordinates,
       firPositionCompareFn,
       firRotationCompareFn,
     );
@@ -119,14 +122,27 @@ const Grid: React.FC<{}> = () => {
   };
 
   useEffect(() => {
+    const invisibleCoordinates = getInvisiblePerimeter(centerRef.current);
+    const semiTransparentCoordinates = getSemiTransparentPerimeter(centerRef.current);
     fillGridPositions(mainPlotRefs, gridSize);
     fillSurroundRowPositions(surroundPlotRefs, gridSize + 2);
     backgroundTreeSpecsRef.current = fillBackgroundObjects(
-      0,
-      0,
+      centerRef.current.x + backgroundPlantOffset.x,
+      centerRef.current.y + backgroundPlantOffset.y,
       gridSize + 20,
+      invisibleCoordinates,
+      semiTransparentCoordinates,
       treePositionCompareFn,
       treeRotationCompareFn,
+    );
+    backgroundFirSpecsRef.current = fillBackgroundObjects(
+      centerRef.current.x + backgroundPlantOffset.x,
+      centerRef.current.y + backgroundPlantOffset.y,
+      gridSize + 20,
+      invisibleCoordinates,
+      semiTransparentCoordinates,
+      firPositionCompareFn,
+      firRotationCompareFn,
     );
   }, []);
 
@@ -162,7 +178,7 @@ const Grid: React.FC<{}> = () => {
 
   useFrame((state) => {
     const cameraPlotDeviationX = Math.floor((state.camera.position.x - 10) / 2.1);
-    const cameraPlotDevationY = Math.floor((state.camera.position.y - 10) / 2.1);
+    const cameraPlotDevationY = Math.floor((state.camera.position.y + 10) / 2.1);
 
     if (cameraPlotDeviation.current.x !== cameraPlotDeviationX
       || cameraPlotDeviation.current.y !== cameraPlotDevationY) {
@@ -174,8 +190,8 @@ const Grid: React.FC<{}> = () => {
       cameraPlotDeviation.current.y = cameraPlotDevationY;
       cameraPlotDeviation.current.x = cameraPlotDeviationX;
 
-      centerRef.current.y = -7 + cameraPlotDeviation.current.y;
-      centerRef.current.x = -7 + cameraPlotDeviation.current.x;
+      centerRef.current.y = cameraPlotDeviation.current.y;
+      centerRef.current.x = cameraPlotDeviation.current.x;
 
       updateBackgroundObjects();
     }
@@ -185,7 +201,6 @@ const Grid: React.FC<{}> = () => {
     updatePositionOnKeyDown(lightRef.current.target.position, keysDown);
     updatePositionOnKeyDown(centerRef.current, keysDown);
 
-    // updateBackgroundObjectsOnKeyDown();
     state.camera.updateProjectionMatrix();
   });
 

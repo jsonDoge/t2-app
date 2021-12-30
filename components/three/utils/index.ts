@@ -267,58 +267,6 @@ const updatePositionOnKeyDown = (position: { x: number, y: number }, keysDown) =
   }
 };
 
-const updateBackgroundObjectsOnKeyDown = (
-  centerPosition: { x: number, y: number },
-  lastDeviationRef: { current: { x: number, y: number } },
-  backgroundObjectPositions: Array<[number, number, number]>,
-) => {
-  const centerPositionDeviationX = Math.floor((centerPosition.x) / 2.1);
-  const centerPositionDeviationY = Math.floor((centerPosition.y) / 2.1);
-
-  if (lastDeviationRef.current.x !== centerPositionDeviationX
-    || lastDeviationRef.current.y !== centerPositionDeviationY) {
-    updateBackgroundObjects(
-      centerPositionDeviationX - lastDeviationRef.current.x,
-      centerPositionDeviationY - lastDeviationRef.current.y,
-      backgroundObjectPositions,
-    );
-
-    lastDeviationRef.current.y = centerPositionDeviationY;
-    lastDeviationRef.current.x = centerPositionDeviationX;
-  }
-};
-
-const updateBackgroundObjects = (
-  deviationX: number,
-  deviationY: number,
-  backgroundObjectPositions: Array<[number, number, number]>,
-): void => {
-  if (deviationY > 0) {
-    updateBackgroundObjects
-    surroundRefs[1].forEach((c) => {
-      c.current.isAscending = true;
-      c.current.castShadow = true;
-    });
-  } else if (deviationY < 0) {
-    surroundRefs[0].forEach((c) => {
-      c.current.isAscending = true;
-      c.current.castShadow = true;
-    });
-  }
-
-  if (deviationX > 0) {
-    surroundRefs[3].forEach((c) => {
-      c.current.isAscending = true;
-      c.current.castShadow = true;
-    });
-  } else if (deviationX < 0) {
-    surroundRefs[2].forEach((c) => {
-      c.current.isAscending = true;
-      c.current.castShadow = true;
-    });
-  }
-};
-
 export {
   fillGridPositions,
   generateMainGrid,
@@ -329,5 +277,4 @@ export {
   updatePlotPositionAfterAscention,
   updatePositionOnKeyDown,
   updateGrid,
-  updateBackgroundObjectsOnKeyDown,
 };

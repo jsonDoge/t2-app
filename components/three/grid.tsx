@@ -50,7 +50,17 @@ const gridSize = 7;
 
 const validKeys = ['KeyW', 'KeyA', 'KeyS', 'KeyD'];
 
-const Grid: React.FC<{}> = () => {
+interface IGrid {
+  onPlotSelect: (x: number, y: number) => {},
+  onCenterMove: (x: number, y: number) => {},
+  center: { x: number, y: number },
+}
+
+const Grid: React.FC<IGrid> = ({
+  onPlotSelect = () => {},
+  onCenterMove = () => {},
+  center,
+}) => {
   const { size, set, scene } = useThree();
   const planeRef = useRef();
   const lightRef = useRef();
@@ -60,7 +70,32 @@ const Grid: React.FC<{}> = () => {
   const backgroundTreeSpecsRef = useRef<Array<ObjectSpecs>>([]);
   const backgroundFirSpecsRef = useRef<Array<ObjectSpecs>>([]);
   const backgroundGrassSpecsRef = useRef<Array<ObjectSpecs>>([]);
-  const centerRef = useRef({ x: 0, y: 0 });
+  const centerRef = useRef({ x: 3, y: 3 });
+  const teleportedRef = useRef(false);
+
+  const perspectiveCameraOffset = {
+    x: 9.7,
+    y: -8.3,
+    z: 10,
+  };
+
+  const directionalLightOffset = {
+    x: 113.7,
+    y: 73.7,
+    z: 60,
+  };
+
+  const cameraInitialPosition = {
+    x: perspectiveCameraOffset.x + (centerRef.current.x * 2.1),
+    y: perspectiveCameraOffset.y + (centerRef.current.y * 2.1),
+    z: perspectiveCameraOffset.z,
+  };
+
+  const directionalLightInitialPosition = {
+    x: directionalLightOffset.x + (centerRef.current.x * 2.1),
+    y: directionalLightOffset.y + (centerRef.current.y * 2.1),
+    z: directionalLightOffset.z,
+  };
 
   const backgroundPlantOffset = {
     x: -15,
@@ -77,10 +112,10 @@ const Grid: React.FC<{}> = () => {
     setPerspectiveCameraRef,
   ] = useState<THREE.PerspectiveCamera>();
 
-  const cameraPlotDeviation = useRef({ x: 0, y: 0 });
   const keysDown = useRef({
     w: false, a: false, s: false, d: false,
   });
+
   const treePositionCompareFn = createPositionCompareFn('1');
   const treeRotationCompareFn = createRotationCompareFn(1);
   const firPositionCompareFn = createPositionCompareFn('2');
@@ -150,11 +185,41 @@ const Grid: React.FC<{}> = () => {
     updateBackground();
   };
 
+  const updateCenterCoordinates = (x: number, y: number) => {
+    centerRef.current = { x, y };
+
+    onCenterMove(x, y);
+  };
+
+  const onCenterSet = () => {
+    perspectiveCameraRef.position.x = (center.x * 2.1) + perspectiveCameraOffset.x;
+    perspectiveCameraRef.position.y = (center.y * 2.1) + perspectiveCameraOffset.y;
+    lightRef.current.position.x = (center.x * 2.1) + directionalLightOffset.x;
+    lightRef.current.position.y = (center.y * 2.1) + directionalLightOffset.y;
+    lightRef.current.target.position.x = (center.x - gridSize) * 2.1;
+    lightRef.current.target.position.y = (center.y - gridSize) * 2.1;
+    teleportedRef.current = true;
+  };
+
+  // USE EFFECTS
+
   useEffect(() => {
     fillBackground();
-    fillGridPositions(mainPlotRefs, gridSize);
-    fillSurroundRowPositions(surroundPlotRefs, gridSize + 2);
+    fillGridPositions(
+      mainPlotRefs, gridSize, centerRef.current.x, centerRef.current.y,
+    );
+    fillSurroundRowPositions(
+      surroundPlotRefs, gridSize + 2, centerRef.current.x, centerRef.current.y,
+    );
   }, []);
+
+  useEffect(() => {
+    if (
+      center.x === centerRef.current.x
+      && center.y === centerRef.current.y
+    ) { return; }
+    onCenterSet();
+  }, [center.x, center.y]);
 
   // add target for manipulation
   // orthCamera to set shadow limits (to not be cut off)
@@ -172,6 +237,22 @@ const Grid: React.FC<{}> = () => {
     lightRef.current.shadow.camera = orthCameraRef.current;
   }, []);
 
+  useEffect(() => {
+    window.addEventListener('keypress', updateWasdStateOnDown);
+    window.addEventListener('keyup', updateWasdStateOnUp);
+
+    return () => {
+      window.removeEventListener('keypress', updateWasdStateOnDown);
+      window.removeEventListener('keyup', updateWasdStateOnUp);
+    };
+  }, []);
+
+  useEffect(() => {
+    updateBackgroundObjects();
+  }, []);
+
+  // USE FRAMES
+
   // ascention/descention
   useFrame(() => {
     ascendDescendPlots(mainPlotRefs);
@@ -187,21 +268,39 @@ const Grid: React.FC<{}> = () => {
   });
 
   useFrame((state) => {
-    const cameraPlotDeviationX = Math.floor((state.camera.position.x - 10) / 2.1);
-    const cameraPlotDevationY = Math.floor((state.camera.position.y + 10) / 2.1);
+    const newCenterX = Math.floor(
+      (state.camera.position.x - perspectiveCameraOffset.x) / 2.1,
+    );
+    const newCenterY = Math.floor(
+      (state.camera.position.y - perspectiveCameraOffset.y) / 2.1,
+    );
 
-    if (cameraPlotDeviation.current.x !== cameraPlotDeviationX
-      || cameraPlotDeviation.current.y !== cameraPlotDevationY) {
-      updateGrid(
-        cameraPlotDeviationX - cameraPlotDeviation.current.x,
-        cameraPlotDevationY - cameraPlotDeviation.current.y,
-        surroundPlotRefs,
+    if (centerRef.current.x !== newCenterX
+      || centerRef.current.y !== newCenterY) {
+      const diffX = newCenterX - centerRef.current.x;
+      const diffY = newCenterY - centerRef.current.y;
+
+      updateCenterCoordinates(
+        newCenterX,
+        newCenterY,
       );
-      cameraPlotDeviation.current.y = cameraPlotDevationY;
-      cameraPlotDeviation.current.x = cameraPlotDeviationX;
 
-      centerRef.current.y = cameraPlotDeviation.current.y;
-      centerRef.current.x = cameraPlotDeviation.current.x;
+      if (!teleportedRef.current) {
+        updateGrid(
+          diffX,
+          diffY,
+          surroundPlotRefs,
+        );
+      } else {
+        teleportedRef.current = false;
+        fillBackground();
+        fillGridPositions(
+          mainPlotRefs, gridSize, centerRef.current.x, centerRef.current.y,
+        );
+        fillSurroundRowPositions(
+          surroundPlotRefs, gridSize + 2, centerRef.current.x, centerRef.current.y,
+        );
+      }
 
       updateBackgroundObjects();
     }
@@ -209,7 +308,6 @@ const Grid: React.FC<{}> = () => {
     updatePositionOnKeyDown(state.camera.position, keysDown);
     updatePositionOnKeyDown(lightRef.current.position, keysDown);
     updatePositionOnKeyDown(lightRef.current.target.position, keysDown);
-    updatePositionOnKeyDown(centerRef.current, keysDown);
 
     state.camera.updateProjectionMatrix();
   });
@@ -233,21 +331,6 @@ const Grid: React.FC<{}> = () => {
     keysDown.current[key] = false;
   };
 
-  const getRand = (min: number, max: number) => min + Math.random() * (max - min);
-
-  useEffect(() => {
-    window.addEventListener('keypress', updateWasdStateOnDown);
-    window.addEventListener('keyup', updateWasdStateOnUp);
-
-    return () => {
-      window.removeEventListener('keypress', updateWasdStateOnDown);
-      window.removeEventListener('keyup', updateWasdStateOnUp);
-    };
-  }, []);
-
-  useEffect(() => {
-    updateBackgroundObjects();
-  }, []);
   return (
     <>
       <ambientLight
@@ -259,7 +342,11 @@ const Grid: React.FC<{}> = () => {
         color="#FDF3c6"
         castShadow
         distance={100}
-        position={[120, 80, 60, 0, 100]}
+        position={[
+          directionalLightInitialPosition.x,
+          directionalLightInitialPosition.y,
+          directionalLightInitialPosition.z,
+        ]}
         shadow-mapSize-height={2048}
         shadow-mapSize-width={2048}
         shadow-radius={2}
@@ -271,14 +358,18 @@ const Grid: React.FC<{}> = () => {
         ref={setPerspectiveCameraRef}
         aspect={size.width / size.height}
         fov={65}
-        position={[10, -10, 10]}
+        position={[
+          cameraInitialPosition.x,
+          cameraInitialPosition.y,
+          cameraInitialPosition.z,
+        ]}
         near={1}
         far={10000}
         rotation={[30 * (Math.PI / 180), 30 * (Math.PI / 180), 40 * (Math.PI / 180)]}
         onUpdate={(self: any) => self.updateProjectionMatrix()}
       />
       {
-        mainPlotRefs.map((r) => r.map((c) => (
+        mainPlotRefs.map((r, yIndex) => r.map((c, xIndex) => (
           <mesh
             ref={c}
             castShadow
@@ -292,6 +383,14 @@ const Grid: React.FC<{}> = () => {
               self.eventObject.material.color = {
                 r: 0.19806931954941637, g: 0.5332764040016892, b: 0.24620132669705552,
               };
+            }}
+            onPointerDown={(self) => {
+              const coordinates = {
+                x: centerRef.current.x + (xIndex - 3),
+                y: centerRef.current.y + (yIndex - 3),
+              };
+
+              onPlotSelect(coordinates.x, coordinates.y);
             }}
           >
             <boxGeometry args={[2, 2, 0.2]} />

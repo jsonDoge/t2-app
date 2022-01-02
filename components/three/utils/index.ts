@@ -27,48 +27,62 @@ const generateSurroundRows = (size: number): Array<Array<THREE.Mesh>> => {
   return surroundRefs;
 };
 
-const fillGridPositions = (grid: Array<Array<THREE.Mesh>>, size: number) => {
-  const minValue = ((size - 1) / -2) * 2.1;
+const fillGridPositions = (
+  grid: Array<Array<THREE.Mesh>>,
+  size: number,
+  centerX: number,
+  centerY: number,
+) => {
+  const sizeDeviation = (size - 1) / 2; // because odd (5)
+  const minValueX = (centerX - sizeDeviation) * 2.1;
+  const minValueY = (centerY - sizeDeviation) * 2.1;
 
   grid.forEach((row: Array<THREE.Mesh>, rowIndex: number) => {
     row.forEach((ref: THREE.Mesh, columnIndex: number) => {
-      ref.current.position.x = minValue + columnIndex * 2.1;
-      ref.current.position.y = minValue + rowIndex * 2.1;
+      ref.current.position.x = minValueX + columnIndex * 2.1;
+      ref.current.position.y = minValueY + rowIndex * 2.1;
       ref.current.position.z = -0.12;
       ref.current.isAscending = true;
     });
   });
 };
 
-const fillSurroundRowPositions = (grid: Array<Array<THREE.Mesh>>, size: number) => {
-  const minValue = ((size - 1) / -2) * 2.1;
+const fillSurroundRowPositions = (
+  grid: Array<Array<THREE.Mesh>>,
+  size: number,
+  centerX: number,
+  centerY: number,
+) => {
+  const sizeDeviation = (size - 1) / 2; // because odd (5)
+  const minValueX = (centerX - sizeDeviation) * 2.1;
+  const minValueY = (centerY - sizeDeviation) * 2.1;
 
   // along Y axis
   grid[0].forEach((ref, columnIndex) => {
-    ref.current.position.x = minValue + (columnIndex + 1) * 2.1;
-    ref.current.position.y = minValue;
+    ref.current.position.x = minValueX + (columnIndex + 1) * 2.1;
+    ref.current.position.y = minValueY;
     ref.current.position.z = -0.12;
     ref.current.castShadow = false;
   });
 
   grid[1].forEach((ref, columnIndex) => {
-    ref.current.position.x = minValue + (columnIndex + 1) * 2.1;
-    ref.current.position.y = minValue + (size - 1) * 2.1;
+    ref.current.position.x = minValueX + (columnIndex + 1) * 2.1;
+    ref.current.position.y = minValueY + (size - 1) * 2.1;
     ref.current.position.z = -0.12;
     ref.current.castShadow = false;
   });
 
   // along X axis
   grid[2].forEach((ref, columnIndex) => {
-    ref.current.position.x = minValue;
-    ref.current.position.y = minValue + (columnIndex + 1) * 2.1;
+    ref.current.position.x = minValueX;
+    ref.current.position.y = minValueY + (columnIndex + 1) * 2.1;
     ref.current.position.z = -0.12;
     ref.current.castShadow = false;
   });
 
   grid[3].forEach((ref, columnIndex) => {
-    ref.current.position.x = minValue + (size - 1) * 2.1;
-    ref.current.position.y = minValue + (columnIndex + 1) * 2.1;
+    ref.current.position.x = minValueX + (size - 1) * 2.1;
+    ref.current.position.y = minValueY + (columnIndex + 1) * 2.1;
     ref.current.position.z = -0.12;
     ref.current.castShadow = false;
   });

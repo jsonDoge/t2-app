@@ -37,7 +37,8 @@ import {
   getSemiTransparentPerimeter,
   updateBackgroundObjectsToSpecs,
 } from './utils/background';
-import { ObjectSpecs } from './utils/interfaces';
+import { MappedPlots, ObjectSpecs } from './utils/interfaces';
+import Plot from './plot';
 
 const KEY_CODES = {
   KeyW: 'w',
@@ -54,12 +55,14 @@ interface IGrid {
   onPlotSelect: (x: number, y: number) => {},
   onCenterMove: (x: number, y: number) => {},
   center: { x: number, y: number },
+  mappedPlots: React.MutableRefObject<MappedPlots>
 }
 
 const Grid: React.FC<IGrid> = ({
   onPlotSelect = () => {},
   onCenterMove = () => {},
   center,
+  mappedPlots = {},
 }) => {
   const { size, set, scene } = useThree();
   const planeRef = useRef();
@@ -313,7 +316,16 @@ const Grid: React.FC<IGrid> = ({
   });
 
   useLayoutEffect(
-    () => set({ camera: perspectiveCameraRef }),
+    () => {
+      if (!perspectiveCameraRef) { return; }
+
+      set({ camera: perspectiveCameraRef });
+
+      // set initial position manually so React wouldn't re-render
+      perspectiveCameraRef.position.x = cameraInitialPosition.x;
+      perspectiveCameraRef.position.y = cameraInitialPosition.y;
+      perspectiveCameraRef.position.z = cameraInitialPosition.z;
+    },
     [perspectiveCameraRef, set],
   );
 
@@ -358,11 +370,6 @@ const Grid: React.FC<IGrid> = ({
         ref={setPerspectiveCameraRef}
         aspect={size.width / size.height}
         fov={65}
-        position={[
-          cameraInitialPosition.x,
-          cameraInitialPosition.y,
-          cameraInitialPosition.z,
-        ]}
         near={1}
         far={10000}
         rotation={[30 * (Math.PI / 180), 30 * (Math.PI / 180), 40 * (Math.PI / 180)]}
@@ -370,20 +377,8 @@ const Grid: React.FC<IGrid> = ({
       />
       {
         mainPlotRefs.map((r, yIndex) => r.map((c, xIndex) => (
-          <mesh
-            ref={c}
-            castShadow
-            receiveShadow
-            onPointerOver={(self) => {
-              self.eventObject.material.color = {
-                r: 0.2578125, g: 0.74609375, b: 0.34765625,
-              };
-            }}
-            onPointerOut={(self) => {
-              self.eventObject.material.color = {
-                r: 0.19806931954941637, g: 0.5332764040016892, b: 0.24620132669705552,
-              };
-            }}
+          <Plot
+            reference={c}
             onPointerDown={(self) => {
               const coordinates = {
                 x: centerRef.current.x + (xIndex - 3),
@@ -392,32 +387,21 @@ const Grid: React.FC<IGrid> = ({
 
               onPlotSelect(coordinates.x, coordinates.y);
             }}
-          >
-            <boxGeometry args={[2, 2, 0.2]} />
-            <meshStandardMaterial color="#7BC188" />
-          </mesh>
+            plotInfo={
+                mappedPlots.current?.[
+                  centerRef.current.x + (xIndex - 3)
+                ]?.[
+                  centerRef.current.y + (yIndex - 3)
+                ]
+              }
+          />
         )))
       }
       {
         surroundPlotRefs.map((r) => r.map((c) => (
-          <mesh
-            ref={c}
-            castShadow
-            receiveShadow
-            onPointerOver={(self) => {
-              self.eventObject.material.color = {
-                r: 0.2578125, g: 0.74609375, b: 0.34765625,
-              };
-            }}
-            onPointerOut={(self) => {
-              self.eventObject.material.color = {
-                r: 0.19806931954941637, g: 0.5332764040016892, b: 0.24620132669705552,
-              };
-            }}
-          >
-            <boxGeometry args={[2, 2, 0.2]} />
-            <meshStandardMaterial color="#7BC188" />
-          </mesh>
+          <Plot
+            reference={c}
+          />
         )))
       }
       <Plant position={[4.5, 4, 0.2]} />

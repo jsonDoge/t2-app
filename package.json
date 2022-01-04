@@ -25,6 +25,7 @@
     "@react-three/fiber": "^7.0.21",
     "@typescript-eslint/eslint-plugin": "^5.1.0",
     "ethers": "^5.4.7",
+    "lodash": "^4.17.21",
     "next": "12.0.3",
     "prop-types": "^15.7.2",
     "react": "17.0.2",

@@ -1,4 +1,8 @@
-import React, { Suspense, useEffect, useState } from 'react';
+/* eslint-disable no-param-reassign */
+import React, {
+  Suspense, useEffect, useRef, useState,
+} from 'react';
+import { debounce } from 'lodash';
 import { Canvas } from '@react-three/fiber';
 import Grid from './three/grid';
 import { IGridContext, useGrid } from '../context/grid';
@@ -7,22 +11,14 @@ import { getPlotInfos } from '../services/farm';
 import { convertCenterToUpperLeftCorner, Plot, PlotInfo } from '../services/utils';
 import { getAllCoordinatesAround } from '../utils';
 import { IWalletContext, useWallet } from '../context/wallet';
-
-interface MappedPlot {
-  x: number,
-  y: number,
-  isOwner: boolean,
-  isPlantOwner: boolean,
-  isUnminted: boolean,
-  plantType: string | undefined
-}
+import { MappedPlots } from './three/utils/interfaces';
 
 const Background: React.FC<{}> = () => {
   // const { isLoading }: IGridContext = useGrid();
   const { isLoading: isWalletLoading, wallet }: IWalletContext = useWallet();
   const { center }: IGridContext = useGrid();
 
-  const [grid, setGrid] = useState([] as MappedPlot[]);
+  const mappedPlots = useRef<MappedPlots>({});
   const [gridXAxis, setGridXAxis] = useState([]);
   const [gridYAxis, setGridYAxis] = useState([]);
   const [selectedPlot, selectPlot] = useState({ x: 0, y: 0 });
@@ -32,26 +28,25 @@ const Background: React.FC<{}> = () => {
   // modals
   const [isAlreadyOwnedModalShown, setIsAlreadyOwnedModalShown] = useState(false);
 
-  const generateGrid = (plots: Plot[]): Array<MappedPlot> =>
-    plots.map((p: Plot) => {
-      const isOwner = p?.owner === wallet?.address;
-      const isPlantOwner = p?.plant?.owner === wallet?.address;
-      const isUnminted = !p?.owner && !p?.plant?.owner;
-      let color = 'bg-green-200';
-      if (isOwner || isPlantOwner) {
-        color = 'bg-blue-200';
-      } else if (!isUnminted) {
-        color = 'bg-yellow-200';
+  const mapPlotInfo = (plots: Plot[]): MappedPlots =>
+    plots.reduce((mp: MappedPlots, plot: Plot) => {
+      const isOwner = plot?.owner === wallet?.address;
+      const isPlantOwner = plot?.plant?.owner === wallet?.address;
+      const isUnminted = !plot?.owner && !plot?.plant?.owner;
+
+      if (!mp[plot.x]) {
+        mp[plot.x] = {};
       }
-      return {
-        x: p.x,
-        y: p.y,
+
+      mp[plot.x][plot.y] = {
         isOwner,
         isPlantOwner,
         isUnminted,
-        plantType: p?.plant?.type,
+        plantType: plot?.plant?.type,
       };
-    });
+
+      return mp;
+    }, {});
 
   const loadGrid = async (centerX: number, centerY: number) => {
     if (centerX > 997 || centerY > 997 || centerX < 2 || centerY < 2) {
@@ -60,7 +55,7 @@ const Background: React.FC<{}> = () => {
     }
     setIsLoading(true);
 
-    setGrid([]);
+    mappedPlots.current = {};
     setGridYAxis([]);
     setGridXAxis([]);
 
@@ -80,7 +75,7 @@ const Background: React.FC<{}> = () => {
       return plot;
     });
 
-    setGrid(generateGrid(plots));
+    mappedPlots.current = mapPlotInfo(plots);
     setIsLoading(false);
   };
 
@@ -121,13 +116,19 @@ const Background: React.FC<{}> = () => {
     setIsAlreadyOwnedModalShown(false);
   };
 
+  useEffect(() => {
+    loadGrid(center.x, center.y);
+  }, []);
+
   return (
     <>
       <Canvas shadows className="min-h-screen w-screen">
         <Suspense fallback={(<>Loading...</>)}>
           <Grid
             onPlotSelect={onPlotSelect}
+            mappedPlots={mappedPlots}
             center={center}
+            onCenterMove={debounce(loadGrid, 1000)}
           />
         </Suspense>
       </Canvas>

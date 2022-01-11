@@ -42,8 +42,8 @@ export const getCoordinatesFromPlotId = (plotId: number): { x: number, y: number
   ({ x: plotId % 1000, y: Math.floor(plotId / 1000) });
 
 export const convertCenterToUpperLeftCorner = (x: number, y: number) => ({
-  x: x - 2 < 0 ? 0 : x - 2,
-  y: y - 2 < 0 ? 0 : y - 2,
+  x: x - 3 < 0 ? 0 : x - 3,
+  y: y - 3 < 0 ? 0 : y - 3,
 });
 
 export const toSentenceCase = (str: string): string =>

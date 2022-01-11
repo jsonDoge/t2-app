@@ -193,9 +193,9 @@
             "type": "tuple"
           }
         ],
-        "internalType": "struct Farm.PlotView[25]",
+        "internalType": "struct Farm.PlotView[49]",
         "name": "",
-        "type": "tuple[25]"
+        "type": "tuple[49]"
       }
     ],
     "stateMutability": "view",

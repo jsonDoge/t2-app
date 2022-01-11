@@ -52,8 +52,8 @@ const gridSize = 7;
 const validKeys = ['KeyW', 'KeyA', 'KeyS', 'KeyD'];
 
 interface IGrid {
-  onPlotSelect: (x: number, y: number) => {},
-  onCenterMove: (x: number, y: number) => {},
+  onPlotSelect: (x: number, y: number) => void,
+  onCenterMove: (x: number, y: number) => void,
   center: { x: number, y: number },
   mappedPlots: React.MutableRefObject<MappedPlots>
 }
@@ -388,12 +388,12 @@ const Grid: React.FC<IGrid> = ({
               onPlotSelect(coordinates.x, coordinates.y);
             }}
             plotInfo={
-                mappedPlots.current?.[
-                  centerRef.current.x + (xIndex - 3)
-                ]?.[
-                  centerRef.current.y + (yIndex - 3)
-                ]
-              }
+              mappedPlots.current?.[
+                centerRef.current.x + (xIndex - 3)
+              ]?.[
+                centerRef.current.y + (yIndex - 3)
+              ]
+            }
           />
         )))
       }
@@ -404,7 +404,6 @@ const Grid: React.FC<IGrid> = ({
           />
         )))
       }
-      <Plant position={[4.5, 4, 0.2]} />
       <Corn position={[6.4, 3.9, 0.3]} />
       <Corn position={[5.9, 3.9, 0.3]} />
       <Corn position={[6.9, 3.9, 0.3]} />

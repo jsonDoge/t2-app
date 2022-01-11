@@ -7,11 +7,16 @@ import { Canvas } from '@react-three/fiber';
 import Grid from './three/grid';
 import { IGridContext, useGrid } from '../context/grid';
 import Modal from './modal';
-import { getPlotInfos } from '../services/farm';
+import {
+  buyPlot, getPlotInfos, harvest, plant,
+} from '../services/farm';
 import { convertCenterToUpperLeftCorner, Plot, PlotInfo } from '../services/utils';
 import { getAllCoordinatesAround } from '../utils';
 import { IWalletContext, useWallet } from '../context/wallet';
 import { MappedPlots } from './three/utils/interfaces';
+import Spinner from './spinner';
+import PlantModal from './plantModal';
+import plantTypes from '../constants/plantTypes';
 
 const Background: React.FC<{}> = () => {
   // const { isLoading }: IGridContext = useGrid();
@@ -27,6 +32,9 @@ const Background: React.FC<{}> = () => {
 
   // modals
   const [isAlreadyOwnedModalShown, setIsAlreadyOwnedModalShown] = useState(false);
+  const [isBuyPlotModalShown, setIsBuyPlotModalShown] = useState(false);
+  const [isPlantModalShown, setIsPlantModalShown] = useState(false);
+  const [isHarvestModalShown, setIsHarvestModalShown] = useState(false);
 
   const mapPlotInfo = (plots: Plot[]): MappedPlots =>
     plots.reduce((mp: MappedPlots, plot: Plot) => {
@@ -48,6 +56,11 @@ const Background: React.FC<{}> = () => {
       return mp;
     }, {});
 
+  const resetGrid = () => {
+    if (Object.keys(mappedPlots.current).length === 0) { return; }
+    mappedPlots.current = {};
+  };
+
   const loadGrid = async (centerX: number, centerY: number) => {
     if (centerX > 997 || centerY > 997 || centerX < 2 || centerY < 2) {
       setError('Invalid center coordinates has to be between 997 and 2');
@@ -64,10 +77,6 @@ const Background: React.FC<{}> = () => {
 
     const plotInfo: (PlotInfo | undefined)[] = await getPlotInfos(cornerX, cornerY);
 
-    // const plotInfo: (PlotInfo | undefined)[] = await Promise.all(
-    //   coordinates.map((c) => getPlotInfo(c.x, c.y)),
-    // );
-
     const plots = plotInfo.map((p, i) => {
       let plot: Plot = { ...coordinates[i] };
       if (p?.plant) { plot = { ...plot, plant: p.plant }; }
@@ -82,43 +91,94 @@ const Background: React.FC<{}> = () => {
   const onPlotSelect = (
     x: number,
     y: number,
-    isOwner: boolean,
-    isPlantOwner: boolean,
-    isUnminted: boolean,
   ) => {
-    console.log(x);
-    console.log(y);
     selectPlot({ x, y });
 
-    // if (isUnminted) {
-    //   setIsBuyPlotModalShown(true);
-    //   return;
-    // }
+    const { isUnminted, isPlantOwner, isOwner } = mappedPlots.current?.[x]?.[y];
+    if (isUnminted) {
+      setIsBuyPlotModalShown(true);
+      return;
+    }
 
-    // if (isOwner && !isPlantOwner) {
-    //   setIsPlantModalShown(true);
-    //   return;
-    // }
+    if (isOwner && !isPlantOwner) {
+      setIsPlantModalShown(true);
+      return;
+    }
 
-    // if (isPlantOwner) {
-    //   setIsHarvestModalShown(true);
-    //   return;
-    // }
+    if (isPlantOwner) {
+      setIsHarvestModalShown(true);
+      return;
+    }
 
     // only condition left is either !isUnminted && !isOwner && !isPlantOwner
     setIsAlreadyOwnedModalShown(true);
   };
 
   const hideModal = () => {
-    // setIsBuyPlotModalShown(false);
-    // setIsPlantModalShown(false);
-    // setIsHarvestModalShown(false);
+    setIsBuyPlotModalShown(false);
+    setIsPlantModalShown(false);
+    setIsHarvestModalShown(false);
     setIsAlreadyOwnedModalShown(false);
+  };
+
+  const onBuyPlotConfirm = async () => {
+    setError('');
+    if (isWalletLoading || !wallet?.privateKey) { return; }
+    setIsLoading(true);
+    console.log('onBuyPlotConfirm ~ selectedPlot', selectedPlot);
+    try {
+      await buyPlot(selectedPlot.x, selectedPlot.y, wallet?.privateKey);
+    } catch (e) {
+      setIsLoading(false);
+      setIsBuyPlotModalShown(false);
+      setError('Buy failed, check if you have enough USDT funds');
+      return;
+    }
+    setIsLoading(false);
+    setIsBuyPlotModalShown(false);
+    // getUserPlots(wallet?.address).then(setUserPlots);
+    loadGrid(center.x, center.y);
+  };
+
+  const onPlantConfirm = async (seedType: string) => {
+    setError('');
+    if (isWalletLoading || !wallet?.privateKey) { return; }
+    setIsLoading(true);
+    try {
+      await plant(selectedPlot.x, selectedPlot.y, seedType, wallet?.privateKey);
+    } catch (e) {
+      setIsLoading(false);
+      setIsPlantModalShown(false);
+      setError('Planting failed, check if you have necessary seed');
+      return;
+    }
+    setIsLoading(false);
+    setIsPlantModalShown(false);
+    loadGrid(center.x, center.y);
+  };
+
+  const onHarvestConfirm = async () => {
+    setError('');
+    if (isWalletLoading || !wallet?.privateKey) { return; }
+    setIsLoading(true);
+    try {
+      await harvest(selectedPlot.x, selectedPlot.y, wallet?.privateKey);
+    } catch (e) {
+      setIsLoading(false);
+      setIsHarvestModalShown(false);
+      setError('Harvest failed :(');
+      return;
+    }
+    setIsLoading(false);
+    setIsHarvestModalShown(false);
+    loadGrid(center.x, center.y);
   };
 
   useEffect(() => {
     loadGrid(center.x, center.y);
   }, []);
+
+  const debouncedLoadGrid = debounce(loadGrid, 2000);
 
   return (
     <>
@@ -128,7 +188,10 @@ const Background: React.FC<{}> = () => {
             onPlotSelect={onPlotSelect}
             mappedPlots={mappedPlots}
             center={center}
-            onCenterMove={debounce(loadGrid, 1000)}
+            onCenterMove={(x: number, y: number) => {
+              resetGrid();
+              debouncedLoadGrid(x, y);
+            }}
           />
         </Suspense>
       </Canvas>
@@ -139,6 +202,40 @@ const Background: React.FC<{}> = () => {
           description="Better luck next time"
           confirmText="Okay"
           onConfirm={() => hideModal()}
+        />
+      )}
+      {isBuyPlotModalShown
+      && (
+        <Modal
+          title="Buy land plot?"
+          description={`You are about to buy plot located at [X : ${selectedPlot.x} | Y : ${selectedPlot.y}]`}
+          confirmText={isLoading ? <Spinner /> : 'Buy'}
+          cancelText="Cancel"
+          onConfirm={() => onBuyPlotConfirm()}
+          onCancel={() => hideModal()}
+        />
+      )}
+      {isPlantModalShown
+      && (
+        <PlantModal
+          title="Plant seed?"
+          seedTypes={Object.values(plantTypes)}
+          description={`You are about to plant at [X : ${selectedPlot.x} | Y : ${selectedPlot.y}]`}
+          confirmText={isLoading ? <Spinner /> : 'Plant'}
+          cancelText="Regret forever"
+          onConfirm={(seedType) => onPlantConfirm(seedType)}
+          onCancel={() => hideModal()}
+        />
+      )}
+      {isHarvestModalShown
+      && (
+        <Modal
+          title="Harvest?"
+          description={`You are about to harvest at [X : ${selectedPlot.x} | Y : ${selectedPlot.y}]`}
+          confirmText={isLoading ? <Spinner /> : 'Harvest'}
+          cancelText="Cancel"
+          onConfirm={() => onHarvestConfirm()}
+          onCancel={() => hideModal()}
         />
       )}
     </>

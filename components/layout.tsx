@@ -47,7 +47,6 @@ const Layout: NextPage = ({ children }) => {
           <div className={`px-2 rounded-sm ${asPath === '/shop' && 'bg-green-200'}`}><Link href="/shop"><a><span className="text-bold">Shop</span></a></Link></div>
           <div className={`px-2 rounded-sm ${asPath === '/barn' && 'bg-green-200'}`}><Link href="/barn"><a><span className="text-bold">Barn</span></a></Link></div>
           <div className={`px-2 rounded-sm ${asPath === '/bank' && 'bg-green-200'}`}><Link href="/bank"><a><span className="text-bold">Bank</span></a></Link></div>
-          <div className={`px-2 rounded-sm ${asPath === '/threeD' && 'bg-green-200'}`}><Link href="/threeD"><a><span className="text-bold">threeD</span></a></Link></div>
         </div>
         <div className="flex w-1/3 items-bottom justify-end items-center pr-10">
           <div className="font-bold mr-5">

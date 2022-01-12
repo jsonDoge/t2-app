@@ -1,145 +1,33 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import type { NextPage } from 'next';
-import {
-  buyPlot, plant, harvest, getUserPlots,
-} from '../services/farm';
-import Modal from '../components/modal';
-import Button from '../components/button';
-import { IWalletContext, useWallet } from '../context/wallet';
-import plantTypes from '../constants/plantTypes';
-import FieldGrid from '../components/fieldGrid';
-import PlantModal from '../components/plantModal';
-import Spinner from '../components/spinner';
+import { IGridContext, useGrid } from '../context/grid';
 import Input from '../components/input';
+import Button from '../components/button';
 
-const Home: NextPage = () => {
-  const { isLoading: isWalletLoading, wallet }: IWalletContext = useWallet();
-  const [isLoading, setIsLoading] = useState(false);
+const Index: NextPage = () => {
+  const {
+    isLoading,
+    error,
+    updateCenter: updateGridCenter,
+  }: IGridContext = useGrid();
 
-  const [selectedPlot, selectPlot] = useState({ x: 0, y: 0 });
-  const [error, setError] = useState('');
-  const [centerX, setCenterX] = useState(2);
-  const [centerY, setCenterY] = useState(2);
-  const [gridRefreshCounter, setGridRefreshCounter] = useState(0);
-  const [gridCenterX, setGridCenterX] = useState(2);
-  const [gridCenterY, setGridCenterY] = useState(2);
-  const [userPlots, setUserPlots] = useState([] as ({ x: number, y: number })[]);
+  const [centerX, setCenterX] = useState(3);
+  const [centerY, setCenterY] = useState(3);
 
-  const [isBuyPlotModalShown, setIsBuyPlotModalShown] = useState(false);
-  const [isPlantModalShown, setIsPlantModalShown] = useState(false);
-  const [isHarvestModalShown, setIsHarvestModalShown] = useState(false);
-  const [isAlreadyOwnedModalShown, setIsAlreadyOwnedModalShown] = useState(false);
-
-  const onPlotSelect = (
-    x: number,
-    y: number,
-    isOwner: boolean,
-    isPlantOwner: boolean,
-    isUnminted: boolean,
-  ) => {
-    selectPlot({ x, y });
-
-    if (isUnminted) {
-      setIsBuyPlotModalShown(true);
-      return;
-    }
-
-    if (isOwner && !isPlantOwner) {
-      setIsPlantModalShown(true);
-      return;
-    }
-
-    if (isPlantOwner) {
-      setIsHarvestModalShown(true);
-      return;
-    }
-
-    // only condition left is either !isUnminted && !isOwner && !isPlantOwner
-    setIsAlreadyOwnedModalShown(true);
+  const updateCenter = () => {
+    updateGridCenter(centerX, centerY);
   };
-
-  const reLoadGrid = async () => {
-    setError('');
-    setGridCenterX(centerX);
-    setGridCenterY(centerY);
-    setGridRefreshCounter(gridRefreshCounter + 1);
-  };
-
-  const onBuyPlotConfirm = async () => {
-    setError('');
-    if (isWalletLoading || !wallet?.privateKey) { return; }
-    setIsLoading(true);
-    try {
-      await buyPlot(selectedPlot.x, selectedPlot.y, wallet?.privateKey);
-    } catch (e) {
-      setIsLoading(false);
-      setIsBuyPlotModalShown(false);
-      setError('Buy failed, check if you have enough USDT funds');
-      return;
-    }
-    setIsLoading(false);
-    setIsBuyPlotModalShown(false);
-    getUserPlots(wallet?.address).then(setUserPlots);
-    reLoadGrid();
-  };
-
-  const onPlantConfirm = async (seedType: string) => {
-    setError('');
-    if (isWalletLoading || !wallet?.privateKey) { return; }
-    setIsLoading(true);
-    try {
-      await plant(selectedPlot.x, selectedPlot.y, seedType, wallet?.privateKey);
-    } catch (e) {
-      setIsLoading(false);
-      setIsPlantModalShown(false);
-      setError('Planting failed, check if you have necessary seed');
-      return;
-    }
-    setIsLoading(false);
-    setIsPlantModalShown(false);
-    reLoadGrid();
-  };
-
-  const onHarvestConfirm = async () => {
-    setError('');
-    if (isWalletLoading || !wallet?.privateKey) { return; }
-    setIsLoading(true);
-    try {
-      await harvest(selectedPlot.x, selectedPlot.y, wallet?.privateKey);
-    } catch (e) {
-      setIsLoading(false);
-      setIsHarvestModalShown(false);
-      setError('Harvest failed :(');
-      return;
-    }
-    setIsLoading(false);
-    setIsHarvestModalShown(false);
-    reLoadGrid();
-  };
-
-  const hideModal = () => {
-    setIsBuyPlotModalShown(false);
-    setIsPlantModalShown(false);
-    setIsHarvestModalShown(false);
-    setIsAlreadyOwnedModalShown(false);
-  };
-
-  useEffect(() => {
-    if (isWalletLoading || !wallet?.address) { return; }
-    reLoadGrid();
-    getUserPlots(wallet?.address).then(setUserPlots);
-  }, [isWalletLoading, wallet?.address]);
 
   return (
     <main className="flex flex-col items-center justify-top w-full h-full flex-1 px-20 mt-20 text-center">
       <div className="mb-2">
         { error && <div className="text-red-500">{error}</div>}
       </div>
-      <div className="flex flex-row gap-3 bg-green-200 p-5 rounded-sm">
+      <div className="flex flex-row gap-3 p-5 rounded-sm">
         <div className="flex flex-col items-center justify-center">
           <div className="flex flex-row items-center justify-center gap-2 mb-2">
             <div>
-              <label className="block text-gray-700 text-sm font-bold" htmlFor="coordinateX">
+              <label className="block text-white text-sm font-bold" htmlFor="coordinateX">
                 X
               </label>
             </div>
@@ -153,7 +41,7 @@ const Home: NextPage = () => {
             />
           </div>
           <div className="flex flex-row items-center justify-center gap-2">
-            <label className="block text-gray-700 text-sm font-bold" htmlFor="coordinateY">
+            <label className="block text-white text-sm font-bold" htmlFor="coordinateY">
               Y
             </label>
             <Input
@@ -168,87 +56,11 @@ const Home: NextPage = () => {
         </div>
         <div>
           <div className="my-6" />
-          <Button onClick={() => reLoadGrid()}>Load</Button>
+          <Button onClick={updateCenter}>Load</Button>
         </div>
       </div>
-      <div className="my-5">
-        { process.browser && (
-          <FieldGrid
-            centerX={gridCenterX}
-            centerY={gridCenterY}
-            walletAddress={wallet?.address}
-            onError={setError}
-            onSelect={onPlotSelect}
-            refreshCounter={gridRefreshCounter}
-          />
-        )}
-      </div>
-      <div className="my-2">
-        <div>Plot colors</div>
-        <div className="flex flex-row gap-2">
-          <div className="bg-green-200 px-2">Not owned</div>
-          <div className="bg-yellow-200 px-2">Owned by Others</div>
-          <div className="bg-blue-200 px-2">Yours</div>
-        </div>
-      </div>
-      <div className="mt-8 w-full">
-        <h2 className="text-3xl font-bold">Your owned plots</h2>
-        {
-          userPlots.map((plot) => (
-            <div key={plot.x.toString() + plot.y.toString()}>
-              {`[X : ${plot.x} Y : ${plot.y}]`}
-            </div>
-          ))
-        }
-        {userPlots.length === 0 && (
-          <div>You don&apos;t own any plots YET, go take a loan from the bank and buy some!</div>
-        )}
-      </div>
-      {isBuyPlotModalShown
-      && (
-        <Modal
-          title="Buy land plot?"
-          description={`You are about to buy plot located at [X : ${selectedPlot.x} | Y : ${selectedPlot.y}]`}
-          confirmText={isLoading ? <Spinner /> : 'Buy'}
-          cancelText="Cancel"
-          onConfirm={() => onBuyPlotConfirm()}
-          onCancel={() => hideModal()}
-        />
-      )}
-      {isPlantModalShown
-      && (
-        <PlantModal
-          title="Plant seed?"
-          seedTypes={Object.values(plantTypes)}
-          description={`You are about to plant at [X : ${selectedPlot.x} | Y : ${selectedPlot.y}]`}
-          confirmText={isLoading ? <Spinner /> : 'Plant'}
-          cancelText="Regret forever"
-          onConfirm={(seedType) => onPlantConfirm(seedType)}
-          onCancel={() => hideModal()}
-        />
-      )}
-      {isHarvestModalShown
-      && (
-        <Modal
-          title="Harvest?"
-          description={`You are about to harvest at [X : ${selectedPlot.x} | Y : ${selectedPlot.y}]`}
-          confirmText={isLoading ? <Spinner /> : 'Harvest'}
-          cancelText="Cancel"
-          onConfirm={() => onHarvestConfirm()}
-          onCancel={() => hideModal()}
-        />
-      )}
-      {isAlreadyOwnedModalShown
-      && (
-        <Modal
-          title="This plot is owned by another farmer"
-          description="Better luck next time"
-          confirmText="Okay"
-          onConfirm={() => hideModal()}
-        />
-      )}
     </main>
   );
 };
 
-export default Home;
+export default Index;

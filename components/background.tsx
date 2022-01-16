@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 import React, {
-  Suspense, useEffect, useRef, useState,
+  Suspense, useEffect, useRef, useState
 } from 'react';
 import { debounce } from 'lodash';
 import { Canvas } from '@react-three/fiber';
@@ -17,13 +17,27 @@ import { MappedPlots } from './three/utils/interfaces';
 import Spinner from './spinner';
 import PlantModal from './plantModal';
 import plantTypes from '../constants/plantTypes';
+import { getDefaultPlotColor, getPlotColor } from './three/utils/plotColors';
 
 const Background: React.FC<{}> = () => {
   // const { isLoading }: IGridContext = useGrid();
   const { isLoading: isWalletLoading, wallet }: IWalletContext = useWallet();
   const { center }: IGridContext = useGrid();
+  const coordinates = getAllCoordinatesAround(3, 3);
+  const generateEmptyPlots = (coords) =>
+    coords.reduce((mp: MappedPlots, c: { x: number, y: number }) => {
+      if (!mp[c.x]) {
+        mp[c.x] = {};
+      }
 
-  const mappedPlots = useRef<MappedPlots>({});
+      mp[c.x][c.y] = {
+        color: getDefaultPlotColor(),
+      };
+      return mp;
+    }, {});
+
+  const mappedPlots = useRef(generateEmptyPlots(coordinates));
+
   const [gridXAxis, setGridXAxis] = useState([]);
   const [gridYAxis, setGridYAxis] = useState([]);
   const [selectedPlot, selectPlot] = useState({ x: 0, y: 0 });
@@ -51,14 +65,14 @@ const Background: React.FC<{}> = () => {
         isPlantOwner,
         isUnminted,
         plantType: plot?.plant?.type,
+        color: getPlotColor(isOwner, isPlantOwner, isUnminted),
       };
 
       return mp;
     }, {});
 
   const resetGrid = () => {
-    if (Object.keys(mappedPlots.current).length === 0) { return; }
-    mappedPlots.current = {};
+    mappedPlots.current = generateEmptyPlots(coordinates);
   };
 
   const loadGrid = async (centerX: number, centerY: number) => {
@@ -66,14 +80,13 @@ const Background: React.FC<{}> = () => {
       setError('Invalid center coordinates has to be between 997 and 2');
       return;
     }
-    setIsLoading(true);
+    // setIsLoading(true);
 
-    mappedPlots.current = {};
-    setGridYAxis([]);
-    setGridXAxis([]);
+    // mappedPlots.current = {};
+    // setGridYAxis([]);
+    // setGridXAxis([]);
 
     const { x: cornerX, y: cornerY } = convertCenterToUpperLeftCorner(centerX, centerY);
-    const coordinates = getAllCoordinatesAround(centerX, centerY);
 
     const plotInfo: (PlotInfo | undefined)[] = await getPlotInfos(cornerX, cornerY);
 
@@ -85,7 +98,8 @@ const Background: React.FC<{}> = () => {
     });
 
     mappedPlots.current = mapPlotInfo(plots);
-    setIsLoading(false);
+    console.log('UPDATED');
+    // setIsLoading(false);
   };
 
   const onPlotSelect = (
@@ -94,7 +108,7 @@ const Background: React.FC<{}> = () => {
   ) => {
     selectPlot({ x, y });
 
-    const { isUnminted, isPlantOwner, isOwner } = mappedPlots.current?.[x]?.[y];
+    const { isUnminted, isPlantOwner, isOwner } = mappedPlots?.current?.[x]?.[y];
     if (isUnminted) {
       setIsBuyPlotModalShown(true);
       return;
@@ -186,7 +200,7 @@ const Background: React.FC<{}> = () => {
         <Suspense fallback={(<>Loading...</>)}>
           <Grid
             onPlotSelect={onPlotSelect}
-            mappedPlots={mappedPlots}
+            mappedPlots={mappedPlots.current}
             center={center}
             onCenterMove={(x: number, y: number) => {
               resetGrid();

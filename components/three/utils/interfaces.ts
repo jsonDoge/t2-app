@@ -15,11 +15,12 @@ export interface PlotInfo {
   isOwner: boolean,
   isPlantOwner: boolean,
   isUnminted: boolean,
-  plantType: string | undefined
+  plantType: string | undefined,
+  color: PlotColor
 }
 
 export interface PlotColor {
-  color: { r: number, g: number, b: number },
-  colorHover: { r: number, g: number, b: number },
+  rgb: { r: number, g: number, b: number },
+  rgbHover: { r: number, g: number, b: number },
   hex: string
 }

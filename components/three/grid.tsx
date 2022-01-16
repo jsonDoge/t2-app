@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-param-reassign */
 import React, {
-  useRef, useState, useLayoutEffect, useEffect, createRef,
+  useRef, useLayoutEffect, useEffect, createRef,
 } from 'react';
 import * as THREE from 'three';
 import { useThree, useFrame } from '@react-three/fiber';
@@ -9,7 +9,6 @@ import { useThree, useFrame } from '@react-three/fiber';
 // Objects
 import Tree from './tree';
 import Fir from './fir';
-import Plant from './plant';
 import Corn from './corn';
 import Potato from './potato';
 import Carrot from './carrot';
@@ -38,6 +37,8 @@ import {
   updateBackgroundObjectsToSpecs,
 } from './utils/background';
 import { MappedPlots, ObjectSpecs } from './utils/interfaces';
+
+import MainPlots from './mainPlots';
 import Plot from './plot';
 
 const KEY_CODES = {
@@ -55,7 +56,7 @@ interface IGrid {
   onPlotSelect: (x: number, y: number) => void,
   onCenterMove: (x: number, y: number) => void,
   center: { x: number, y: number },
-  mappedPlots: React.MutableRefObject<MappedPlots>
+  mappedPlots: MappedPlots
 }
 
 const Grid: React.FC<IGrid> = ({
@@ -110,10 +111,7 @@ const Grid: React.FC<IGrid> = ({
   const mainPlotRefs = generateMainGrid(gridSize);
   const surroundPlotRefs = generateSurroundRows(gridSize);
 
-  const [
-    perspectiveCameraRef,
-    setPerspectiveCameraRef,
-  ] = useState<THREE.PerspectiveCamera>();
+  const perspectiveCameraRef = useRef<THREE.PerspectiveCamera>();
 
   const keysDown = useRef({
     w: false, a: false, s: false, d: false,
@@ -195,8 +193,8 @@ const Grid: React.FC<IGrid> = ({
   };
 
   const onCenterSet = () => {
-    perspectiveCameraRef.position.x = (center.x * 2.1) + perspectiveCameraOffset.x;
-    perspectiveCameraRef.position.y = (center.y * 2.1) + perspectiveCameraOffset.y;
+    perspectiveCameraRef.current.position.x = (center.x * 2.1) + perspectiveCameraOffset.x;
+    perspectiveCameraRef.current.position.y = (center.y * 2.1) + perspectiveCameraOffset.y;
     lightRef.current.position.x = (center.x * 2.1) + directionalLightOffset.x;
     lightRef.current.position.y = (center.y * 2.1) + directionalLightOffset.y;
     lightRef.current.target.position.x = (center.x - gridSize) * 2.1;
@@ -317,16 +315,16 @@ const Grid: React.FC<IGrid> = ({
 
   useLayoutEffect(
     () => {
-      if (!perspectiveCameraRef) { return; }
+      if (!perspectiveCameraRef?.current) { return; }
 
-      set({ camera: perspectiveCameraRef });
+      set({ camera: perspectiveCameraRef.current });
 
       // set initial position manually so React wouldn't re-render
-      perspectiveCameraRef.position.x = cameraInitialPosition.x;
-      perspectiveCameraRef.position.y = cameraInitialPosition.y;
-      perspectiveCameraRef.position.z = cameraInitialPosition.z;
+      perspectiveCameraRef.current.position.x = cameraInitialPosition.x;
+      perspectiveCameraRef.current.position.y = cameraInitialPosition.y;
+      perspectiveCameraRef.current.position.z = cameraInitialPosition.z;
     },
-    [perspectiveCameraRef, set],
+    [perspectiveCameraRef?.current, set],
   );
 
   const updateWasdStateOnDown = (e: KeyboardEvent) => {
@@ -367,7 +365,7 @@ const Grid: React.FC<IGrid> = ({
         ref={orthCameraRef}
       />
       <perspectiveCamera
-        ref={setPerspectiveCameraRef}
+        ref={perspectiveCameraRef}
         aspect={size.width / size.height}
         fov={65}
         near={1}
@@ -375,28 +373,12 @@ const Grid: React.FC<IGrid> = ({
         rotation={[30 * (Math.PI / 180), 30 * (Math.PI / 180), 40 * (Math.PI / 180)]}
         onUpdate={(self: any) => self.updateProjectionMatrix()}
       />
-      {
-        mainPlotRefs.map((r, yIndex) => r.map((c, xIndex) => (
-          <Plot
-            reference={c}
-            onPointerDown={(self) => {
-              const coordinates = {
-                x: centerRef.current.x + (xIndex - 3),
-                y: centerRef.current.y + (yIndex - 3),
-              };
-
-              onPlotSelect(coordinates.x, coordinates.y);
-            }}
-            plotInfo={
-              mappedPlots.current?.[
-                centerRef.current.x + (xIndex - 3)
-              ]?.[
-                centerRef.current.y + (yIndex - 3)
-              ]
-            }
-          />
-        )))
-      }
+      <MainPlots
+        mainPlotRefs={mainPlotRefs}
+        centerRef={centerRef}
+        onPlotSelect={onPlotSelect}
+        mappedPlots={mappedPlots}
+      />
       {
         surroundPlotRefs.map((r) => r.map((c) => (
           <Plot

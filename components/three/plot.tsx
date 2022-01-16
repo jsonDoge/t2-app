@@ -1,59 +1,53 @@
 import React, {
-  useCallback, useEffect, useMemo, useRef,
+  useCallback, useEffect, useRef,
 } from 'react';
 import Plant from './plant';
-import { PlotColor, PlotInfo } from './utils/interfaces';
-import { getDefaultPlotColor, getPlotColor } from './utils/plotColors';
+import { PlotInfo } from './utils/interfaces';
+import { getDefaultPlotColor } from './utils/plotColors';
 
 interface Props {
   reference: any,
   onPointerDown?: (self: any) => void,
-  plotInfo: PlotInfo | undefined
+  plotInfo: PlotInfo | undefined,
+  isPrint: boolean,
 }
 
 const Plot: React.FC<Props> = ({
   reference,
   onPointerDown = (self) => {},
   plotInfo,
+  isPrint = false,
 }) => {
-  const materialRef = useRef();
   const plantRef = useRef();
+  const defaultColor = getDefaultPlotColor();
 
-  const getPlotColorOrDefault = (pi: PlotInfo | undefined) => {
-    if (!pi) {
-      return getDefaultPlotColor();
-    }
-    return getPlotColor(
-      pi.isOwner,
-      pi.isPlantOwner,
-      pi.isUnminted,
-    );
-  };
 
   useEffect(() => {
     if (!plotInfo?.plantType) { return; }
     if (!reference?.current) { return; }
+    if (!plantRef?.current) { return; }
+
+    if (isPrint) {
+      console.log('USE EFFECT TRIGGERED FOR TREEE');
+    }
 
     plantRef.current.position.copy(reference.current.matrixWorld.getPosition());
     plantRef.current.position.z = 0.2;
-  }, [JSON.stringify(plotInfo), JSON.stringify(reference)]);
+  }, [JSON.stringify(plotInfo), JSON.stringify(reference), JSON.stringify(plantRef)]);
 
   const onPointerOver = useCallback((self) => {
-    const pc: PlotColor = getPlotColorOrDefault(plotInfo);
-
-    self.eventObject.material.color = pc.colorHover;
+    self.eventObject.material.color = plotInfo?.color?.rgbHover;
   }, [JSON.stringify(plotInfo)]);
 
   const onPointerOut = useCallback((self) => {
-    const pc: PlotColor = getPlotColorOrDefault(plotInfo);
-
-    self.eventObject.material.color = pc.color;
+    self.eventObject.material.color = plotInfo?.color?.rgb;
   }, [JSON.stringify(plotInfo)]);
 
-  const color = useMemo(() => {
-    const pc: PlotColor = getPlotColorOrDefault(plotInfo);
+  useEffect(() => {
+    if (!reference?.current?.material) { return; }
+    if (!plotInfo?.color) { return; }
 
-    return pc.hex;
+    reference.current.material.color = plotInfo?.color?.rgb;
   }, [JSON.stringify(plotInfo)]);
 
   return (
@@ -67,7 +61,9 @@ const Plot: React.FC<Props> = ({
         onPointerDown={onPointerDown}
       >
         <boxGeometry args={[2, 2, 0.2]} />
-        <meshStandardMaterial ref={materialRef} color={color} />
+        <meshStandardMaterial
+          color={defaultColor.hex}
+        />
       </mesh>
       {
         plotInfo?.plantType

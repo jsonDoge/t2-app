@@ -34,29 +34,29 @@ export const getPlotColor = (
 ): PlotColor => {
   if (isOwner || isPlantOwner) {
     return {
-      color: yellow,
-      colorHover: yellowHover,
+      rgb: yellow,
+      rgbHover: yellowHover,
       hex: yellowHex,
     };
   }
 
   if (!isUnminted) {
     return {
-      color: blue,
-      colorHover: blueHover,
+      rgb: blue,
+      rgbHover: blueHover,
       hex: blueHex,
     };
   }
 
   return {
-    color: green,
-    colorHover: greenHover,
+    rgb: green,
+    rgbHover: greenHover,
     hex: greenHex,
   };
 };
 
 export const getDefaultPlotColor = (): PlotColor => ({
-  color: green,
-  colorHover: greenHover,
+  rgb: green,
+  rgbHover: greenHover,
   hex: greenHex,
 });

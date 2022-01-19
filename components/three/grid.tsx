@@ -56,7 +56,7 @@ interface IGrid {
   onPlotSelect: (x: number, y: number) => void,
   onCenterMove: (x: number, y: number) => void,
   center: { x: number, y: number },
-  mappedPlots: MappedPlots
+  mappedPlots: React.MutableRefObject<MappedPlots>
 }
 
 const Grid: React.FC<IGrid> = ({
@@ -76,6 +76,9 @@ const Grid: React.FC<IGrid> = ({
   const backgroundGrassSpecsRef = useRef<Array<ObjectSpecs>>([]);
   const centerRef = useRef({ x: 3, y: 3 });
   const teleportedRef = useRef(false);
+  const orthCameraRef = useRef();
+  const mainPlotRefs = useRef(generateMainGrid(gridSize));
+  const surroundPlotRefs = useRef(generateSurroundRows(gridSize));
 
   const perspectiveCameraOffset = {
     x: 9.7,
@@ -105,11 +108,6 @@ const Grid: React.FC<IGrid> = ({
     x: -15,
     y: -15,
   };
-
-  const orthCameraRef = useRef();
-
-  const mainPlotRefs = generateMainGrid(gridSize);
-  const surroundPlotRefs = generateSurroundRows(gridSize);
 
   const perspectiveCameraRef = useRef<THREE.PerspectiveCamera>();
 
@@ -207,10 +205,10 @@ const Grid: React.FC<IGrid> = ({
   useEffect(() => {
     fillBackground();
     fillGridPositions(
-      mainPlotRefs, gridSize, centerRef.current.x, centerRef.current.y,
+      mainPlotRefs.current, gridSize, centerRef.current.x, centerRef.current.y,
     );
     fillSurroundRowPositions(
-      surroundPlotRefs, gridSize + 2, centerRef.current.x, centerRef.current.y,
+      surroundPlotRefs.current, gridSize + 2, centerRef.current.x, centerRef.current.y,
     );
   }, []);
 
@@ -256,16 +254,16 @@ const Grid: React.FC<IGrid> = ({
 
   // ascention/descention
   useFrame(() => {
-    ascendDescendPlots(mainPlotRefs);
-    ascendDescendPlots(surroundPlotRefs);
+    ascendDescendPlots(mainPlotRefs.current);
+    ascendDescendPlots(surroundPlotRefs.current);
   });
 
   // move plots after rise/lower animation finished
   useFrame(() => {
-    resetSurroundPlotsAfterDescention(surroundPlotRefs);
+    resetSurroundPlotsAfterDescention(surroundPlotRefs.current);
 
     // HANDLING ascended movement
-    updatePlotPositionAfterAscention(mainPlotRefs, surroundPlotRefs);
+    updatePlotPositionAfterAscention(mainPlotRefs.current, surroundPlotRefs.current);
   });
 
   useFrame((state) => {
@@ -290,16 +288,16 @@ const Grid: React.FC<IGrid> = ({
         updateGrid(
           diffX,
           diffY,
-          surroundPlotRefs,
+          surroundPlotRefs.current,
         );
       } else {
         teleportedRef.current = false;
         fillBackground();
         fillGridPositions(
-          mainPlotRefs, gridSize, centerRef.current.x, centerRef.current.y,
+          mainPlotRefs.current, gridSize, centerRef.current.x, centerRef.current.y,
         );
         fillSurroundRowPositions(
-          surroundPlotRefs, gridSize + 2, centerRef.current.x, centerRef.current.y,
+          surroundPlotRefs.current, gridSize + 2, centerRef.current.x, centerRef.current.y,
         );
       }
 
@@ -374,13 +372,13 @@ const Grid: React.FC<IGrid> = ({
         onUpdate={(self: any) => self.updateProjectionMatrix()}
       />
       <MainPlots
-        mainPlotRefs={mainPlotRefs}
+        mainPlotRefs={mainPlotRefs.current}
         centerRef={centerRef}
         onPlotSelect={onPlotSelect}
         mappedPlots={mappedPlots}
       />
       {
-        surroundPlotRefs.map((r) => r.map((c) => (
+        surroundPlotRefs.current.map((r) => r.map((c) => (
           <Plot
             reference={c}
           />

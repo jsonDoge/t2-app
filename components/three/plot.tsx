@@ -1,54 +1,20 @@
-import React, {
-  useCallback, useEffect, useRef,
-} from 'react';
-import Plant from './plant';
-import { PlotInfo } from './utils/interfaces';
+import React from 'react';
 import { getDefaultPlotColor } from './utils/plotColors';
 
 interface Props {
   reference: any,
   onPointerDown?: (self: any) => void,
-  plotInfo: PlotInfo | undefined,
-  isPrint: boolean,
+  onPointerOut?: (self: any) => void,
+  onPointerOver?: (self: any) => void,
 }
 
 const Plot: React.FC<Props> = ({
   reference,
   onPointerDown = (self) => {},
-  plotInfo,
-  isPrint = false,
+  onPointerOut = (self) => {},
+  onPointerOver = (self) => {},
 }) => {
-  const plantRef = useRef();
   const defaultColor = getDefaultPlotColor();
-
-
-  useEffect(() => {
-    if (!plotInfo?.plantType) { return; }
-    if (!reference?.current) { return; }
-    if (!plantRef?.current) { return; }
-
-    if (isPrint) {
-      console.log('USE EFFECT TRIGGERED FOR TREEE');
-    }
-
-    plantRef.current.position.copy(reference.current.matrixWorld.getPosition());
-    plantRef.current.position.z = 0.2;
-  }, [JSON.stringify(plotInfo), JSON.stringify(reference), JSON.stringify(plantRef)]);
-
-  const onPointerOver = useCallback((self) => {
-    self.eventObject.material.color = plotInfo?.color?.rgbHover;
-  }, [JSON.stringify(plotInfo)]);
-
-  const onPointerOut = useCallback((self) => {
-    self.eventObject.material.color = plotInfo?.color?.rgb;
-  }, [JSON.stringify(plotInfo)]);
-
-  useEffect(() => {
-    if (!reference?.current?.material) { return; }
-    if (!plotInfo?.color) { return; }
-
-    reference.current.material.color = plotInfo?.color?.rgb;
-  }, [JSON.stringify(plotInfo)]);
 
   return (
     <>
@@ -65,10 +31,6 @@ const Plot: React.FC<Props> = ({
           color={defaultColor.hex}
         />
       </mesh>
-      {
-        plotInfo?.plantType
-          && <Plant reference={plantRef} />
-      }
     </>
   );
 };

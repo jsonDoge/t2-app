@@ -20,9 +20,9 @@ import plantTypes from '../constants/plantTypes';
 import { getDefaultPlotColor, getPlotColor } from './three/utils/plotColors';
 
 const Background: React.FC<{}> = () => {
-  // const { isLoading }: IGridContext = useGrid();
   const { isLoading: isWalletLoading, wallet }: IWalletContext = useWallet();
-  const { center }: IGridContext = useGrid();
+  const { center, updateCenter }: IGridContext = useGrid();
+
   const coordinates = getAllCoordinatesAround(3, 3);
   const generateEmptyPlots = (coords) =>
     coords.reduce((mp: MappedPlots, c: { x: number, y: number }) => {
@@ -40,6 +40,7 @@ const Background: React.FC<{}> = () => {
 
   const [gridXAxis, setGridXAxis] = useState([]);
   const [gridYAxis, setGridYAxis] = useState([]);
+  const isMappedPlotsEmpty = useRef(true);
   const [selectedPlot, selectPlot] = useState({ x: 0, y: 0 });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -72,7 +73,9 @@ const Background: React.FC<{}> = () => {
     }, {});
 
   const resetGrid = () => {
+    if (isMappedPlotsEmpty.current) { return; }
     mappedPlots.current = generateEmptyPlots(coordinates);
+    isMappedPlotsEmpty.current = true;
   };
 
   const loadGrid = async (centerX: number, centerY: number) => {
@@ -80,6 +83,7 @@ const Background: React.FC<{}> = () => {
       setError('Invalid center coordinates has to be between 997 and 2');
       return;
     }
+
     // setIsLoading(true);
 
     // mappedPlots.current = {};
@@ -98,7 +102,9 @@ const Background: React.FC<{}> = () => {
     });
 
     mappedPlots.current = mapPlotInfo(plots);
-    console.log('UPDATED');
+    isMappedPlotsEmpty.current = false;
+    updateCenter(centerX, centerY);
+
     // setIsLoading(false);
   };
 
@@ -107,8 +113,14 @@ const Background: React.FC<{}> = () => {
     y: number,
   ) => {
     selectPlot({ x, y });
+    const absoluteX = (x - (center.x - 3));
+    const absoluteY = (y - (center.y - 3));
 
-    const { isUnminted, isPlantOwner, isOwner } = mappedPlots?.current?.[x]?.[y];
+    const {
+      isUnminted,
+      isPlantOwner,
+      isOwner,
+    } = mappedPlots?.current?.[absoluteX]?.[absoluteY];
     if (isUnminted) {
       setIsBuyPlotModalShown(true);
       return;
@@ -200,7 +212,7 @@ const Background: React.FC<{}> = () => {
         <Suspense fallback={(<>Loading...</>)}>
           <Grid
             onPlotSelect={onPlotSelect}
-            mappedPlots={mappedPlots.current}
+            mappedPlots={mappedPlots}
             center={center}
             onCenterMove={(x: number, y: number) => {
               resetGrid();

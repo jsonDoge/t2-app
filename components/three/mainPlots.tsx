@@ -2,7 +2,9 @@ import React, { useEffect, useRef } from 'react';
 import Plot from './plot';
 import Plant from './plant';
 import { MappedPlots } from './utils/interfaces';
-import { generateMainGrid } from './utils';
+import { generateMeshRefGrid } from './utils';
+import WeedGroup from './weedGroup';
+import plantTypes from '../../constants/plantTypes';
 
 interface Props {
   mainPlotRefs: Array<Array<THREE.Mesh>>,
@@ -17,23 +19,42 @@ const MainPlots: React.FC<Props> = ({
   onPlotSelect,
   mappedPlots,
 }) => {
-  const plantRefs = useRef<Array<Array<THREE.Mesh>>>(generateMainGrid(7));
+  const lastMappedPlot = useRef('');
+  const plantRefs = useRef<Array<Array<THREE.Mesh>>>(generateMeshRefGrid(7));
+  const weedRefs = useRef<Array<Array<THREE.Mesh>>>(generateMeshRefGrid(7));
+
+  const setPlotItem = (plantType, itemRef, plotRef) => {
+    if (plantType) {
+      itemRef.position.copy(plotRef.matrixWorld.getPosition());
+      itemRef.position.z = 0.2;
+    } else {
+      itemRef.position.z = -5;
+    }
+  };
 
   useEffect(() => {
     // EVIL EVIL HACK (look for better solution once done)
     const updater = setInterval(() => {
       if (!mappedPlots.current) { return; }
+      if (JSON.stringify(mappedPlots.current) === lastMappedPlot.current) { return; }
+      lastMappedPlot.current = JSON.stringify(mappedPlots.current);
+
       Object.keys(mappedPlots.current).forEach((x) => {
         Object.keys(mappedPlots.current[x]).forEach((y) => {
           mainPlotRefs[y][x].current.material.color = mappedPlots.current[x][y].color.rgb;
-          if (mappedPlots.current[x][y]?.plantType) {
-            plantRefs.current[x][y].current.position.copy(
-              mainPlotRefs[y][x].current.matrixWorld.getPosition()
-            );
-            plantRefs.current[x][y].current.position.z = 0.2;
-          } else {
-            plantRefs.current[x][y].current.position.z = -5;
-          }
+
+          setPlotItem(
+            mappedPlots.current[x][y]?.plantType &&
+              mappedPlots.current[x][y]?.plantType !== plantTypes.WEED,
+            plantRefs.current[x][y].current,
+            mainPlotRefs[y][x].current,
+          );
+
+          setPlotItem(
+            mappedPlots.current[x][y]?.plantType === plantTypes.WEED,
+            weedRefs.current[x][y].current,
+            mainPlotRefs[y][x].current,
+          );
         });
       });
     }, 1000);
@@ -66,6 +87,7 @@ const MainPlots: React.FC<Props> = ({
             }}
           />
           <Plant reference={plantRefs?.current[xIndex][yIndex]} />
+          <WeedGroup reference={weedRefs?.current[xIndex][yIndex]} />
         </>
       )))
       }

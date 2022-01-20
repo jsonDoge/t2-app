@@ -1,16 +1,16 @@
 /* eslint-disable no-param-reassign */
 import { createRef } from 'react';
 
-const generateMainGrid = (size: number): Array<Array<THREE.Mesh>> => {
-  const mainRefs: Array<Array<THREE.Mesh>> = [];
+const generateMeshRefGrid = (size: number): Array<Array<THREE.Mesh>> => {
+  const refs: Array<Array<THREE.Mesh>> = [];
   for (let y = 0; y < size; y += 1) {
-    if (!mainRefs[y]) { mainRefs[y] = []; }
+    if (!refs[y]) { refs[y] = []; }
     for (let x = 0; x < size; x += 1) {
       const plotRef = createRef<THREE.Mesh>();
-      mainRefs[y][x] = plotRef;
+      refs[y][x] = plotRef;
     }
   }
-  return mainRefs;
+  return refs;
 };
 
 // rows [0, 1] - along side y , [2, 3] - along side x
@@ -283,7 +283,7 @@ const updatePositionOnKeyDown = (position: { x: number, y: number }, keysDown) =
 
 export {
   fillGridPositions,
-  generateMainGrid,
+  generateMeshRefGrid,
   generateSurroundRows,
   fillSurroundRowPositions,
   ascendDescendPlots,

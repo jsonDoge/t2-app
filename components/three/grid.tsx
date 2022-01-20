@@ -20,7 +20,7 @@ import {
   ascendDescendPlots,
   fillGridPositions,
   fillSurroundRowPositions,
-  generateMainGrid,
+  generateMeshRefGrid,
   generateSurroundRows,
   resetSurroundPlotsAfterDescention,
   updateGrid,
@@ -77,7 +77,7 @@ const Grid: React.FC<IGrid> = ({
   const centerRef = useRef({ x: 3, y: 3 });
   const teleportedRef = useRef(false);
   const orthCameraRef = useRef();
-  const mainPlotRefs = useRef(generateMainGrid(gridSize));
+  const mainPlotRefs = useRef(generateMeshRefGrid(gridSize));
   const surroundPlotRefs = useRef(generateSurroundRows(gridSize));
 
   const perspectiveCameraOffset = {
@@ -393,9 +393,7 @@ const Grid: React.FC<IGrid> = ({
       <Carrot position={[6.4, -0.3, 0.24]} />
       <Carrot position={[5.9, -0.3, 0.24]} />
       <Carrot position={[6.9, -0.3, 0.24]} />
-      <Weed position={[3.9, -0.5, 0.3]} rotation={[0, 0, 90 * (Math.PI / 180)]} />
-      <Weed position={[5, -0.5, 0.3]} rotation={[0, 0, 45 * (Math.PI / 180)]} />
-      <Weed position={[4.5, 0.3, 0.3]} />
+
       {
         (
           backgroundTreeRefs.map(

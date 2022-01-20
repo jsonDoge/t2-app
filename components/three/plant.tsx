@@ -10,7 +10,7 @@ useGLTF.preload('/plant.gltf');
 const Plant: React.FC<Props> = ({
   reference,
 }) => {
-  const group = useRef();
+  const meshRef = useRef();
   const { nodes, materials } = useGLTF('/plant.gltf');
   materials.Material.transparent = true;
   materials.Material.opacity = 1;
@@ -18,23 +18,21 @@ const Plant: React.FC<Props> = ({
   useEffect(() => {
     // TODO: find better way to assign reference
     if (reference) {
-      reference.current = group.current;
+      reference.current = meshRef.current;
     }
   }, [reference]);
 
   return (
-    <group>
-      <mesh
-        position={[-100, -100, -100]} // so wouldnt appear in 0/0/0 initially
-        ref={group}
-        scale={[0.3, 0.3, 0.3]}
-        rotation={[90 * (Math.PI / 180), 0, 0]}
-        castShadow
-        receiveShadow
-        geometry={nodes.Cube.geometry}
-        material={materials.Material}
-      />
-    </group>
+    <mesh
+      position={[-100, -100, -100]} // so wouldnt appear in 0/0/0 initially
+      ref={meshRef}
+      scale={[0.3, 0.3, 0.3]}
+      rotation={[90 * (Math.PI / 180), 0, 0]}
+      castShadow
+      receiveShadow
+      geometry={nodes.Cube.geometry}
+      material={materials.Material}
+    />
   );
 };
 

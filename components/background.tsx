@@ -21,7 +21,7 @@ import { getDefaultPlotColor, getPlotColor } from './three/utils/plotColors';
 
 const Background: React.FC<{}> = () => {
   const { isLoading: isWalletLoading, wallet }: IWalletContext = useWallet();
-  const { center, updateCenter }: IGridContext = useGrid();
+  const { centerRef, subscribeToCenter }: IGridContext = useGrid();
 
   const coordinates = getAllCoordinatesAround(3, 3);
   const generateEmptyPlots = (coords) =>
@@ -84,6 +84,8 @@ const Background: React.FC<{}> = () => {
       return;
     }
 
+    console.info('LOAD GRID');
+
     // setIsLoading(true);
 
     // mappedPlots.current = {};
@@ -103,7 +105,6 @@ const Background: React.FC<{}> = () => {
 
     mappedPlots.current = mapPlotInfo(plots);
     isMappedPlotsEmpty.current = false;
-    updateCenter(centerX, centerY);
 
     // setIsLoading(false);
   };
@@ -113,8 +114,8 @@ const Background: React.FC<{}> = () => {
     y: number,
   ) => {
     selectPlot({ x, y });
-    const absoluteX = (x - (center.x - 3));
-    const absoluteY = (y - (center.y - 3));
+    const absoluteX = (x - (centerRef.current.x - 3));
+    const absoluteY = (y - (centerRef.current.y - 3));
 
     const {
       isUnminted,
@@ -163,7 +164,7 @@ const Background: React.FC<{}> = () => {
     setIsLoading(false);
     setIsBuyPlotModalShown(false);
     // getUserPlots(wallet?.address).then(setUserPlots);
-    loadGrid(center.x, center.y);
+    loadGrid(centerRef.current.x, centerRef.current.y);
   };
 
   const onPlantConfirm = async (seedType: string) => {
@@ -181,7 +182,7 @@ const Background: React.FC<{}> = () => {
     }
     setIsLoading(false);
     setIsPlantModalShown(false);
-    loadGrid(center.x, center.y);
+    loadGrid(centerRef.current.x, centerRef.current.y);
   };
 
   const onHarvestConfirm = async () => {
@@ -199,11 +200,11 @@ const Background: React.FC<{}> = () => {
     }
     setIsLoading(false);
     setIsHarvestModalShown(false);
-    loadGrid(center.x, center.y);
+    loadGrid(centerRef.current.x, centerRef.current.y);
   };
 
   useEffect(() => {
-    loadGrid(center.x, center.y);
+    loadGrid(centerRef.current.x, centerRef.current.y);
   }, []);
 
   const debouncedLoadGrid = debounce(loadGrid, 2000);
@@ -215,11 +216,12 @@ const Background: React.FC<{}> = () => {
           <Grid
             onPlotSelect={onPlotSelect}
             mappedPlots={mappedPlots}
-            center={center}
+            centerRef={centerRef}
             onCenterMove={(x: number, y: number) => {
               resetGrid();
               debouncedLoadGrid(x, y);
             }}
+            subscribeToCenter={subscribeToCenter}
           />
         </Suspense>
       </Canvas>

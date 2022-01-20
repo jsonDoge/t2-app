@@ -55,15 +55,17 @@ const validKeys = ['KeyW', 'KeyA', 'KeyS', 'KeyD'];
 interface IGrid {
   onPlotSelect: (x: number, y: number) => void,
   onCenterMove: (x: number, y: number) => void,
-  center: { x: number, y: number },
-  mappedPlots: React.MutableRefObject<MappedPlots>
+  centerRef: React.MutableRefObject<{ x: number, y: number }>,
+  mappedPlots: React.MutableRefObject<MappedPlots>,
+  subscribeToCenter: (fn) => void
 }
 
 const Grid: React.FC<IGrid> = ({
   onPlotSelect = () => {},
   onCenterMove = () => {},
-  center,
+  centerRef,
   mappedPlots = {},
+  subscribeToCenter = (fn) => {},
 }) => {
   const { size, set, scene } = useThree();
   const planeRef = useRef();
@@ -74,7 +76,6 @@ const Grid: React.FC<IGrid> = ({
   const backgroundTreeSpecsRef = useRef<Array<ObjectSpecs>>([]);
   const backgroundFirSpecsRef = useRef<Array<ObjectSpecs>>([]);
   const backgroundGrassSpecsRef = useRef<Array<ObjectSpecs>>([]);
-  const centerRef = useRef({ x: 3, y: 3 });
   const teleportedRef = useRef(false);
   const orthCameraRef = useRef();
   const mainPlotRefs = useRef(generateMeshRefGrid(gridSize));
@@ -191,12 +192,12 @@ const Grid: React.FC<IGrid> = ({
   };
 
   const onCenterSet = () => {
-    perspectiveCameraRef.current.position.x = (center.x * 2.1) + perspectiveCameraOffset.x;
-    perspectiveCameraRef.current.position.y = (center.y * 2.1) + perspectiveCameraOffset.y;
-    lightRef.current.position.x = (center.x * 2.1) + directionalLightOffset.x;
-    lightRef.current.position.y = (center.y * 2.1) + directionalLightOffset.y;
-    lightRef.current.target.position.x = (center.x - gridSize) * 2.1;
-    lightRef.current.target.position.y = (center.y - gridSize) * 2.1;
+    perspectiveCameraRef.current.position.x = (centerRef.current.x * 2.1) + perspectiveCameraOffset.x;
+    perspectiveCameraRef.current.position.y = (centerRef.current.y * 2.1) + perspectiveCameraOffset.y;
+    lightRef.current.position.x = (centerRef.current.x * 2.1) + directionalLightOffset.x;
+    lightRef.current.position.y = (centerRef.current.y * 2.1) + directionalLightOffset.y;
+    lightRef.current.target.position.x = (centerRef.current.x - gridSize) * 2.1;
+    lightRef.current.target.position.y = (centerRef.current.y - gridSize) * 2.1;
     teleportedRef.current = true;
   };
 
@@ -210,15 +211,9 @@ const Grid: React.FC<IGrid> = ({
     fillSurroundRowPositions(
       surroundPlotRefs.current, gridSize + 2, centerRef.current.x, centerRef.current.y,
     );
+    subscribeToCenter(onCenterSet);
   }, []);
 
-  useEffect(() => {
-    if (
-      center.x === centerRef.current.x
-      && center.y === centerRef.current.y
-    ) { return; }
-    onCenterSet();
-  }, [center.x, center.y]);
 
   // add target for manipulation
   // orthCamera to set shadow limits (to not be cut off)
@@ -274,8 +269,11 @@ const Grid: React.FC<IGrid> = ({
       (state.camera.position.y - perspectiveCameraOffset.y) / 2.1,
     );
 
-    if (centerRef.current.x !== newCenterX
-      || centerRef.current.y !== newCenterY) {
+    if (
+      centerRef.current.x !== newCenterX
+      || centerRef.current.y !== newCenterY
+      || teleportedRef.current
+    ) {
       const diffX = newCenterX - centerRef.current.x;
       const diffY = newCenterY - centerRef.current.y;
 

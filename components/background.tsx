@@ -173,6 +173,7 @@ const Background: React.FC<{}> = () => {
     try {
       await plant(selectedPlot.x, selectedPlot.y, seedType, wallet?.privateKey);
     } catch (e) {
+      console.error(e);
       setIsLoading(false);
       setIsPlantModalShown(false);
       setError('Planting failed, check if you have necessary seed');
@@ -190,6 +191,7 @@ const Background: React.FC<{}> = () => {
     try {
       await harvest(selectedPlot.x, selectedPlot.y, wallet?.privateKey);
     } catch (e) {
+      console.error(e);
       setIsLoading(false);
       setIsHarvestModalShown(false);
       setError('Harvest failed :(');

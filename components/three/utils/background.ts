@@ -74,7 +74,8 @@ const fillBackgroundObjectsGrass = (
         const rotation = pseudoRand(x, y, 4, rotationCompareFn) || 0;
 
         const isInvisible = x >= x0 * 2.1 && x <= x1 * 2.1 && y >= y0 * 2.1 && y <= y1 * 2.1;
-        const isSemiTransparent = x >= sx0 * 2.1 && x <= sx1 * 2.1 && y >= sy0 * 2.1 && y <= sy1 * 2.1;
+        const isSemiTransparent =
+          x >= sx0 * 2.1 && x <= sx1 * 2.1 && y >= sy0 * 2.1 && y <= sy1 * 2.1;
 
         specs.push({
           isVisible: !isInvisible,

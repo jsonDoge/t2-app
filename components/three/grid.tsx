@@ -12,7 +12,6 @@ import Fir from './fir';
 import Corn from './corn';
 import Potato from './potato';
 import Carrot from './carrot';
-import Weed from './weed';
 import Grass1 from './grass1';
 
 // Utils

@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 import React, {
-  Suspense, useEffect, useRef, useState
+  Suspense, useEffect, useRef, useState,
 } from 'react';
 import { debounce } from 'lodash';
 import { Canvas } from '@react-three/fiber';
@@ -38,10 +38,14 @@ const Background: React.FC<{}> = () => {
 
   const mappedPlots = useRef(generateEmptyPlots(coordinates));
 
-  const [gridXAxis, setGridXAxis] = useState([]);
-  const [gridYAxis, setGridYAxis] = useState([]);
+  // TODO: show axis
+  // const [gridXAxis, setGridXAxis] = useState([]);
+  // const [gridYAxis, setGridYAxis] = useState([]);
+
   const isMappedPlotsEmpty = useRef(true);
   const [selectedPlot, selectPlot] = useState({ x: 0, y: 0 });
+
+  // TODO: show errors
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 

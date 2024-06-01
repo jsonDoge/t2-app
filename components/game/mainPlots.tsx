@@ -96,34 +96,34 @@ const MainPlots = memo<Props>(({ mainPlotRefs, plotCenterRef }) => {
 
         mainPlotRefs_[y][x].current?.material.color.setRGB(plotRgb.r, plotRgb.g, plotRgb.b);
 
-        const { seedType, state } = currentMappedPlotInfos?.[x][y] || { seedType: undefined, state: undefined };
+        const { seedType, plantState } = currentMappedPlotInfos?.[x][y] || { seedType: undefined, state: undefined };
 
         setPlotItem(
-          !!seedType && state === PlantState.GROWING,
+          !!seedType && plantState === PlantState.GROWING,
           currentPlantRefs[x][y].current,
           mainPlotRefs_[y][x].current,
         );
 
         setPlotItem(
-          !!seedType && seedType === SEED_TYPE.CORN && state === PlantState.READY,
+          !!seedType && seedType === SEED_TYPE.CORN && plantState === PlantState.READY,
           currentCornRefs[x][y].current,
           mainPlotRefs_[y][x].current,
         );
 
         setPlotItem(
-          !!seedType && seedType === SEED_TYPE.POTATO && state === PlantState.READY,
+          !!seedType && seedType === SEED_TYPE.POTATO && plantState === PlantState.READY,
           currentPotatoRefs[x][y].current,
           mainPlotRefs_[y][x].current,
         );
 
         setPlotItem(
-          !!seedType && seedType === SEED_TYPE.CARROT && state === PlantState.READY,
+          !!seedType && seedType === SEED_TYPE.CARROT && plantState === PlantState.READY,
           currentCarrotRefs[x][y].current,
           mainPlotRefs_[y][x].current,
         );
 
         setPlotItem(
-          !!seedType && state === PlantState.OVERGROWN,
+          !!seedType && plantState === PlantState.OVERGROWN,
           currentWeedRefs[x][y].current,
           mainPlotRefs_[y][x].current,
         );

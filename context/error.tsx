@@ -1,11 +1,9 @@
-import React, {
-  createContext, useContext, useState,
-} from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 
 interface IErrorContext {
-  error: string,
-  setError: (message: string) => void,
+  error: string;
+  setError: (message: string) => void;
 }
 
 const ErrorContext = createContext<IErrorContext>({
@@ -17,10 +15,11 @@ const ErrorContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [error, setError] = useState('');
 
   return (
-    <ErrorContext.Provider value={{
-      error,
-      setError,
-    }}
+    <ErrorContext.Provider
+      value={{
+        error,
+        setError,
+      }}
     >
       {children}
     </ErrorContext.Provider>

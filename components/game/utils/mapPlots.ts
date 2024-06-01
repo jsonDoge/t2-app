@@ -45,8 +45,9 @@ export const reduceContractPlots = (
     const isPlantOwner = plot?.plant?.owner?.toLowerCase() === walletAddress;
     const isUnminted = false;
 
-    const seedType: string = Object.values(SEED_TYPE)
-      .filter((t) => publicRuntimeConfig[`C_${t}_SEED`]?.toLowerCase() === plot.plant.seed.toLowerCase())[0];
+    const seedType: string = Object.values(SEED_TYPE).filter(
+      (t) => publicRuntimeConfig[`C_${t}_SEED`]?.toLowerCase() === plot.plant.seed.toLowerCase(),
+    )[0];
 
     if (!seedType) {
       updatedMp[plotCoords.x][plotCoords.y] = {
@@ -88,19 +89,22 @@ export const reduceContractPlots = (
 
 // eslint-disable-next-line import/prefer-default-export
 export const generateEmptyMappedPlotInfos = (coords: Coordinates[]): MappedPlotInfos =>
-  coords.reduce((mpi: MappedPlotInfos, c: Coordinates) => ({
-    ...mpi,
-    [c.x]: {
-      ...mpi[c.x],
-      [c.y]: {
-        isOwner: false,
-        isPlantOwner: false,
-        isUnminted: true,
-        seedType: undefined,
-        state: undefined,
-        color: getDefaultPlotColor(),
-        waterLevel: 0,
-        waterAbsorbed: undefined,
+  coords.reduce(
+    (mpi: MappedPlotInfos, c: Coordinates) => ({
+      ...mpi,
+      [c.x]: {
+        ...mpi[c.x],
+        [c.y]: {
+          isOwner: false,
+          isPlantOwner: false,
+          isUnminted: true,
+          seedType: undefined,
+          state: undefined,
+          color: getDefaultPlotColor(),
+          waterLevel: 0,
+          waterAbsorbed: undefined,
+        },
       },
-    },
-  }), {});
+    }),
+    {},
+  );

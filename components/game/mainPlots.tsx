@@ -1,13 +1,6 @@
 /* eslint-disable react/prop-types */
 import * as THREE from 'three';
-import React, {
-  RefObject,
-  useEffect,
-  useRef,
-  Fragment,
-  memo,
-  MutableRefObject,
-} from 'react';
+import React, { RefObject, useEffect, useRef, Fragment, memo, MutableRefObject } from 'react';
 
 // components
 import Plot from './modelElements/plot';
@@ -18,10 +11,7 @@ import WeedGroup from './groupedElements/weedGroup';
 import { mappedPlotInfosStore, selectPlotStore } from '../../stores';
 
 // interfaces
-import {
-  MappedPlotInfos,
-  PlotMesh,
-} from './utils/interfaces';
+import { MappedPlotInfos, PlotMesh } from './utils/interfaces';
 
 // utils
 import { getDefaultPlotColor } from './utils/plotColors';
@@ -36,15 +26,12 @@ import CarrotGroup from './groupedElements/carrotGroup';
 import { PlantState } from '../../utils/enums';
 
 interface Props {
-  mainPlotRefs: Array<Array<RefObject<PlotMesh>>>,
-  plotCenterRef: MutableRefObject<{ x: number, y: number }>
+  mainPlotRefs: Array<Array<RefObject<PlotMesh>>>;
+  plotCenterRef: MutableRefObject<{ x: number; y: number }>;
 }
 
 // React.memo to prevent re-render on screen resize as useEffects is not called
-const MainPlots = memo<Props>(({
-  mainPlotRefs,
-  plotCenterRef,
-}) => {
+const MainPlots = memo<Props>(({ mainPlotRefs, plotCenterRef }) => {
   console.info('Rerendering mainPlots');
 
   const mappedPlotInfos = useRef<MappedPlotInfos>();
@@ -64,12 +51,10 @@ const MainPlots = memo<Props>(({
     generateRefGrid<THREE.Group>(PLOT_GRID_SIZE, PLOT_GRID_SIZE),
   );
 
-  const setPlotItem = (
-    itemEnabled: boolean,
-    itemMesh: THREE.Mesh | THREE.Group | null,
-    plotMesh: PlotMesh | null,
-  ) => {
-    if (!itemMesh || !plotMesh) { return; }
+  const setPlotItem = (itemEnabled: boolean, itemMesh: THREE.Mesh | THREE.Group | null, plotMesh: PlotMesh | null) => {
+    if (!itemMesh || !plotMesh) {
+      return;
+    }
 
     if (!itemEnabled) {
       itemMesh.position.setZ(-5);
@@ -97,25 +82,21 @@ const MainPlots = memo<Props>(({
     currentMappedPlotInfos: MappedPlotInfos,
   ): void => {
     for (let x = 0; x < PLOT_GRID_SIZE; x += 1) {
-      if (!currentMappedPlotInfos?.[x]) { continue; }
+      if (!currentMappedPlotInfos?.[x]) {
+        continue;
+      }
 
       for (let y = 0; y < PLOT_GRID_SIZE; y += 1) {
-        if (
-          !currentMappedPlotInfos?.[x]?.[y]
-          || !mainPlotRefs_[y][x].current
-        ) {
+        if (!currentMappedPlotInfos?.[x]?.[y] || !mainPlotRefs_[y][x].current) {
           continue;
         }
 
         // TODO: investigate why needs default
-        const plotRgb = currentMappedPlotInfos?.[x][y].color.rgb
-          || getDefaultPlotColor().rgb;
+        const plotRgb = currentMappedPlotInfos?.[x][y].color.rgb || getDefaultPlotColor().rgb;
 
         mainPlotRefs_[y][x].current?.material.color.setRGB(plotRgb.r, plotRgb.g, plotRgb.b);
 
-        const { seedType, state } = (
-          currentMappedPlotInfos?.[x][y] || { seedType: undefined, state: undefined }
-        );
+        const { seedType, state } = currentMappedPlotInfos?.[x][y] || { seedType: undefined, state: undefined };
 
         setPlotItem(
           !!seedType && state === PlantState.GROWING,
@@ -165,9 +146,9 @@ const MainPlots = memo<Props>(({
     }
 
     return mappedPlotInfosStore.onChange((newMappedPlotInfos: MappedPlotInfos) => {
-      if (
-        JSON.stringify(newMappedPlotInfos) === JSON.stringify(mappedPlotInfos.current)
-      ) { return; }
+      if (JSON.stringify(newMappedPlotInfos) === JSON.stringify(mappedPlotInfos.current)) {
+        return;
+      }
 
       mappedPlotInfos.current = { ...newMappedPlotInfos };
 
@@ -185,15 +166,15 @@ const MainPlots = memo<Props>(({
 
   return (
     <>
-      {
-        mainPlotRefs.map((r, yIndex) => r.map((c, xIndex) => (
-          <Fragment
-            key={`plot-${yIndex}${xIndex}`}
-          >
+      {mainPlotRefs.map((r, yIndex) =>
+        r.map((c, xIndex) => (
+          <Fragment key={`plot-${yIndex}${xIndex}`}>
             <Plot
               ref={c}
               onPointerDown={() => {
-                if (!mappedPlotInfos?.current?.[xIndex]?.[yIndex]) { return; }
+                if (!mappedPlotInfos?.current?.[xIndex]?.[yIndex]) {
+                  return;
+                }
 
                 const coordinates = {
                   x: plotCenterRef.current.x + (xIndex - 3),
@@ -208,12 +189,16 @@ const MainPlots = memo<Props>(({
                 });
               }}
               onPointerOut={(self) => {
-                if (!mappedPlotInfos?.current) { return; }
+                if (!mappedPlotInfos?.current) {
+                  return;
+                }
                 const rgb = mappedPlotInfos?.current?.[xIndex]?.[yIndex]?.color?.rgb;
                 self.eventObject.material.color.setRGB(rgb.r, rgb.g, rgb.b);
               }}
               onPointerOver={(self) => {
-                if (!mappedPlotInfos?.current) { return; }
+                if (!mappedPlotInfos?.current) {
+                  return;
+                }
                 const rgbHover = mappedPlotInfos?.current?.[xIndex]?.[yIndex]?.color?.rgbHover;
                 self.eventObject.material.color.setRGB(rgbHover.r, rgbHover.g, rgbHover.b);
               }}
@@ -224,8 +209,8 @@ const MainPlots = memo<Props>(({
             <PotatoGroup ref={potatoRefs.current[xIndex][yIndex]} />
             <CarrotGroup ref={carrotRefs.current[xIndex][yIndex]} />
           </Fragment>
-        )))
-      }
+        )),
+      )}
     </>
   );
 });

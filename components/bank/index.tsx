@@ -12,7 +12,9 @@ const Bank = () => {
 
   const getLoan = async () => {
     setError('');
-    if (!wallet?.address || !wallet?.privateKey) { return; }
+    if (!wallet?.address || !wallet?.privateKey) {
+      return;
+    }
     setIsLoading(true);
     try {
       await mintStableToken(wallet.address, wallet.privateKey);
@@ -26,7 +28,9 @@ const Bank = () => {
   };
 
   useEffect(() => {
-    if (!wallet?.address) { return; }
+    if (!wallet?.address) {
+      return;
+    }
 
     getStableTokenBalance(wallet.address).then(setbalance);
   }, [wallet?.address]);
@@ -38,19 +42,17 @@ const Bank = () => {
       </div>
       <div className="flex flex-col w-full mt-5">
         <div className="text-right">
-          {
-              wallet?.address
-                ? (
-                  <Button disabled={isLoading} onClick={() => getLoan()}>
-                    { !isLoading && <div>Get farmers loan</div> }
-                    { isLoading && <Spinner /> }
-                  </Button>
-                )
-                : <Spinner />
-            }
+          {wallet?.address ? (
+            <Button disabled={isLoading} onClick={() => getLoan()}>
+              {!isLoading && <div>Get farmers loan</div>}
+              {isLoading && <Spinner />}
+            </Button>
+          ) : (
+            <Spinner />
+          )}
         </div>
         <div className="text-center mt-5 bg-black bg-opacity-50">
-          { error && <div className="text-red-500">{error}</div>}
+          {error && <div className="text-red-500">{error}</div>}
         </div>
       </div>
       <div className="flex flex-col text-white w-full mt-5">

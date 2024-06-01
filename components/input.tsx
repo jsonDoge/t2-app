@@ -8,13 +8,7 @@ interface Props {
   value: any;
 }
 
-const Input: React.FC<Props> = ({
-  onInput,
-  type,
-  id,
-  name,
-  value,
-}) => (
+const Input: React.FC<Props> = ({ onInput, type, id, name, value }) => (
   <input
     onInput={onInput}
     type={type}

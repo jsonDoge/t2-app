@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Button from '../button';
 import Spinner from '../spinner';
-import {
-  craftDish,
-  getDishBalance,
-} from '../../services/kitchen';
+import { craftDish, getDishBalance } from '../../services/kitchen';
 import { useWallet } from '../../context/wallet';
 import { toSentenceCase } from '../../utils';
 import { PRODUCT_TYPE } from '../../utils/constants';
@@ -35,7 +32,9 @@ const Kitchen = () => {
   };
 
   useEffect(() => {
-    if (!wallet?.address) { return; }
+    if (!wallet?.address) {
+      return;
+    }
 
     refreshBalances(wallet.address);
   }, [wallet?.address]);
@@ -47,21 +46,17 @@ const Kitchen = () => {
     privateKey: string | undefined,
   ) => {
     setError('');
-    if (!privateKey) { return; }
+    if (!privateKey) {
+      return;
+    }
     setIsLoading(true);
 
     const nonZeroQuantities = quantities.filter((q) => q > 0);
     const nonZeroQuantityIndexes = quantities.map((q, i) => (q > 0 ? i : -1)).filter((i) => i > -1);
-    const nonZeroQuantityProductTypes = productTypes
-      .filter((_, i) => nonZeroQuantityIndexes.includes(i));
+    const nonZeroQuantityProductTypes = productTypes.filter((_, i) => nonZeroQuantityIndexes.includes(i));
 
     try {
-      await craftDish(
-        nonZeroQuantityProductTypes,
-        nonZeroQuantities,
-        walletAddress,
-        privateKey,
-      );
+      await craftDish(nonZeroQuantityProductTypes, nonZeroQuantities, walletAddress, privateKey);
     } catch (e) {
       setError('Craft failed or non-existent combo');
       setIsLoading(false);
@@ -92,12 +87,19 @@ const Kitchen = () => {
               min={0}
               type="number"
               value={quantity0}
-              onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setQuantity0(parseInt(e.target.value || '0', 10))}
+              onInput={(e: React.ChangeEvent<HTMLInputElement>) => setQuantity0(parseInt(e.target.value || '0', 10))}
             />
-            <select className="w-full mt-2" onChange={(e) => { setProductType0(e.target.value); }} value={productType0}>
-              { Object.values(PRODUCT_TYPE).map((v) => (
-                <option key={v} value={v}>{toSentenceCase(v)}</option>
+            <select
+              className="w-full mt-2"
+              onChange={(e) => {
+                setProductType0(e.target.value);
+              }}
+              value={productType0}
+            >
+              {Object.values(PRODUCT_TYPE).map((v) => (
+                <option key={v} value={v}>
+                  {toSentenceCase(v)}
+                </option>
               ))}
             </select>
           </div>
@@ -110,12 +112,19 @@ const Kitchen = () => {
               min={0}
               type="number"
               value={quantity1}
-              onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setQuantity1(parseInt(e.target.value, 10))}
+              onInput={(e: React.ChangeEvent<HTMLInputElement>) => setQuantity1(parseInt(e.target.value, 10))}
             />
-            <select className="w-full mt-2" onChange={(e) => { setProductType1(e.target.value); }} value={productType1}>
-              { Object.values(PRODUCT_TYPE).map((v) => (
-                <option key={v} value={v}>{toSentenceCase(v)}</option>
+            <select
+              className="w-full mt-2"
+              onChange={(e) => {
+                setProductType1(e.target.value);
+              }}
+              value={productType1}
+            >
+              {Object.values(PRODUCT_TYPE).map((v) => (
+                <option key={v} value={v}>
+                  {toSentenceCase(v)}
+                </option>
               ))}
             </select>
           </div>
@@ -128,12 +137,19 @@ const Kitchen = () => {
               min={0}
               type="number"
               value={quantity2}
-              onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setQuantity2(parseInt(e.target.value, 10))}
+              onInput={(e: React.ChangeEvent<HTMLInputElement>) => setQuantity2(parseInt(e.target.value, 10))}
             />
-            <select className="w-full mt-2" onChange={(e) => { setProductType2(e.target.value); }} value={productType2}>
-              { Object.values(PRODUCT_TYPE).map((v) => (
-                <option key={v} value={v}>{toSentenceCase(v)}</option>
+            <select
+              className="w-full mt-2"
+              onChange={(e) => {
+                setProductType2(e.target.value);
+              }}
+              value={productType2}
+            >
+              {Object.values(PRODUCT_TYPE).map((v) => (
+                <option key={v} value={v}>
+                  {toSentenceCase(v)}
+                </option>
               ))}
             </select>
           </div>
@@ -141,27 +157,26 @@ const Kitchen = () => {
       </div>
       <div className="flex flex-col mt-5">
         <div className="text-right">
-          {
-            wallet?.address
-              ? (
-                <Button onClick={
-                  () => onDishCraft(
-                    [productType0, productType1, productType2],
-                    [quantity0, quantity1, quantity2],
-                    wallet.address,
-                    wallet.privateKey,
-                  )
-                }
-                >
-                  { !isLoading && <div>Try craft dish</div> }
-                  { isLoading && <Spinner /> }
-                </Button>
-              )
-              : <Spinner />
-          }
+          {wallet?.address ? (
+            <Button
+              onClick={() =>
+                onDishCraft(
+                  [productType0, productType1, productType2],
+                  [quantity0, quantity1, quantity2],
+                  wallet.address,
+                  wallet.privateKey,
+                )
+              }
+            >
+              {!isLoading && <div>Try craft dish</div>}
+              {isLoading && <Spinner />}
+            </Button>
+          ) : (
+            <Spinner />
+          )}
         </div>
         <div className="text-center mt-5 bg-black bg-opacity-50">
-          { error && <div className="text-red-500">{error}</div>}
+          {error && <div className="text-red-500">{error}</div>}
         </div>
       </div>
       <div className="flex flex-col justify-start items-start mt-4 text-white">

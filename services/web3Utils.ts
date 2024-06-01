@@ -1,7 +1,4 @@
-import {
-  Contract,
-  Wallet,
-} from 'ethers';
+import { Contract, Wallet } from 'ethers';
 
 // services
 import getProvider from './provider';
@@ -16,8 +13,8 @@ import plotAbi from '../contracts/plot.abi.json';
 import farmAbi from '../contracts/farm.abi.json';
 
 interface GetContractOptions {
-  isSignerRequired: boolean,
-  privateKey?: string,
+  isSignerRequired: boolean;
+  privateKey?: string;
 }
 
 /**

@@ -19,8 +19,14 @@ export const BACKGROUND_PLANT_OFFSET_Y = -15;
 // game
 export const INITIAL_PLOT_CENTER_COORDS = { x: 3, y: 3 };
 export const CENTER_AREA_LIMIT = {
-  x0: 6.3, y0: 6.3, x1: 2093.7, y1: 2093.7,
+  x0: 6.3,
+  y0: 6.3,
+  x1: 2093.7,
+  y1: 2093.7,
 };
 export const PLOT_CENTER_AREA_LIMIT = {
-  x0: 3, y0: 3, x1: 996, y1: 996,
+  x0: 3,
+  y0: 3,
+  x1: 996,
+  y1: 996,
 };

@@ -10,16 +10,8 @@ const Tree = forwardRef<THREE.Mesh>((_, ref) => {
   const { nodes, materials } = useGLTF('/tree.gltf') as GLTFResult;
 
   return (
-    <mesh
-      ref={ref}
-      scale={[0.5, 0.5, 0.5]}
-      castShadow
-      receiveShadow
-      geometry={nodes.Cube.geometry}
-    >
-      <meshStandardMaterial
-        {...materials.Material}
-      />
+    <mesh ref={ref} scale={[0.5, 0.5, 0.5]} castShadow receiveShadow geometry={nodes.Cube.geometry}>
+      <meshStandardMaterial {...materials.Material} />
     </mesh>
   );
 });

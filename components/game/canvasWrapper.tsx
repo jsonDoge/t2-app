@@ -11,12 +11,10 @@ import { INITIAL_PLOT_CENTER_COORDS } from './utils/constants';
 const Grid = dynamic(() => import('./grid'), { suspense: true, ssr: false });
 
 interface Props {
-  plotCenterChanged: () => void
+  plotCenterChanged: () => void;
 }
 
-const CanvasWrapper: React.FC<Props> = ({
-  plotCenterChanged,
-}) => {
+const CanvasWrapper: React.FC<Props> = ({ plotCenterChanged }) => {
   console.info('Rendering canvasWrapper');
 
   const { centerRef } = useGame();
@@ -24,15 +22,9 @@ const CanvasWrapper: React.FC<Props> = ({
 
   return (
     <Canvas shadows className="min-h-screen w-screen">
-      <CenterControl
-        centerRef={centerRef}
-        plotCenterRef={plotCenterRef}
-        plotCenterChanged={plotCenterChanged}
-      />
+      <CenterControl centerRef={centerRef} plotCenterRef={plotCenterRef} plotCenterChanged={plotCenterChanged} />
       <Camera centerRef={centerRef} />
-      <Grid
-        plotCenterRef={plotCenterRef}
-      />
+      <Grid plotCenterRef={plotCenterRef} />
     </Canvas>
   );
 };

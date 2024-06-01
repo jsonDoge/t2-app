@@ -16,7 +16,13 @@ function MyApp() {
       <GameContextProvider>
         <>
           <div className="absolute z-10 h-screen w-screen">
-            <Suspense fallback={<div className="flex items-center justify-center h-screen"><Spinner className="h-10 w-10" /></div>}>
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center h-screen">
+                  <Spinner className="h-10 w-10" />
+                </div>
+              }
+            >
               <Game />
             </Suspense>
           </div>

@@ -6,7 +6,7 @@ import Button from '../button';
 import { PLOT_CENTER_AREA_LIMIT } from '../game/utils/constants';
 
 interface Props {
-  isMobile?: boolean
+  isMobile?: boolean;
 }
 
 const CenterPlotNavigator: React.FC<Props> = ({ isMobile = false }) => {
@@ -17,9 +17,13 @@ const CenterPlotNavigator: React.FC<Props> = ({ isMobile = false }) => {
   const [centerY, setCenterY] = useState(3);
 
   const validateInput = (input: number) => {
-    if (!input && input !== 0) { setError('Invalid center'); return false; }
+    if (!input && input !== 0) {
+      setError('Invalid center');
+      return false;
+    }
     if (input > PLOT_CENTER_AREA_LIMIT.x1 || input < PLOT_CENTER_AREA_LIMIT.x0) {
-      setError('Center exceeds limits [3, 996]'); return false;
+      setError('Center exceeds limits [3, 996]');
+      return false;
     }
 
     return true;
@@ -28,10 +32,12 @@ const CenterPlotNavigator: React.FC<Props> = ({ isMobile = false }) => {
   return (
     <div>
       <div>
-        { error && (
+        {error && (
           <div>
             <span className="text-red-500 bg-black bg-opacity-50">{error}</span>
-            <button className="ml-3 px-3 pb-1 bg-red-500 text-white rounded" type="submit" onClick={() => setError('')}>x</button>
+            <button className="ml-3 px-3 pb-1 bg-red-500 text-white rounded" type="submit" onClick={() => setError('')}>
+              x
+            </button>
           </div>
         )}
       </div>
@@ -47,8 +53,7 @@ const CenterPlotNavigator: React.FC<Props> = ({ isMobile = false }) => {
             name="coordinateX"
             type="number"
             value={centerX}
-            onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setCenterX(parseInt(e.target.value, 10))}
+            onInput={(e: React.ChangeEvent<HTMLInputElement>) => setCenterX(parseInt(e.target.value, 10))}
           />
         </div>
         <div className="flex flex-row items-center justify-center gap-2">
@@ -60,18 +65,21 @@ const CenterPlotNavigator: React.FC<Props> = ({ isMobile = false }) => {
             name="coordinateY"
             type="number"
             value={centerY}
-            onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setCenterY(parseInt(e.target.value, 10))}
+            onInput={(e: React.ChangeEvent<HTMLInputElement>) => setCenterY(parseInt(e.target.value, 10))}
           />
         </div>
         <div>
           <Button
             onClick={() => {
               const isValidX = validateInput(centerX);
-              if (!isValidX) { return; }
+              if (!isValidX) {
+                return;
+              }
 
               const isValidY = validateInput(centerY);
-              if (!isValidY) { return; }
+              if (!isValidY) {
+                return;
+              }
 
               setError('');
               submitNewPlotCenter(centerX, centerY);

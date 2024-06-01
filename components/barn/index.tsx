@@ -28,7 +28,9 @@ const Barn = () => {
   };
 
   useEffect(() => {
-    if (!wallet?.address) { return; }
+    if (!wallet?.address) {
+      return;
+    }
 
     refreshBalances(wallet.address);
   }, [wallet?.address]);
@@ -45,16 +47,13 @@ const Barn = () => {
     }
 
     setError('');
-    if (!privateKey) { return; }
+    if (!privateKey) {
+      return;
+    }
     setIsLoading(true);
 
     try {
-      await convertToSeed(
-        productType_,
-        quantity_,
-        walletAddress,
-        privateKey,
-      );
+      await convertToSeed(productType_, quantity_, walletAddress, privateKey);
     } catch (e) {
       setError('Convert failed');
       setIsLoading(false);
@@ -81,13 +80,21 @@ const Barn = () => {
               min={0}
               type="number"
               value={quantity}
-              onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setQuantity(parseInt(e.target.value || '0', 10))}
+              onInput={(e: React.ChangeEvent<HTMLInputElement>) => setQuantity(parseInt(e.target.value || '0', 10))}
             />
-            <select className="w-full mt-2" onChange={(e) => { setProductType(e.target.value); }} value={productType}>
-              { Object.values(PRODUCT_TYPE)
-                .filter((p) => Object.values(SEED_TYPE).includes(p)).map((v) => (
-                  <option key={v} value={v}>{toSentenceCase(v)}</option>
+            <select
+              className="w-full mt-2"
+              onChange={(e) => {
+                setProductType(e.target.value);
+              }}
+              value={productType}
+            >
+              {Object.values(PRODUCT_TYPE)
+                .filter((p) => Object.values(SEED_TYPE).includes(p))
+                .map((v) => (
+                  <option key={v} value={v}>
+                    {toSentenceCase(v)}
+                  </option>
                 ))}
             </select>
           </div>
@@ -95,27 +102,17 @@ const Barn = () => {
       </div>
       <div className="flex flex-col mt-5">
         <div className="text-right">
-          {
-            wallet?.address
-              ? (
-                <Button onClick={
-                  () => onConvertToSeed(
-                    productType,
-                    quantity,
-                    wallet.address,
-                    wallet.privateKey,
-                  )
-                }
-                >
-                  { !isLoading && <div>Convert to Seed</div> }
-                  { isLoading && <Spinner /> }
-                </Button>
-              )
-              : <Spinner />
-          }
+          {wallet?.address ? (
+            <Button onClick={() => onConvertToSeed(productType, quantity, wallet.address, wallet.privateKey)}>
+              {!isLoading && <div>Convert to Seed</div>}
+              {isLoading && <Spinner />}
+            </Button>
+          ) : (
+            <Spinner />
+          )}
         </div>
         <div className="text-center mt-5 bg-black bg-opacity-50">
-          { error && <div className="text-red-500">{error}</div>}
+          {error && <div className="text-red-500">{error}</div>}
         </div>
       </div>
 

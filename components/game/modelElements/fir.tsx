@@ -16,9 +16,7 @@ const Fir = forwardRef<THREE.Mesh>((_, ref) => {
       receiveShadow
       geometry={nodes.Cube.geometry}
     >
-      <meshStandardMaterial
-        {...materials.Material}
-      />
+      <meshStandardMaterial {...materials.Material} />
     </mesh>
   );
 });

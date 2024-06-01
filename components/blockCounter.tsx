@@ -1,13 +1,16 @@
 import getConfig from 'next/config';
-import React, {
-  FC, useCallback, useEffect, useState,
-} from 'react';
+import React, { FC, useCallback, useEffect, useState } from 'react';
 import { getBlockNumber } from '../services/web3Utils';
 import { toSentenceCase } from '../utils';
 
 const { publicRuntimeConfig } = getConfig();
 
-enum Season { AUTUMN = 'AUTUMN', WINTER = 'WINTER', SPRING = 'SPRING', SUMMER = 'SUMMER' }
+enum Season {
+  AUTUMN = 'AUTUMN',
+  WINTER = 'WINTER',
+  SPRING = 'SPRING',
+  SUMMER = 'SUMMER',
+}
 
 const BlockCounter: FC = () => {
   const [blockNumber, setBlockNumber] = useState(0);
@@ -35,37 +38,26 @@ const BlockCounter: FC = () => {
 
   const updateBlockAndSeason = useCallback((currentBlockNumber: number) => {
     setBlockNumber(currentBlockNumber);
-    setBlocksTillNextSeason(
-      calculateSeasonBlocksLeft(currentBlockNumber, publicRuntimeConfig.SEASON_DURATION_BLOCKS),
-    );
+    setBlocksTillNextSeason(calculateSeasonBlocksLeft(currentBlockNumber, publicRuntimeConfig.SEASON_DURATION_BLOCKS));
     setSeason(calculateSeason(currentBlockNumber, publicRuntimeConfig.SEASON_DURATION_BLOCKS));
   }, []);
 
   useEffect(() => {
     getBlockNumber().then(updateBlockAndSeason);
 
-    setInterval(() => { // Clear interval
+    setInterval(() => {
+      // Clear interval
       getBlockNumber().then(updateBlockAndSeason);
     }, 60000);
   }, [updateBlockAndSeason]);
 
   return (
     <div className="font-bold mr-5">
-      <div className="inline">
-        Block:
-      </div>
-      <div className="inline ml-1">
-        {blockNumber}
-      </div>
-      <div className="inline ml-2">
-        Season:
-      </div>
-      <div className="inline ml-1">
-        {toSentenceCase(season || '')}
-      </div>
-      <div className="">
-        {`Blocks till next season: ${blocksTillNextSeason}`}
-      </div>
+      <div className="inline">Block:</div>
+      <div className="inline ml-1">{blockNumber}</div>
+      <div className="inline ml-2">Season:</div>
+      <div className="inline ml-1">{toSentenceCase(season || '')}</div>
+      <div className="">{`Blocks till next season: ${blocksTillNextSeason}`}</div>
     </div>
   );
 };

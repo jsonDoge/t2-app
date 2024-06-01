@@ -23,7 +23,9 @@ const Shop = () => {
 
   const onBuySeed = async () => {
     setError('');
-    if (!wallet?.address || !wallet?.privateKey) { return; }
+    if (!wallet?.address || !wallet?.privateKey) {
+      return;
+    }
     setIsLoading(true);
     try {
       await buySeed(seedType, wallet?.privateKey);
@@ -37,7 +39,9 @@ const Shop = () => {
   };
 
   useEffect(() => {
-    if (!wallet?.address) { return; }
+    if (!wallet?.address) {
+      return;
+    }
 
     refreshBalances(wallet.address);
   }, [wallet?.address]);
@@ -52,27 +56,33 @@ const Shop = () => {
         <div className="grid grid-cols-2 items-center w-full">
           <div className="text-left">
             <div>
-              <select onChange={(e) => { setSeedType(e.target.value); }} value={seedType}>
-                { Object.values(SEED_TYPE).map((v) => (
-                  <option key={v} value={v}>{toSentenceCase(v)}</option>
+              <select
+                onChange={(e) => {
+                  setSeedType(e.target.value);
+                }}
+                value={seedType}
+              >
+                {Object.values(SEED_TYPE).map((v) => (
+                  <option key={v} value={v}>
+                    {toSentenceCase(v)}
+                  </option>
                 ))}
               </select>
             </div>
           </div>
           <div className="text-right">
-            {
-              wallet?.address
-                ? (
-                  <Button onClick={() => onBuySeed()}>
-                    { !isLoading && <div>Buy seed</div> }
-                    { isLoading && <Spinner /> }
-                  </Button>
-                ) : <Spinner />
-            }
+            {wallet?.address ? (
+              <Button onClick={() => onBuySeed()}>
+                {!isLoading && <div>Buy seed</div>}
+                {isLoading && <Spinner />}
+              </Button>
+            ) : (
+              <Spinner />
+            )}
           </div>
         </div>
         <div className="text-center mt-5 bg-black bg-opacity-50">
-          { error && <div className="text-red-500">{error}</div>}
+          {error && <div className="text-red-500">{error}</div>}
         </div>
       </div>
       <div className="flex flex-col text-white w-full mt-5">

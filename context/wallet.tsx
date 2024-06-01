@@ -1,13 +1,11 @@
-import React, {
-  createContext, useState, useEffect, useContext,
-} from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import { Wallet as EtherWallet } from 'ethers';
 import PropTypes from 'prop-types';
 import { walletStore } from '../stores';
 import { Wallet } from '../utils/interfaces';
 
 interface IWalletContext {
-  wallet: Wallet | undefined
+  wallet: Wallet | undefined;
 }
 
 const WalletContext = createContext<IWalletContext>({ wallet: undefined });
@@ -56,11 +54,7 @@ const WalletContextProvider = ({ children }: { children: React.ReactNode }) => {
     loadWallet();
   }, []);
 
-  return (
-    <WalletContext.Provider value={{ wallet: localWallet }}>
-      {children}
-    </WalletContext.Provider>
-  );
+  return <WalletContext.Provider value={{ wallet: localWallet }}>{children}</WalletContext.Provider>;
 };
 
 WalletContextProvider.propTypes = {

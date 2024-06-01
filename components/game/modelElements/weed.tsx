@@ -3,7 +3,7 @@ import { useGLTF } from '@react-three/drei';
 import { GLTFResult } from '../utils/interfaces';
 
 interface Props {
-  position: THREE.Vector3
+  position: THREE.Vector3;
 }
 
 useGLTF.preload('/weed.gltf');

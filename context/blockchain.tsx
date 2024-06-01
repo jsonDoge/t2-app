@@ -32,15 +32,8 @@ const BlockchainContextProvider = ({ children }: { children: React.ReactNode }) 
     };
   }, []);
 
-  return (
-    <BlockchainContext.Provider
-      value={{
-        currentBlock,
-      }}
-    >
-      {children}
-    </BlockchainContext.Provider>
-  );
+  // TODO: investigate if such value context doesn't cause performance issues
+  return <BlockchainContext.Provider value={{ currentBlock }}> {children} </BlockchainContext.Provider>;
 };
 
 BlockchainContextProvider.propTypes = {

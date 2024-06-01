@@ -40,11 +40,11 @@ const PlotActionModals: React.FC = () => {
   const [waterAbsorbed, setWaterAbsorbed] = useState<number | undefined>(undefined);
   const [selectedCoords, setSelectedCoords] = useState<Coordinates>();
 
-  const onPlotSelect = (x: number, y: number, plotInfo: PlotInfo) => {
+  const onPlotSelect = (x: number, y: number, plotInfo: PlotInfo, currentBlock_: number) => {
     setSelectedCoords({ x, y });
     setWaterLevel(plotInfo.waterLevel);
     setWaterAbsorbed(plotInfo.waterAbsorbed);
-    setBlocksTillOvergrown(plotInfo.overgrownBlockNumber ? plotInfo.overgrownBlockNumber - currentBlock : undefined);
+    setBlocksTillOvergrown(plotInfo.overgrownBlockNumber ? plotInfo.overgrownBlockNumber - currentBlock_ : undefined);
     setPlantedOnBlock(plotInfo.plantedBlockNumber);
 
     const { isUnminted, isPlantOwner, isOwner } = plotInfo;
@@ -127,9 +127,9 @@ const PlotActionModals: React.FC = () => {
   useEffect(
     () =>
       selectPlotStore.onChange(({ x, y, plotInfo }) => {
-        onPlotSelect(x, y, plotInfo);
+        onPlotSelect(x, y, plotInfo, currentBlock);
       }),
-    [],
+    [currentBlock],
   );
 
   return (

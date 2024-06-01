@@ -30,12 +30,18 @@ export const reduceContractPlots = (
         isOwner: false,
         isPlantOwner: false,
         isUnminted: true,
+
+        // plant
         seedType: undefined,
-        state: undefined,
+        plantState: undefined,
+        waterAbsorbed: undefined,
+        plantedBlockNumber: undefined,
+        overgrownBlockNumber: undefined,
+
+        // plot
         color: getPlotColor(isOwner, isPlantOwner, isUnminted),
         lastStateChangeBlock: plot.waterLog?.blockNumber?.toNumber() || 0,
         waterLevel: plot.waterLog?.waterLevel?.toNumber() || parseInt(publicRuntimeConfig.PLOT_MAX_WATER, 10),
-        waterAbsorbed: undefined,
       };
 
       return updatedMp;
@@ -54,12 +60,18 @@ export const reduceContractPlots = (
         isOwner,
         isPlantOwner,
         isUnminted,
+
+        // plant
         seedType: undefined,
-        state: undefined,
+        plantState: undefined,
+        waterAbsorbed: undefined,
+        plantedBlockNumber: undefined,
+        overgrownBlockNumber: undefined,
+
+        // plot
         color: getPlotColor(isOwner, isPlantOwner, isUnminted),
         lastStateChangeBlock: plot.waterLog?.blockNumber?.toNumber() || 0,
         waterLevel: plot.waterLog?.waterLevel?.toNumber() || parseInt(publicRuntimeConfig.PLOT_MAX_WATER, 10),
-        waterAbsorbed: undefined,
       };
 
       return updatedMp;
@@ -67,23 +79,34 @@ export const reduceContractPlots = (
 
     const growthBlockDuration = getGrowthBlockDuration(seedType);
 
+    console.log('contractPlots.reduce ~ currentBlock:', currentBlock);
+    console.log('contractPlots.reduce ~ plantedBlockNumber:', plot.plant.plantedBlockNumber);
+    console.log('contractPlots.reduce ~ growDuration:', growthBlockDuration);
+
     const plantState = getPlantState(
       BigNumber.from(currentBlock),
       plot.plant.plantedBlockNumber,
       plot.plant.overgrownBlockNumber,
       BigNumber.from(growthBlockDuration),
     );
+    console.log('contractPlots.reduce ~ plantState:', plantState);
 
     updatedMp[plotCoords.x][plotCoords.y] = {
       isOwner,
       isPlantOwner,
       isUnminted,
+
+      // plant
       seedType,
-      state: plantState,
+      plantState,
+      waterAbsorbed: plot.plant.waterAbsorbed,
+      plantedBlockNumber: plot.plant.plantedBlockNumber.toNumber(),
+      overgrownBlockNumber: plot.plant.overgrownBlockNumber.toNumber(),
+
+      // plot
       color: getPlotColor(isOwner, isPlantOwner, isUnminted),
       lastStateChangeBlock: plot.waterLog?.blockNumber?.toNumber() || 0,
       waterLevel: plot.waterLog?.waterLevel?.toNumber() || parseInt(publicRuntimeConfig.PLOT_MAX_WATER, 10),
-      waterAbsorbed: plot.plant.waterAbsorbed,
     };
 
     return updatedMp;
@@ -100,12 +123,17 @@ export const generateEmptyMappedPlotInfos = (coords: Coordinates[]): MappedPlotI
           isOwner: false,
           isPlantOwner: false,
           isUnminted: true,
+
+          // plant
           seedType: undefined,
-          state: undefined,
+          plantState: undefined,
+          waterAbsorbed: undefined,
+          plantedBlockNumber: undefined,
+          overgrownBlockNumber: undefined,
+          // plot
           color: getDefaultPlotColor(),
           lastStateChangeBlock: 0,
           waterLevel: parseInt(publicRuntimeConfig.PLOT_MAX_WATER, 10),
-          waterAbsorbed: undefined,
         },
       },
     }),

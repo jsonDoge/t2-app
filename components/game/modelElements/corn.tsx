@@ -4,7 +4,7 @@ import { Vector3 } from '@react-three/fiber';
 import { GLTFResult } from '../utils/interfaces';
 
 interface Props {
-  position: Vector3
+  position: Vector3;
 }
 
 useGLTF.preload('/corn.gltf');

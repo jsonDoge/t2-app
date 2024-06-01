@@ -3,7 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { PerspectiveCamera, Vector3Tuple } from 'three';
 
 interface Props {
-  centerRef: React.MutableRefObject<{ x: number, y: number }>
+  centerRef: React.MutableRefObject<{ x: number; y: number }>;
 }
 
 const perspectiveCameraOffset = {
@@ -25,25 +25,24 @@ const Camera: React.FC<Props> = ({ centerRef }) => {
     perspectiveCameraOffset.z,
   ];
 
-  useLayoutEffect(
-    () => {
-      if (!perspectiveCameraRef?.current) { return; }
+  useLayoutEffect(() => {
+    if (!perspectiveCameraRef?.current) {
+      return;
+    }
 
-      set({ camera: perspectiveCameraRef.current });
-    },
-    [perspectiveCameraRef?.current],
-  );
+    set({ camera: perspectiveCameraRef.current });
+  }, [perspectiveCameraRef?.current]);
 
   useFrame((state) => {
     // TODO: investigate if necessary
     state.camera.updateProjectionMatrix();
 
-    if (!perspectiveCameraRef?.current) { return; }
+    if (!perspectiveCameraRef?.current) {
+      return;
+    }
 
-    perspectiveCameraRef.current.position.x = centerRef.current.x
-      + perspectiveCameraOffset.x;
-    perspectiveCameraRef.current.position.y = centerRef.current.y
-      + perspectiveCameraOffset.y;
+    perspectiveCameraRef.current.position.x = centerRef.current.x + perspectiveCameraOffset.x;
+    perspectiveCameraRef.current.position.y = centerRef.current.y + perspectiveCameraOffset.y;
   });
 
   return (

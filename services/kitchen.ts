@@ -10,11 +10,7 @@ export const getDishBalance = async (address: string, productType: string): Prom
   const dishAddress = getDishAddress(productType);
 
   const options = { isSignerRequired: false };
-  const dish = getContract(
-    dishAddress,
-    CONTRACT_TYPE.ERC20,
-    options,
-  );
+  const dish = getContract(dishAddress, CONTRACT_TYPE.ERC20, options);
 
   const balance = await dish.balanceOf(address);
   return balance.toNumber();
@@ -36,34 +32,18 @@ export const craftDish = async (
 
   // eslint-disable-next-line no-restricted-syntax
   for (const [index, productAddress] of productAddresses.entries()) {
-    const productContract = getContract(
-      productAddress,
-      CONTRACT_TYPE.ERC20,
-      options,
-    );
+    const productContract = getContract(productAddress, CONTRACT_TYPE.ERC20, options);
 
-    const allowance = await productContract.allowance(
-      walletAddress,
-      publicRuntimeConfig.C_FARM,
-    );
+    const allowance = await productContract.allowance(walletAddress, publicRuntimeConfig.C_FARM);
 
     if (allowance.toNumber() >= quantities[index]) {
       continue;
     }
 
-    await waitTx(
-      productContract.approve(publicRuntimeConfig.C_FARM, quantities[index] - allowance.toNumber()),
-    );
+    await waitTx(productContract.approve(publicRuntimeConfig.C_FARM, quantities[index] - allowance.toNumber()));
   }
 
-  const farm = getContract(
-    publicRuntimeConfig.C_FARM,
-    CONTRACT_TYPE.FARM,
-    options,
-  );
+  const farm = getContract(publicRuntimeConfig.C_FARM, CONTRACT_TYPE.FARM, options);
 
-  await waitTx(farm.convertProductsToDish(
-    productAddresses,
-    quantities,
-  ));
+  await waitTx(farm.convertProductsToDish(productAddresses, quantities));
 };

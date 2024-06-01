@@ -1,27 +1,25 @@
-import React, {
-  createContext, useContext, useRef,
-} from 'react';
+import React, { createContext, useContext, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { INITIAL_PLOT_CENTER_COORDS, PLOT_SIZE } from '../components/game/utils/constants';
 import { PlotInfo } from '../components/game/utils/interfaces';
 
 interface SubscriptionFns {
-  submitNewPlotCenter: { (): void },
-  selectPlot: { (x: number, y: number, plotInfo: PlotInfo): void },
-  uiActionCompleted: { (): void },
-  centerChanged: { (x: number, y: number): void },
+  submitNewPlotCenter: { (): void };
+  selectPlot: { (x: number, y: number, plotInfo: PlotInfo): void };
+  uiActionCompleted: { (): void };
+  centerChanged: { (x: number, y: number): void };
 }
 
 interface IGameContext {
-  centerRef: React.MutableRefObject<{ x: number, y: number }>
-  submitNewPlotCenter: (x: number, y: number) => void
-  subscribeToSubmitNewPlotCenter: (fn: SubscriptionFns['submitNewPlotCenter']) => void
-  selectPlot: (x: number, y: number, plotInfo: PlotInfo) => void
-  subscribeToSelectPlot: (fn: SubscriptionFns['selectPlot']) => void
-  uiActionCompleted: () => void
-  subscribeToUiActionCompleted: (fn: SubscriptionFns['uiActionCompleted']) => void
-  centerChanged: (x: number, y: number) => void
-  subscribeToCenterChanged: (fn: SubscriptionFns['centerChanged']) => void
+  centerRef: React.MutableRefObject<{ x: number; y: number }>;
+  submitNewPlotCenter: (x: number, y: number) => void;
+  subscribeToSubmitNewPlotCenter: (fn: SubscriptionFns['submitNewPlotCenter']) => void;
+  selectPlot: (x: number, y: number, plotInfo: PlotInfo) => void;
+  subscribeToSelectPlot: (fn: SubscriptionFns['selectPlot']) => void;
+  uiActionCompleted: () => void;
+  subscribeToUiActionCompleted: (fn: SubscriptionFns['uiActionCompleted']) => void;
+  centerChanged: (x: number, y: number) => void;
+  subscribeToCenterChanged: (fn: SubscriptionFns['centerChanged']) => void;
 }
 
 // Currently subscription only supports one subscriber per event
@@ -103,17 +101,18 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <GameContext.Provider value={{
-      centerRef,
-      submitNewPlotCenter,
-      subscribeToSubmitNewPlotCenter,
-      selectPlot,
-      subscribeToSelectPlot,
-      uiActionCompleted,
-      subscribeToUiActionCompleted,
-      centerChanged,
-      subscribeToCenterChanged,
-    }}
+    <GameContext.Provider
+      value={{
+        centerRef,
+        submitNewPlotCenter,
+        subscribeToSubmitNewPlotCenter,
+        selectPlot,
+        subscribeToSelectPlot,
+        uiActionCompleted,
+        subscribeToUiActionCompleted,
+        centerChanged,
+        subscribeToCenterChanged,
+      }}
     >
       {children}
     </GameContext.Provider>

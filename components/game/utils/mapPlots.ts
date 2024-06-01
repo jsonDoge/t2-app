@@ -79,17 +79,12 @@ export const reduceContractPlots = (
 
     const growthBlockDuration = getGrowthBlockDuration(seedType);
 
-    console.log('contractPlots.reduce ~ currentBlock:', currentBlock);
-    console.log('contractPlots.reduce ~ plantedBlockNumber:', plot.plant.plantedBlockNumber);
-    console.log('contractPlots.reduce ~ growDuration:', growthBlockDuration);
-
     const plantState = getPlantState(
       BigNumber.from(currentBlock),
       plot.plant.plantedBlockNumber,
       plot.plant.overgrownBlockNumber,
       BigNumber.from(growthBlockDuration),
     );
-    console.log('contractPlots.reduce ~ plantState:', plantState);
 
     updatedMp[plotCoords.x][plotCoords.y] = {
       isOwner,

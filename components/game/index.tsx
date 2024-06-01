@@ -12,8 +12,9 @@ import CanvasWrapper from './canvasWrapper';
 import { walletStore, mappedPlotInfosStore } from '../../stores';
 import { Wallet } from '../../utils/interfaces';
 import { getPlotIdFromCoordinates } from '../../services/utils';
-import { getBlockNumber, getContract } from '../../services/web3Utils';
+import { getContract } from '../../services/web3Utils';
 import { CONTRACT_TYPE } from '../../utils/constants';
+import { useBlockchain } from '../../context/blockchain';
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -29,6 +30,7 @@ const Game = () => {
   const wallet: MutableRefObject<Wallet | undefined> = useRef();
 
   const { subscribeToUiActionCompleted, centerChanged } = useGame();
+  const { currentBlock } = useBlockchain();
   const plotCenterRef = useRef<Coordinates>(INITIAL_PLOT_CENTER_COORDS);
 
   const gridPlotCoordinates = getAllPlotCoordinatesAround(INITIAL_PLOT_CENTER_COORDS.x, INITIAL_PLOT_CENTER_COORDS.y);
@@ -45,6 +47,7 @@ const Game = () => {
 
   const loadPlotInfos = async (
     walletAddress: string | undefined,
+    currentBlock_: number,
     centerX: number,
     centerY: number,
   ): Promise<MappedPlotInfos | undefined> => {
@@ -59,10 +62,9 @@ const Game = () => {
 
     // getPlotView returns array sorted as x + y * 7
     const contractPlots = await farm.getPlotView(cornerPlotId);
-    const blockNumber = await getBlockNumber();
 
     // TODO: refactor to not fetch same data if coords didn't change
-    const res = reduceContractPlots(contractPlots, blockNumber, walletAddress || '');
+    const res = reduceContractPlots(contractPlots, currentBlock_, walletAddress || '');
 
     return res;
   };
@@ -72,16 +74,16 @@ const Game = () => {
     2000,
   );
 
-  const reloadPlotInfos = () => {
+  const reloadPlotInfos = (currentBlock_: number) => {
     resetMappedPlotInfos();
-    debouncedLoadPlotInfos(wallet.current?.address, plotCenterRef.current.x, plotCenterRef.current.y);
+    debouncedLoadPlotInfos(wallet.current?.address, currentBlock_, plotCenterRef.current.x, plotCenterRef.current.y);
     centerChanged(plotCenterRef.current.x, plotCenterRef.current.y);
   };
 
   useEffect(() => {
     wallet.current = walletStore.getValue();
 
-    subscribeToUiActionCompleted(reloadPlotInfos);
+    subscribeToUiActionCompleted(() => reloadPlotInfos(currentBlock));
 
     return walletStore.onChange((newWallet) => {
       if (wallet.current?.address === newWallet?.address) {
@@ -89,11 +91,11 @@ const Game = () => {
       }
 
       wallet.current = { ...newWallet };
-      reloadPlotInfos();
+      reloadPlotInfos(currentBlock);
     });
   }, []);
 
-  return <CanvasWrapper plotCenterChanged={reloadPlotInfos} />;
+  return <CanvasWrapper plotCenterChanged={() => reloadPlotInfos(currentBlock)} />;
 };
 
 export default Game;

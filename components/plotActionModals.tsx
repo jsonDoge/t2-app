@@ -10,6 +10,7 @@ import PlotModal from './plotModal';
 // context
 import { useWallet } from '../context/wallet';
 import { useGame } from '../context/game';
+import { useBlockchain } from '../context/blockchain';
 import { useError } from '../context/error';
 import { selectPlotStore } from '../stores';
 
@@ -21,6 +22,7 @@ import { SEED_TYPE } from '../utils/constants';
 
 const PlotActionModals: React.FC = () => {
   const { wallet } = useWallet();
+  const { currentBlock } = useBlockchain();
   const { uiActionCompleted } = useGame();
   const { setError } = useError();
 
@@ -33,6 +35,8 @@ const PlotActionModals: React.FC = () => {
   const [isPlantModalShown, setIsPlantModalShown] = useState(false);
   const [isHarvestModalShown, setIsHarvestModalShown] = useState(false);
   const [waterLevel, setWaterLevel] = useState(0);
+  const [plantedOnBlock, setPlantedOnBlock] = useState<number | undefined>(undefined);
+  const [blocksTillOvergrown, setBlocksTillOvergrown] = useState<number | undefined>(undefined);
   const [waterAbsorbed, setWaterAbsorbed] = useState<number | undefined>(undefined);
   const [selectedCoords, setSelectedCoords] = useState<Coordinates>();
 
@@ -40,6 +44,8 @@ const PlotActionModals: React.FC = () => {
     setSelectedCoords({ x, y });
     setWaterLevel(plotInfo.waterLevel);
     setWaterAbsorbed(plotInfo.waterAbsorbed);
+    setBlocksTillOvergrown(plotInfo.overgrownBlockNumber ? plotInfo.overgrownBlockNumber - currentBlock : undefined);
+    setPlantedOnBlock(plotInfo.plantedBlockNumber);
 
     const { isUnminted, isPlantOwner, isOwner } = plotInfo;
 
@@ -130,7 +136,7 @@ const PlotActionModals: React.FC = () => {
     <>
       {isAlreadyOwnedModalShown && (
         <PlotModal
-          title="This plot is owned by another farmer"
+          title="This plot is owned by another farmer 🛑"
           description="Better luck next time"
           confirmText="Okay"
           onConfirm={() => hideModal()}
@@ -140,7 +146,7 @@ const PlotActionModals: React.FC = () => {
       )}
       {isBuyPlotModalShown && selectedCoords && (
         <PlotModal
-          title="Buy land plot?"
+          title="Buy land plot? 💸"
           description={`You are about to buy plot located at [X : ${selectedCoords.x} | Y : ${selectedCoords.y}]`}
           confirmText={isLoading ? <Spinner /> : 'Buy'}
           cancelText="Cancel"
@@ -151,7 +157,7 @@ const PlotActionModals: React.FC = () => {
       )}
       {isPlantModalShown && selectedCoords && (
         <PlantModal
-          title="Plant seed?"
+          title="Plant seed? 🌱"
           seedTypes={Object.values(SEED_TYPE)}
           description={`You are about to plant at [X : ${selectedCoords.x} | Y : ${selectedCoords.y}]`}
           confirmText={isLoading ? <Spinner /> : 'Plant'}
@@ -163,7 +169,7 @@ const PlotActionModals: React.FC = () => {
       )}
       {isHarvestModalShown && selectedCoords && (
         <PlotModal
-          title="Harvest?"
+          title="Harvest? 👨‍🌾"
           description={`You are about to harvest at [X : ${selectedCoords.x} | Y : ${selectedCoords.y}]`}
           confirmText={isLoading ? <Spinner /> : 'Harvest'}
           cancelText="Cancel"
@@ -171,6 +177,8 @@ const PlotActionModals: React.FC = () => {
           onCancel={() => hideModal()}
           waterAbsorbed={waterAbsorbed}
           waterLevel={waterLevel}
+          plantedOnBlock={plantedOnBlock}
+          blocksTillOvergrown={blocksTillOvergrown}
         />
       )}
     </>

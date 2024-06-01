@@ -53,7 +53,7 @@ const PlotModal: React.FC<Props> = ({
                     <p className="text-gray-500">{`Blocks till overgrown: ${blocksTillOvergrown}`}</p>
                   )}
                 </div>
-                <div className="text-lg leading-6 font-medium text-gray-900">{title}</div>
+                <div className="text-lg leading-6 font-medium text-gray-900 mt-5">{title}</div>
                 <div className="mt-2">
                   <p className="text-gray-500">{description}</p>
                 </div>

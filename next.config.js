@@ -29,5 +29,6 @@ module.exports = {
     CORN_MIN_WATER: process.env.CORN_MIN_WATER,
     CARROT_MIN_WATER: process.env.CARROT_MIN_WATER,
     SEASON_DURATION_BLOCKS: process.env.SEASON_DURATION_BLOCKS,
+    PLOT_MAX_WATER: process.env.PLOT_MAX_WATER,
   },
 };

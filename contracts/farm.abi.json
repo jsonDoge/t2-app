@@ -266,6 +266,23 @@
             "internalType": "struct Farm.Plant",
             "name": "plant",
             "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "blockNumber",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "level",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct Farm.PlotWaterLog",
+            "name": "waterLog",
+            "type": "tuple"
           }
         ],
         "internalType": "struct Farm.PlotView[49]",
@@ -290,6 +307,37 @@
         "internalType": "uint256[]",
         "name": "",
         "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "plotId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getWaterLogByPlotId",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "blockNumber",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "level",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct Farm.PlotWaterLog",
+        "name": "",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",

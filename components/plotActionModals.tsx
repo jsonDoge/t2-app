@@ -1,13 +1,8 @@
 /* eslint-disable no-param-reassign */
-import React, {
-  useEffect,
-  useState,
-} from 'react';
+import React, { useEffect, useState } from 'react';
 
 // components
-import {
-  buyPlot, harvest, plant,
-} from '../services/farm';
+import { buyPlot, harvest, plant } from '../services/farm';
 import PlantModal from './plantModal';
 import Spinner from './spinner';
 import PlotModal from './plotModal';
@@ -41,20 +36,12 @@ const PlotActionModals: React.FC = () => {
   const [waterAbsorbed, setWaterAbsorbed] = useState<number | undefined>(undefined);
   const [selectedCoords, setSelectedCoords] = useState<Coordinates>();
 
-  const onPlotSelect = (
-    x: number,
-    y: number,
-    plotInfo: PlotInfo,
-  ) => {
+  const onPlotSelect = (x: number, y: number, plotInfo: PlotInfo) => {
     setSelectedCoords({ x, y });
     setWaterLevel(plotInfo.waterLevel);
     setWaterAbsorbed(plotInfo.waterAbsorbed);
 
-    const {
-      isUnminted,
-      isPlantOwner,
-      isOwner,
-    } = plotInfo;
+    const { isUnminted, isPlantOwner, isOwner } = plotInfo;
 
     if (isUnminted) {
       setIsBuyPlotModalShown(true);
@@ -108,25 +95,28 @@ const PlotActionModals: React.FC = () => {
   };
 
   const defaultBuyErrorMessage = 'Buy failed, check if you have enough USDT funds';
-  const onBuyPlotConfirm = async (coords: Coordinates) => onModalConfirm(
-    (walletPrivateKey: string) => buyPlot(coords.x, coords.y, walletPrivateKey),
-    () => setIsBuyPlotModalShown(false),
-    defaultBuyErrorMessage,
-  );
+  const onBuyPlotConfirm = async (coords: Coordinates) =>
+    onModalConfirm(
+      (walletPrivateKey: string) => buyPlot(coords.x, coords.y, walletPrivateKey),
+      () => setIsBuyPlotModalShown(false),
+      defaultBuyErrorMessage,
+    );
 
   const defaultPlantErrorMessage = 'Planting failed, check if you have necessary seed';
-  const onPlantConfirm = async (coords: Coordinates, seedType: string) => onModalConfirm(
-    (walletPrivateKey: string) => plant(coords.x, coords.y, seedType, walletPrivateKey),
-    () => setIsPlantModalShown(false),
-    defaultPlantErrorMessage,
-  );
+  const onPlantConfirm = async (coords: Coordinates, seedType: string) =>
+    onModalConfirm(
+      (walletPrivateKey: string) => plant(coords.x, coords.y, seedType, walletPrivateKey),
+      () => setIsPlantModalShown(false),
+      defaultPlantErrorMessage,
+    );
 
   const defaultHarvestErrorMessage = 'Harvest failed :(';
-  const onHarvestConfirm = async (coords: Coordinates) => onModalConfirm(
-    (walletPrivateKey: string) => harvest(coords.x, coords.y, walletPrivateKey),
-    () => setIsHarvestModalShown(false),
-    defaultHarvestErrorMessage,
-  );
+  const onHarvestConfirm = async (coords: Coordinates) =>
+    onModalConfirm(
+      (walletPrivateKey: string) => harvest(coords.x, coords.y, walletPrivateKey),
+      () => setIsHarvestModalShown(false),
+      defaultHarvestErrorMessage,
+    );
 
   useEffect(
     () =>
@@ -138,8 +128,7 @@ const PlotActionModals: React.FC = () => {
 
   return (
     <>
-      {isAlreadyOwnedModalShown
-      && (
+      {isAlreadyOwnedModalShown && (
         <PlotModal
           title="This plot is owned by another farmer"
           description="Better luck next time"
@@ -149,8 +138,7 @@ const PlotActionModals: React.FC = () => {
           waterLevel={waterLevel}
         />
       )}
-      {isBuyPlotModalShown && selectedCoords
-      && (
+      {isBuyPlotModalShown && selectedCoords && (
         <PlotModal
           title="Buy land plot?"
           description={`You are about to buy plot located at [X : ${selectedCoords.x} | Y : ${selectedCoords.y}]`}
@@ -158,12 +146,10 @@ const PlotActionModals: React.FC = () => {
           cancelText="Cancel"
           onConfirm={() => onBuyPlotConfirm(selectedCoords)}
           onCancel={() => hideModal()}
-          waterAbsorbed={waterAbsorbed}
           waterLevel={waterLevel}
         />
       )}
-      {isPlantModalShown && selectedCoords
-      && (
+      {isPlantModalShown && selectedCoords && (
         <PlantModal
           title="Plant seed?"
           seedTypes={Object.values(SEED_TYPE)}
@@ -172,10 +158,10 @@ const PlotActionModals: React.FC = () => {
           cancelText="Regret forever"
           onConfirm={(seedType) => onPlantConfirm(selectedCoords, seedType)}
           onCancel={() => hideModal()}
+          waterLevel={waterLevel}
         />
       )}
-      {isHarvestModalShown && selectedCoords
-      && (
+      {isHarvestModalShown && selectedCoords && (
         <PlotModal
           title="Harvest?"
           description={`You are about to harvest at [X : ${selectedCoords.x} | Y : ${selectedCoords.y}]`}

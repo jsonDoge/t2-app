@@ -1,63 +1,66 @@
-import {
-  BufferGeometry,
-  Mesh,
-  MeshStandardMaterial,
-  Vector3Tuple,
-} from 'three';
+import { BufferGeometry, Mesh, MeshStandardMaterial, Vector3Tuple } from 'three';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import { PlantState } from '../../../utils/enums';
 
-export interface GetAreNumbersEqualRoot { (equalTo: number): GetAreNumbersEqual }
+export interface GetAreNumbersEqualRoot {
+  (equalTo: number): GetAreNumbersEqual;
+}
 
 export interface BackgroundModelParams {
-  position: Vector3Tuple
-  rotation: Vector3Tuple
-  isVisible: boolean
-  isSemiTransparent: boolean
+  position: Vector3Tuple;
+  rotation: Vector3Tuple;
+  isVisible: boolean;
+  isSemiTransparent: boolean;
 }
 
 export interface MappedPlotInfos {
   [x: number]: {
-    [y: number]: PlotInfo
-  }
+    [y: number]: PlotInfo;
+  };
 }
 
 export interface PlotInfo {
-  isOwner: boolean
-  isPlantOwner: boolean
-  isUnminted: boolean
-  seedType: string | undefined,
-  color: PlotColor,
-  state: PlantState | undefined,
-  waterLevel: number,
-  waterAbsorbed: number | undefined,
+  isOwner: boolean;
+  isPlantOwner: boolean;
+  isUnminted: boolean;
+  seedType: string | undefined;
+  color: PlotColor;
+  state: PlantState | undefined;
+  lastStateChangeBlock: number | undefined;
+  waterLevel: number;
+  waterAbsorbed: number | undefined;
 }
 
 export interface PlotColor {
-  rgb: { r: number, g: number, b: number }
-  rgbHover: { r: number, g: number, b: number }
-  hex: string
+  rgb: { r: number; g: number; b: number };
+  rgbHover: { r: number; g: number; b: number };
+  hex: string;
 }
 
-export interface GetAreNumbersEqual { (n: number): boolean }
+export interface GetAreNumbersEqual {
+  (n: number): boolean;
+}
 export interface GLTFResult extends GLTF {
   nodes: {
     /* replace with your nodes names */
-    Head: THREE.Mesh
-    Cube: THREE.Mesh
-  }
+    Head: THREE.Mesh;
+    Cube: THREE.Mesh;
+  };
   materials: {
-    Material: THREE.MeshStandardMaterial
-  }
+    Material: THREE.MeshStandardMaterial;
+  };
 }
-export interface Coordinates { x: number, y: number }
+export interface Coordinates {
+  x: number;
+  y: number;
+}
 
 export interface PlotMesh extends THREE.Mesh {
-  isAscending: boolean
-  isDescending: boolean
-  isAscended: boolean
-  isDescended: boolean
-  material: MeshStandardMaterial
+  isAscending: boolean;
+  isDescending: boolean;
+  isAscended: boolean;
+  isDescended: boolean;
+  material: MeshStandardMaterial;
 }
 
 export interface ModelMesh extends Mesh<BufferGeometry, MeshStandardMaterial> {}

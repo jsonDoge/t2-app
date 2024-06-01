@@ -21,7 +21,6 @@ export const reduceContractPlots = (
         ...mp[plotCoords.x],
       },
     };
-
     if (plot.owner === '0x0000000000000000000000000000000000000000') {
       const isOwner = false;
       const isPlantOwner = false;
@@ -34,7 +33,8 @@ export const reduceContractPlots = (
         seedType: undefined,
         state: undefined,
         color: getPlotColor(isOwner, isPlantOwner, isUnminted),
-        waterLevel: 0,
+        lastStateChangeBlock: plot.waterLog?.blockNumber?.toNumber() || 0,
+        waterLevel: plot.waterLog?.waterLevel?.toNumber() || parseInt(publicRuntimeConfig.PLOT_MAX_WATER, 10),
         waterAbsorbed: undefined,
       };
 
@@ -45,8 +45,9 @@ export const reduceContractPlots = (
     const isPlantOwner = plot?.plant?.owner?.toLowerCase() === walletAddress;
     const isUnminted = false;
 
-    const seedType: string = Object.values(SEED_TYPE)
-      .filter((t) => publicRuntimeConfig[`C_${t}_SEED`]?.toLowerCase() === plot.plant.seed.toLowerCase())[0];
+    const seedType: string = Object.values(SEED_TYPE).filter(
+      (t) => publicRuntimeConfig[`C_${t}_SEED`]?.toLowerCase() === plot.plant.seed.toLowerCase(),
+    )[0];
 
     if (!seedType) {
       updatedMp[plotCoords.x][plotCoords.y] = {
@@ -56,7 +57,8 @@ export const reduceContractPlots = (
         seedType: undefined,
         state: undefined,
         color: getPlotColor(isOwner, isPlantOwner, isUnminted),
-        waterLevel: 0,
+        lastStateChangeBlock: plot.waterLog?.blockNumber?.toNumber() || 0,
+        waterLevel: plot.waterLog?.waterLevel?.toNumber() || parseInt(publicRuntimeConfig.PLOT_MAX_WATER, 10),
         waterAbsorbed: undefined,
       };
 
@@ -79,7 +81,8 @@ export const reduceContractPlots = (
       seedType,
       state: plantState,
       color: getPlotColor(isOwner, isPlantOwner, isUnminted),
-      waterLevel: 0,
+      lastStateChangeBlock: plot.waterLog?.blockNumber?.toNumber() || 0,
+      waterLevel: plot.waterLog?.waterLevel?.toNumber() || parseInt(publicRuntimeConfig.PLOT_MAX_WATER, 10),
       waterAbsorbed: plot.plant.waterAbsorbed,
     };
 
@@ -88,19 +91,23 @@ export const reduceContractPlots = (
 
 // eslint-disable-next-line import/prefer-default-export
 export const generateEmptyMappedPlotInfos = (coords: Coordinates[]): MappedPlotInfos =>
-  coords.reduce((mpi: MappedPlotInfos, c: Coordinates) => ({
-    ...mpi,
-    [c.x]: {
-      ...mpi[c.x],
-      [c.y]: {
-        isOwner: false,
-        isPlantOwner: false,
-        isUnminted: true,
-        seedType: undefined,
-        state: undefined,
-        color: getDefaultPlotColor(),
-        waterLevel: 0,
-        waterAbsorbed: undefined,
+  coords.reduce(
+    (mpi: MappedPlotInfos, c: Coordinates) => ({
+      ...mpi,
+      [c.x]: {
+        ...mpi[c.x],
+        [c.y]: {
+          isOwner: false,
+          isPlantOwner: false,
+          isUnminted: true,
+          seedType: undefined,
+          state: undefined,
+          color: getDefaultPlotColor(),
+          lastStateChangeBlock: 0,
+          waterLevel: parseInt(publicRuntimeConfig.PLOT_MAX_WATER, 10),
+          waterAbsorbed: undefined,
+        },
       },
-    },
-  }), {});
+    }),
+    {},
+  );

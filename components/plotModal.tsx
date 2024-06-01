@@ -3,18 +3,29 @@ import React from 'react';
 import Button from './button';
 
 interface Props {
-  title: string,
-  description: string,
-  confirmText: string | JSX.Element,
-  cancelText?: string,
-  onConfirm: () => void,
-  onCancel?: () => void,
-  waterLevel: number,
-  waterAbsorbed: number | undefined,
+  title: string;
+  description: string;
+  confirmText: string | JSX.Element;
+  cancelText?: string;
+  onConfirm: () => void;
+  onCancel?: () => void;
+  waterLevel: number;
+  waterAbsorbed?: number;
+  plantedOnBlock?: number;
+  blocksTillOvergrown?: number;
 }
 
 const PlotModal: React.FC<Props> = ({
-  title, description, confirmText, cancelText, onConfirm, onCancel, waterLevel, waterAbsorbed,
+  title,
+  description,
+  confirmText,
+  cancelText,
+  onConfirm,
+  onCancel,
+  waterLevel,
+  waterAbsorbed,
+  plantedOnBlock,
+  blocksTillOvergrown,
 }) => {
   const confirm = () => onConfirm && onConfirm();
   const cancel = () => onCancel && onCancel();
@@ -22,9 +33,10 @@ const PlotModal: React.FC<Props> = ({
   return (
     <div className="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-
         <div className="fixed inset-0 bg-opacity-75 transition-opacity" aria-hidden="true" />
-        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
+          &#8203;
+        </span>
 
         <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
           <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
@@ -34,29 +46,23 @@ const PlotModal: React.FC<Props> = ({
                   Plot Info
                 </div>
                 <div className="mt-2">
-                  <p className="text-gray-500">
-                    {`Plot water level: ${waterLevel}`}
-                  </p>
-                  { waterAbsorbed && (
-                    <p className="text-gray-500">
-                      {`Plant water absorbed: ${waterAbsorbed}`}
-                    </p>
-                  ) }
+                  <p className="text-gray-500">{`Plot water level: ${waterLevel}`}</p>
+                  {waterAbsorbed && <p className="text-gray-500">{`Plant water absorbed: ${waterAbsorbed}`}</p>}
+                  {plantedOnBlock && <p className="text-gray-500">{`Planted on block: ${plantedOnBlock}`}</p>}
+                  {blocksTillOvergrown && (
+                    <p className="text-gray-500">{`Blocks till overgrown: ${blocksTillOvergrown}`}</p>
+                  )}
                 </div>
-                <div className="text-lg leading-6 font-medium text-gray-900">
-                  { title }
-                </div>
+                <div className="text-lg leading-6 font-medium text-gray-900">{title}</div>
                 <div className="mt-2">
-                  <p className="text-gray-500">
-                    {description}
-                  </p>
+                  <p className="text-gray-500">{description}</p>
                 </div>
               </div>
             </div>
           </div>
           <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
             <Button onClick={confirm}>{confirmText}</Button>
-            { onCancel && <Button onClick={cancel}>{cancelText}</Button> }
+            {onCancel && <Button onClick={cancel}>{cancelText}</Button>}
           </div>
         </div>
       </div>

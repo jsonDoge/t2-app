@@ -8,11 +8,13 @@
     "plugin:react/recommended",
     "next/core-web-vitals",
     "airbnb",
-    "airbnb-typescript"
+    "airbnb-typescript",
+    "plugin:prettier/recommended"
   ],
   "plugins": [
     "react",
-    "@typescript-eslint"
+    "@typescript-eslint",
+    "prettier"
   ],
   "parserOptions": {
     "ecmaVersion": 11,

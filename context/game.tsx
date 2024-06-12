@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useRef } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { INITIAL_PLOT_CENTER_COORDS, PLOT_SIZE } from '../components/game/utils/constants';
 import { PlotInfo } from '../components/game/utils/interfaces';
@@ -55,68 +55,98 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
 
   // center teleport input
 
-  const submitNewPlotCenter = (plotX: number, plotY: number) => {
-    const x = plotX * PLOT_SIZE;
-    const y = plotY * PLOT_SIZE;
+  const submitNewPlotCenter = useCallback(
+    (plotX: number, plotY: number) => {
+      const x = plotX * PLOT_SIZE;
+      const y = plotY * PLOT_SIZE;
 
-    centerRef.current = { x, y };
+      centerRef.current = { x, y };
 
-    // TODO: currently not used delete if not used after refactor
-    // subscriptionFns.current.submitNewPlotCenter(plotX, plotY);
-  };
+      // TODO: currently not used delete if not used after refactor
+      // subscriptionFns.current.submitNewPlotCenter(plotX, plotY);
+    },
+    [centerRef],
+  );
 
   // TODO: currently not used delete if not used after refactor
-  const subscribeToSubmitNewPlotCenter = (fn: () => void) => {
-    subscriptionFns.current.submitNewPlotCenter = fn;
-  };
+  const subscribeToSubmitNewPlotCenter = useCallback(
+    (fn: () => void) => {
+      subscriptionFns.current.submitNewPlotCenter = fn;
+    },
+    [subscriptionFns],
+  );
 
   // plot click event
 
-  const selectPlot = (x: number, y: number, plotInfo: PlotInfo) => {
-    subscriptionFns.current.selectPlot(x, y, plotInfo);
-  };
+  const selectPlot = useCallback(
+    (x: number, y: number, plotInfo: PlotInfo) => {
+      subscriptionFns.current.selectPlot(x, y, plotInfo);
+    },
+    [subscriptionFns],
+  );
 
-  const subscribeToSelectPlot = (fn: SubscriptionFns['selectPlot']) => {
-    subscriptionFns.current.selectPlot = fn;
-  };
+  const subscribeToSelectPlot = useCallback(
+    (fn: SubscriptionFns['selectPlot']) => {
+      subscriptionFns.current.selectPlot = fn;
+    },
+    [subscriptionFns],
+  );
 
   // ui (modal) action completed
 
-  const uiActionCompleted = () => {
+  const uiActionCompleted = useCallback(() => {
     subscriptionFns.current.uiActionCompleted();
-  };
+  }, [subscriptionFns]);
 
-  const subscribeToUiActionCompleted = (fn: SubscriptionFns['uiActionCompleted']) => {
-    subscriptionFns.current.uiActionCompleted = fn;
-  };
+  const subscribeToUiActionCompleted = useCallback(
+    (fn: SubscriptionFns['uiActionCompleted']) => {
+      subscriptionFns.current.uiActionCompleted = fn;
+    },
+    [subscriptionFns],
+  );
 
   // center change (movement or teleport)
 
-  const centerChanged = (x: number, y: number) => {
-    subscriptionFns.current.centerChanged(x, y);
-  };
-
-  const subscribeToCenterChanged = (fn: SubscriptionFns['centerChanged']) => {
-    subscriptionFns.current.centerChanged = fn;
-  };
-
-  return (
-    <GameContext.Provider
-      value={{
-        centerRef,
-        submitNewPlotCenter,
-        subscribeToSubmitNewPlotCenter,
-        selectPlot,
-        subscribeToSelectPlot,
-        uiActionCompleted,
-        subscribeToUiActionCompleted,
-        centerChanged,
-        subscribeToCenterChanged,
-      }}
-    >
-      {children}
-    </GameContext.Provider>
+  const centerChanged = useCallback(
+    (x: number, y: number) => {
+      subscriptionFns.current.centerChanged(x, y);
+    },
+    [subscriptionFns],
   );
+
+  const subscribeToCenterChanged = useCallback(
+    (fn: SubscriptionFns['centerChanged']) => {
+      subscriptionFns.current.centerChanged = fn;
+    },
+    [subscriptionFns],
+  );
+
+  const gameContext = useMemo(
+    () => ({
+      centerRef,
+      submitNewPlotCenter,
+      subscribeToSubmitNewPlotCenter,
+      selectPlot,
+      subscribeToSelectPlot,
+      uiActionCompleted,
+      subscribeToUiActionCompleted,
+      centerChanged,
+      subscribeToCenterChanged,
+    }),
+    [
+      centerRef,
+      submitNewPlotCenter,
+      subscribeToSubmitNewPlotCenter,
+      selectPlot,
+      subscribeToSelectPlot,
+      uiActionCompleted,
+      subscribeToUiActionCompleted,
+      centerChanged,
+      subscribeToCenterChanged,
+    ],
+  );
+
+  return <GameContext.Provider value={gameContext}>{children}</GameContext.Provider>;
 };
 
 GameContextProvider.propTypes = {

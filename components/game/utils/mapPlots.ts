@@ -7,10 +7,124 @@ import { getDefaultPlotColor, getPlotColor } from './plotColors';
 
 const { publicRuntimeConfig } = getConfig();
 
-export const reduceContractPlots = (
+const MAX_PLOT_WATER = parseInt(publicRuntimeConfig.PLOT_MAX_WATER, 10);
+const PLOT_MAX_X = parseInt(publicRuntimeConfig.PLOT_AREA_MAX_X, 10);
+const PLOT_MAX_Y = parseInt(publicRuntimeConfig.PLOT_AREA_MAX_Y, 10);
+const PLOT_REGEN_RATE = parseInt(publicRuntimeConfig.PLOT_WATER_REGEN_RATE, 10);
+
+const estimatePlotWaterLevel = (plotWaterLevel: number, waterChangeRate: number, blocksElapsed: number) => {
+  const plotWaterGained = PLOT_REGEN_RATE * blocksElapsed;
+
+  const plotWaterLost = waterChangeRate * blocksElapsed;
+
+  const plotWaterLeft = plotWaterLevel + plotWaterGained - plotWaterLost;
+
+  if (plotWaterLeft < 0) {
+    return 0;
+  }
+
+  if (plotWaterLeft > MAX_PLOT_WATER) {
+    return MAX_PLOT_WATER;
+  }
+
+  return plotWaterLeft;
+};
+
+// returns all plant water absorption
+
+const estimatePlantWaterAbsorbed = (
+  centerPlotWaterLevel: number,
+  centerPlotWaterChange: number,
+  centerPlotBlocksPassed: number,
+  surroundingPlotWaterLevels: number[],
+  surroundingPlotWaterChanges: number[],
+  surroundingPlotLastBlockUpdate: number[],
+): number => {
+  let waterAbsorbed = 0;
+
+  const plotWaterLeft = centerPlotWaterLevel + PLOT_REGEN_RATE * centerPlotBlocksPassed;
+  const availableWaterBlocks = Math.floor(plotWaterLeft / centerPlotWaterChange);
+  const absorbedWaterBlocks =
+    availableWaterBlocks > centerPlotBlocksPassed ? centerPlotBlocksPassed : availableWaterBlocks;
+
+  const centerBlocksAbsorbed = absorbedWaterBlocks * parseInt(publicRuntimeConfig.PLANT_WATER_ABSORB_RATE, 10);
+
+  waterAbsorbed += centerBlocksAbsorbed;
+
+  waterAbsorbed += surroundingPlotWaterLevels
+    .map((plotWaterLevel, i) => {
+      const sPlotWaterLeft = plotWaterLevel + publicRuntimeConfig.PLOT_WATER_REGEN_RATE;
+      const sAvailableWaterBlocks = Math.floor(sPlotWaterLeft / surroundingPlotWaterChanges[i]);
+      const sAbsorbedWaterBlocks =
+        sAvailableWaterBlocks > surroundingPlotLastBlockUpdate[i]
+          ? surroundingPlotLastBlockUpdate[i]
+          : sAvailableWaterBlocks;
+
+      return sAbsorbedWaterBlocks * parseInt(publicRuntimeConfig.PLANT_NEIGHBOR_WATER_ABSORB_RATE, 10);
+    })
+    .reduce((acc, curr) => acc + curr, 0);
+
+  return waterAbsorbed;
+};
+
+const getNeighborPlots = (
+  plotCoords: Coordinates,
   contractPlots: any[],
+  surroundingPlots: any[],
+  absoluteCornerX: number,
+  absoluteCornerY: number,
+): any[] => {
+  const neighborPlots = [];
+
+  // upper
+  if (absoluteCornerY === PLOT_MAX_Y - 6 && plotCoords.y === 6) {
+    // do nothing
+  } else if (plotCoords.y === 6) {
+    neighborPlots.push(surroundingPlots[3 * 7 + plotCoords.x]);
+  } else {
+    neighborPlots.push(contractPlots[(plotCoords.y + 1) * 7 + plotCoords.x]);
+  }
+
+  // lower
+  if (absoluteCornerY === 0 && plotCoords.y === 0) {
+    // do nothing
+  } else if (plotCoords.y === 0) {
+    neighborPlots.push(surroundingPlots[2 * 7 + plotCoords.x]);
+  } else {
+    neighborPlots.push(contractPlots[(plotCoords.y - 1) * 7 + plotCoords.x]);
+  }
+
+  // right
+  if (absoluteCornerX === PLOT_MAX_X - 6 && plotCoords.x === 6) {
+    // do nothing
+  } else if (plotCoords.x === 6) {
+    neighborPlots.push(surroundingPlots[1 * 7 + plotCoords.y]);
+  } else {
+    neighborPlots.push(contractPlots[plotCoords.y * 7 + plotCoords.x + 1]);
+  }
+
+  // left
+  if (absoluteCornerX === 0 && plotCoords.x === 0) {
+    // do nothing
+  } else if (plotCoords.x === 0) {
+    neighborPlots.push(surroundingPlots[plotCoords.y]);
+  } else {
+    neighborPlots.push(contractPlots[plotCoords.y * 7 + plotCoords.x - 1]);
+  }
+
+  return neighborPlots;
+};
+
+// TODO: function is growing too big, refactor
+export const reduceContractPlots = (
+  contractPlots: any[], // 49 plots
+  surroundingPlots: any[], // 28 plots (line on each side of the 7x7 grid - look in contracts for more info)
   currentBlock: number,
   walletAddress: string,
+
+  // actual plot coordinates
+  absoluteCornerX: number,
+  absoluteCornerY: number,
 ): MappedPlotInfos =>
   contractPlots.reduce((mp: MappedPlotInfos, plot: any, i) => {
     const plotCoords = { x: i % 7, y: Math.floor(i / 7) };
@@ -21,6 +135,22 @@ export const reduceContractPlots = (
         ...mp[plotCoords.x],
       },
     };
+
+    const lastKnownPlotWaterLevel =
+      plot.waterLog?.waterLevel?.toNumber() || parseInt(publicRuntimeConfig.PLOT_MAX_WATER, 10);
+    const lastKnownPlotWaterChange = plot.waterLog?.changeRate?.toNumber() || 0;
+
+    const centerPlotBlockDiff = currentBlock - (plot.waterLog?.blockNumber?.toNumber() || 0);
+    // if block diff is negative, it means the game has not updated to the latest block yet
+    const centerPlotBlocksPassed = centerPlotBlockDiff < 0 ? 0 : centerPlotBlockDiff;
+
+    const currentPlotWaterLevel = estimatePlotWaterLevel(
+      lastKnownPlotWaterLevel,
+      lastKnownPlotWaterChange,
+      centerPlotBlocksPassed,
+    );
+
+    // manual calculations until current block
     if (plot.owner === '0x0000000000000000000000000000000000000000') {
       const isOwner = false;
       const isPlantOwner = false;
@@ -41,7 +171,7 @@ export const reduceContractPlots = (
         // plot
         color: getPlotColor(isOwner, isPlantOwner, isUnminted),
         lastStateChangeBlock: plot.waterLog?.blockNumber?.toNumber() || 0,
-        waterLevel: plot.waterLog?.waterLevel?.toNumber() || parseInt(publicRuntimeConfig.PLOT_MAX_WATER, 10),
+        waterLevel: currentPlotWaterLevel,
       };
 
       return updatedMp;
@@ -71,13 +201,36 @@ export const reduceContractPlots = (
         // plot
         color: getPlotColor(isOwner, isPlantOwner, isUnminted),
         lastStateChangeBlock: plot.waterLog?.blockNumber?.toNumber() || 0,
-        waterLevel: plot.waterLog?.waterLevel?.toNumber() || parseInt(publicRuntimeConfig.PLOT_MAX_WATER, 10),
+        waterLevel: currentPlotWaterLevel,
       };
 
       return updatedMp;
     }
 
     const growthBlockDuration = getGrowthBlockDuration(seedType);
+
+    const neighborPlots = getNeighborPlots(
+      plotCoords,
+      contractPlots,
+      surroundingPlots,
+      absoluteCornerX,
+      absoluteCornerY,
+    );
+
+    const waterAbsorbed = estimatePlantWaterAbsorbed(
+      lastKnownPlotWaterLevel,
+      lastKnownPlotWaterChange,
+      centerPlotBlocksPassed,
+      neighborPlots.map(
+        (np) => np.waterLog?.waterLevel?.toNumber() || parseInt(publicRuntimeConfig.PLOT_MAX_WATER, 10),
+      ),
+      neighborPlots.map((np) => np.waterLog?.changeRate?.toNumber() || 0),
+      neighborPlots.map((np) =>
+        currentBlock - (np.waterLog?.blockNumber?.toNumber() || 0) < 0
+          ? 0
+          : currentBlock - (np.waterLog?.blockNumber?.toNumber() || 0),
+      ),
+    );
 
     const plantState = getPlantState(
       BigNumber.from(currentBlock),
@@ -94,14 +247,14 @@ export const reduceContractPlots = (
       // plant
       seedType,
       plantState,
-      waterAbsorbed: plot.plant.waterAbsorbed,
+      waterAbsorbed,
       plantedBlockNumber: plot.plant.plantedBlockNumber.toNumber(),
       overgrownBlockNumber: plot.plant.overgrownBlockNumber.toNumber(),
 
       // plot
       color: getPlotColor(isOwner, isPlantOwner, isUnminted),
       lastStateChangeBlock: plot.waterLog?.blockNumber?.toNumber() || 0,
-      waterLevel: plot.waterLog?.waterLevel?.toNumber() || parseInt(publicRuntimeConfig.PLOT_MAX_WATER, 10),
+      waterLevel: currentPlotWaterLevel,
     };
 
     return updatedMp;

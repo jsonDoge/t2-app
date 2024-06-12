@@ -193,6 +193,9 @@ const MainPlots = memo<Props>(({ mainPlotRefs, plotCenterRef }) => {
                   return;
                 }
                 const rgb = mappedPlotInfos?.current?.[xIndex]?.[yIndex]?.color?.rgb;
+                if (!rgb) {
+                  return;
+                }
                 self.eventObject.material.color.setRGB(rgb.r, rgb.g, rgb.b);
               }}
               onPointerOver={(self) => {
@@ -200,6 +203,9 @@ const MainPlots = memo<Props>(({ mainPlotRefs, plotCenterRef }) => {
                   return;
                 }
                 const rgbHover = mappedPlotInfos?.current?.[xIndex]?.[yIndex]?.color?.rgbHover;
+                if (!rgbHover) {
+                  return;
+                }
                 self.eventObject.material.color.setRGB(rgbHover.r, rgbHover.g, rgbHover.b);
               }}
             />

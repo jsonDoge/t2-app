@@ -80,6 +80,12 @@
         "internalType": "uint256",
         "name": "level",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "changeRate",
+        "type": "uint256"
       }
     ],
     "name": "PlotWaterUpdate",
@@ -212,7 +218,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "leftUpperCornerPlotId",
+        "name": "leftLowerCornerPlotId",
         "type": "uint256"
       }
     ],
@@ -278,6 +284,11 @@
                 "internalType": "uint256",
                 "name": "level",
                 "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "changeRate",
+                "type": "uint256"
               }
             ],
             "internalType": "struct Farm.PlotWaterLog",
@@ -288,6 +299,42 @@
         "internalType": "struct Farm.PlotView[49]",
         "name": "",
         "type": "tuple[49]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "leftLowerCornerPlotId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getSurroundingWaterLogs",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "blockNumber",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "level",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "changeRate",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct Farm.PlotWaterLog[28]",
+        "name": "",
+        "type": "tuple[28]"
       }
     ],
     "stateMutability": "view",
@@ -332,6 +379,11 @@
           {
             "internalType": "uint256",
             "name": "level",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "changeRate",
             "type": "uint256"
           }
         ],

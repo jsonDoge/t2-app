@@ -47,7 +47,9 @@ const PlotModal: React.FC<Props> = ({
                 </div>
                 <div className="mt-2">
                   <p className="text-gray-500">{`Plot water level: ${waterLevel}`}</p>
-                  {waterAbsorbed && <p className="text-gray-500">{`Plant water absorbed: ${waterAbsorbed}`}</p>}
+                  {(waterAbsorbed || waterAbsorbed === 0) && (
+                    <p className="text-gray-500">{`Plant water absorbed: ${waterAbsorbed}`}</p>
+                  )}
                   {plantedOnBlock && <p className="text-gray-500">{`Planted on block: ${plantedOnBlock}`}</p>}
                   {blocksTillOvergrown && (
                     <p className="text-gray-500">{`Blocks till overgrown: ${blocksTillOvergrown}`}</p>

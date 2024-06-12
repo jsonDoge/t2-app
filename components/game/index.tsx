@@ -40,7 +40,7 @@ const Game = () => {
     mappedPlotInfosStore.setValue(generateEmptyMappedPlotInfos(gridPlotCoordinates));
   };
 
-  const convertCenterToUpperLeftCorner = (x: number, y: number) => ({
+  const convertCenterToLowerLeftCorner = (x: number, y: number) => ({
     x: x - 3 < 0 ? 0 : x - 3,
     y: y - 3 < 0 ? 0 : y - 3,
   });
@@ -55,16 +55,24 @@ const Game = () => {
       return undefined;
     }
 
-    const { x: cornerX, y: cornerY } = convertCenterToUpperLeftCorner(centerX, centerY);
+    const { x: cornerX, y: cornerY } = convertCenterToLowerLeftCorner(centerX, centerY);
     const cornerPlotId = getPlotIdFromCoordinates(cornerX, cornerY);
 
     const farm: Contract = getContract(publicRuntimeConfig.C_FARM, CONTRACT_TYPE.FARM, { isSignerRequired: false });
 
     // getPlotView returns array sorted as x + y * 7
     const contractPlots = await farm.getPlotView(cornerPlotId);
+    const surroundingPlotWaterLogs = await farm.getSurroundingWaterLogs(cornerPlotId);
 
     // TODO: refactor to not fetch same data if coords didn't change
-    const res = reduceContractPlots(contractPlots, currentBlock_, walletAddress || '');
+    const res = reduceContractPlots(
+      contractPlots,
+      surroundingPlotWaterLogs,
+      currentBlock_,
+      walletAddress || '',
+      cornerX,
+      cornerY,
+    );
 
     return res;
   };
@@ -85,7 +93,7 @@ const Game = () => {
 
     subscribeToUiActionCompleted(() => reloadPlotInfos(currentBlock));
 
-    return walletStore.onChange((newWallet) => {
+    walletStore.onChange((newWallet) => {
       if (wallet.current?.address === newWallet?.address) {
         return;
       }
@@ -93,6 +101,10 @@ const Game = () => {
       wallet.current = { ...newWallet };
       reloadPlotInfos(currentBlock);
     });
+
+    return () => {
+      subscribeToUiActionCompleted(() => {});
+    };
   }, []);
 
   return <CanvasWrapper plotCenterChanged={() => reloadPlotInfos(currentBlock)} />;

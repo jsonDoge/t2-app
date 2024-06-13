@@ -96,34 +96,34 @@ const MainPlots = memo<Props>(({ mainPlotRefs, plotCenterRef }) => {
 
         mainPlotRefs_[y][x].current?.material.color.setRGB(plotRgb.r, plotRgb.g, plotRgb.b);
 
-        const { seedType, state } = currentMappedPlotInfos?.[x][y] || { seedType: undefined, state: undefined };
+        const { seedType, plantState } = currentMappedPlotInfos?.[x][y] || { seedType: undefined, state: undefined };
 
         setPlotItem(
-          !!seedType && state === PlantState.GROWING,
+          !!seedType && plantState === PlantState.GROWING,
           currentPlantRefs[x][y].current,
           mainPlotRefs_[y][x].current,
         );
 
         setPlotItem(
-          !!seedType && seedType === SEED_TYPE.CORN && state === PlantState.READY,
+          !!seedType && seedType === SEED_TYPE.CORN && plantState === PlantState.READY,
           currentCornRefs[x][y].current,
           mainPlotRefs_[y][x].current,
         );
 
         setPlotItem(
-          !!seedType && seedType === SEED_TYPE.POTATO && state === PlantState.READY,
+          !!seedType && seedType === SEED_TYPE.POTATO && plantState === PlantState.READY,
           currentPotatoRefs[x][y].current,
           mainPlotRefs_[y][x].current,
         );
 
         setPlotItem(
-          !!seedType && seedType === SEED_TYPE.CARROT && state === PlantState.READY,
+          !!seedType && seedType === SEED_TYPE.CARROT && plantState === PlantState.READY,
           currentCarrotRefs[x][y].current,
           mainPlotRefs_[y][x].current,
         );
 
         setPlotItem(
-          !!seedType && state === PlantState.OVERGROWN,
+          !!seedType && plantState === PlantState.OVERGROWN,
           currentWeedRefs[x][y].current,
           mainPlotRefs_[y][x].current,
         );
@@ -193,6 +193,9 @@ const MainPlots = memo<Props>(({ mainPlotRefs, plotCenterRef }) => {
                   return;
                 }
                 const rgb = mappedPlotInfos?.current?.[xIndex]?.[yIndex]?.color?.rgb;
+                if (!rgb) {
+                  return;
+                }
                 self.eventObject.material.color.setRGB(rgb.r, rgb.g, rgb.b);
               }}
               onPointerOver={(self) => {
@@ -200,6 +203,9 @@ const MainPlots = memo<Props>(({ mainPlotRefs, plotCenterRef }) => {
                   return;
                 }
                 const rgbHover = mappedPlotInfos?.current?.[xIndex]?.[yIndex]?.color?.rgbHover;
+                if (!rgbHover) {
+                  return;
+                }
                 self.eventObject.material.color.setRGB(rgbHover.r, rgbHover.g, rgbHover.b);
               }}
             />

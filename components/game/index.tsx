@@ -12,8 +12,9 @@ import CanvasWrapper from './canvasWrapper';
 import { walletStore, mappedPlotInfosStore } from '../../stores';
 import { Wallet } from '../../utils/interfaces';
 import { getPlotIdFromCoordinates } from '../../services/utils';
-import { getBlockNumber, getContract } from '../../services/web3Utils';
+import { getContract } from '../../services/web3Utils';
 import { CONTRACT_TYPE } from '../../utils/constants';
+import { useBlockchain } from '../../context/blockchain';
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -29,6 +30,7 @@ const Game = () => {
   const wallet: MutableRefObject<Wallet | undefined> = useRef();
 
   const { subscribeToUiActionCompleted, centerChanged } = useGame();
+  const { currentBlock } = useBlockchain();
   const plotCenterRef = useRef<Coordinates>(INITIAL_PLOT_CENTER_COORDS);
 
   const gridPlotCoordinates = getAllPlotCoordinatesAround(INITIAL_PLOT_CENTER_COORDS.x, INITIAL_PLOT_CENTER_COORDS.y);
@@ -38,13 +40,14 @@ const Game = () => {
     mappedPlotInfosStore.setValue(generateEmptyMappedPlotInfos(gridPlotCoordinates));
   };
 
-  const convertCenterToUpperLeftCorner = (x: number, y: number) => ({
+  const convertCenterToLowerLeftCorner = (x: number, y: number) => ({
     x: x - 3 < 0 ? 0 : x - 3,
     y: y - 3 < 0 ? 0 : y - 3,
   });
 
   const loadPlotInfos = async (
     walletAddress: string | undefined,
+    currentBlock_: number,
     centerX: number,
     centerY: number,
   ): Promise<MappedPlotInfos | undefined> => {
@@ -52,17 +55,24 @@ const Game = () => {
       return undefined;
     }
 
-    const { x: cornerX, y: cornerY } = convertCenterToUpperLeftCorner(centerX, centerY);
+    const { x: cornerX, y: cornerY } = convertCenterToLowerLeftCorner(centerX, centerY);
     const cornerPlotId = getPlotIdFromCoordinates(cornerX, cornerY);
 
     const farm: Contract = getContract(publicRuntimeConfig.C_FARM, CONTRACT_TYPE.FARM, { isSignerRequired: false });
 
     // getPlotView returns array sorted as x + y * 7
     const contractPlots = await farm.getPlotView(cornerPlotId);
-    const blockNumber = await getBlockNumber();
+    const surroundingPlotWaterLogs = await farm.getSurroundingWaterLogs(cornerPlotId);
 
     // TODO: refactor to not fetch same data if coords didn't change
-    const res = reduceContractPlots(contractPlots, blockNumber, walletAddress || '');
+    const res = reduceContractPlots(
+      contractPlots,
+      surroundingPlotWaterLogs,
+      currentBlock_,
+      walletAddress || '',
+      cornerX,
+      cornerY,
+    );
 
     return res;
   };
@@ -72,28 +82,32 @@ const Game = () => {
     2000,
   );
 
-  const reloadPlotInfos = () => {
+  const reloadPlotInfos = (currentBlock_: number) => {
     resetMappedPlotInfos();
-    debouncedLoadPlotInfos(wallet.current?.address, plotCenterRef.current.x, plotCenterRef.current.y);
+    debouncedLoadPlotInfos(wallet.current?.address, currentBlock_, plotCenterRef.current.x, plotCenterRef.current.y);
     centerChanged(plotCenterRef.current.x, plotCenterRef.current.y);
   };
 
   useEffect(() => {
     wallet.current = walletStore.getValue();
 
-    subscribeToUiActionCompleted(reloadPlotInfos);
+    subscribeToUiActionCompleted(() => reloadPlotInfos(currentBlock));
 
-    return walletStore.onChange((newWallet) => {
+    walletStore.onChange((newWallet) => {
       if (wallet.current?.address === newWallet?.address) {
         return;
       }
 
       wallet.current = { ...newWallet };
-      reloadPlotInfos();
+      reloadPlotInfos(currentBlock);
     });
+
+    return () => {
+      subscribeToUiActionCompleted(() => {});
+    };
   }, []);
 
-  return <CanvasWrapper plotCenterChanged={reloadPlotInfos} />;
+  return <CanvasWrapper plotCenterChanged={() => reloadPlotInfos(currentBlock)} />;
 };
 
 export default Game;

@@ -1,6 +1,7 @@
 import React from 'react';
 
 import Button from './button';
+import { SeedType } from '../utils/constants';
 
 interface Props {
   title: string;
@@ -9,6 +10,8 @@ interface Props {
   cancelText?: string;
   onConfirm: () => void;
   onCancel?: () => void;
+  seedType?: SeedType;
+  seasonSeedTypes?: SeedType[];
   waterLevel: number;
   waterAbsorbed?: number;
   waterRequired?: number;
@@ -16,6 +19,7 @@ interface Props {
   blocksRequired?: number;
   plantedOnBlock?: number;
   blocksTillOvergrown?: number;
+  isButtonDisabled?: boolean;
 }
 
 const PlotModal: React.FC<Props> = ({
@@ -25,6 +29,8 @@ const PlotModal: React.FC<Props> = ({
   cancelText,
   onConfirm,
   onCancel,
+  seedType,
+  seasonSeedTypes,
   waterLevel,
   waterAbsorbed,
   waterRequired,
@@ -32,6 +38,7 @@ const PlotModal: React.FC<Props> = ({
   blocksRequired,
   plantedOnBlock,
   blocksTillOvergrown,
+  isButtonDisabled,
 }) => {
   const confirm = () => onConfirm && onConfirm();
   const cancel = () => onCancel && onCancel();
@@ -74,6 +81,7 @@ const PlotModal: React.FC<Props> = ({
                       className={`text-gray-500 mt-1 ${blocksTillOvergrown === 0 ? 'animate-pulse bg-red-600 text-white p-1' : ''}`}
                     >{`Blocks till overgrown: ${blocksTillOvergrown} 🥀`}</p>
                   )}
+                  {seedType && !seasonSeedTypes?.includes(seedType) && "If you harvest now, you'll get weeds..."}
                 </div>
                 <div className="text-lg leading-6 font-medium text-gray-900 mt-5">{title}</div>
                 <div className="mt-2">
@@ -83,7 +91,9 @@ const PlotModal: React.FC<Props> = ({
             </div>
           </div>
           <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <Button onClick={confirm}>{confirmText}</Button>
+            <Button onClick={confirm} disabled={!!isButtonDisabled}>
+              {confirmText}
+            </Button>
             {onCancel && <Button onClick={cancel}>{cancelText}</Button>}
           </div>
         </div>

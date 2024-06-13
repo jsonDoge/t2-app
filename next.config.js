@@ -5,6 +5,7 @@ module.exports = {
   },
   reactStrictMode: true,
   publicRuntimeConfig: {
+    CHAIN_NAME: process.env.CHAIN_NAME,
     ETH_PROVIDER: process.env.ETH_PROVIDER,
     ETH_CHAIN_ID: process.env.ETH_CHAIN_ID,
     C_STABLE_TOKEN: process.env.C_STABLE_TOKEN,
@@ -43,6 +44,9 @@ module.exports = {
 
     // season
     SEASON_DURATION_BLOCKS: process.env.SEASON_DURATION_BLOCKS,
+    POTATO_GROWTH_SEASONS: process.env.POTATO_GROWTH_SEASONS,
+    CORN_GROWTH_SEASONS: process.env.CORN_GROWTH_SEASONS,
+    CARROT_GROWTH_SEASONS: process.env.CARROT_GROWTH_SEASONS,
 
     // plot water
     PLOT_MAX_WATER: process.env.PLOT_MAX_WATER,

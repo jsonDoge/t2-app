@@ -4,3 +4,10 @@ export enum PlantState {
   READY = 'READY',
   OVERGROWN = 'OVERGROWN',
 }
+
+export enum Season {
+  AUTUMN = 'AUTUMN',
+  WINTER = 'WINTER',
+  SPRING = 'SPRING',
+  SUMMER = 'SUMMER',
+}

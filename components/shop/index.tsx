@@ -4,13 +4,13 @@ import Spinner from '../spinner';
 import { buySeed, getSeedBalance } from '../../services/shop';
 import { useWallet } from '../../context/wallet';
 import { toSentenceCase } from '../../utils';
-import { SEED_TYPE } from '../../utils/constants';
+import { SEED_TYPE, SeedType } from '../../utils/constants';
 
 const Shop = () => {
   const { wallet } = useWallet();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [seedType, setSeedType] = useState(SEED_TYPE.POTATO);
+  const [seedType, setSeedType] = useState<SeedType>(SEED_TYPE.POTATO);
   const [carrotSeedBalance, setCarrotSeedBalance] = useState(0);
   const [potatoSeedBalance, setPotatoSeedBalance] = useState(0);
   const [cornSeedBalance, setCornSeedBalance] = useState(0);
@@ -58,7 +58,7 @@ const Shop = () => {
             <div>
               <select
                 onChange={(e) => {
-                  setSeedType(e.target.value);
+                  setSeedType(e.target.value as SeedType);
                 }}
                 value={seedType}
               >

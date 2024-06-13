@@ -11,7 +11,7 @@ const Button: React.FC<Props> = ({ children, onClick, disabled = false }) => (
     disabled={disabled}
     onClick={onClick}
     type="button"
-    className="
+    className={`
       mt-3
       w-full
       inline-flex
@@ -34,7 +34,9 @@ const Button: React.FC<Props> = ({ children, onClick, disabled = false }) => (
       sm:mt-0
       sm:ml-3
       sm:w-auto
-      sm:text-sm"
+      sm:text-sm
+      ${disabled ? ' bg-gray-300 hover:bg-gray-300 text-gray-100 cursor-not-allowed	' : ''}
+      `}
   >
     {children}
   </button>

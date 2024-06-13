@@ -14,6 +14,7 @@ import CenterPlotNavigator from './plots/centerPlotNavigator';
 import CenterPlotCoordsDisplay from './plots/centerPlotCoordsDisplay';
 import Kitchen from './kitchen';
 import Help from './help';
+import ChainName from './chainName';
 
 const Layout: React.FC = () => {
   const { wallet } = useWallet();
@@ -84,7 +85,11 @@ const Layout: React.FC = () => {
             </span>
           </div>
         </div>
-
+        <div className="text-right">
+          <div className="text-right text-white hidden lg:block">
+            <ChainName />
+          </div>
+        </div>
         {/* MOBILE MENU */}
         <div className="relative w-full col-span-2">
           <div

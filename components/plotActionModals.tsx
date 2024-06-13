@@ -1,5 +1,6 @@
 /* eslint-disable no-param-reassign */
 import React, { useEffect, useState } from 'react';
+import getConfig from 'next/config';
 
 // components
 import { buyPlot, harvest, plant } from '../services/farm';
@@ -20,6 +21,34 @@ import { Coordinates, PlotInfo } from './game/utils/interfaces';
 // constants
 import { SEED_TYPE } from '../utils/constants';
 
+const { publicRuntimeConfig } = getConfig();
+
+const mapSeedTypeToWaterRequired = (seedType?: string) => {
+  switch (seedType) {
+    case SEED_TYPE.CARROT:
+      return parseInt(publicRuntimeConfig.CARROT_MIN_WATER || '0', 10);
+    case SEED_TYPE.CORN:
+      return parseInt(publicRuntimeConfig.CORN_MIN_WATER || '0', 10);
+    case SEED_TYPE.POTATO:
+      return parseInt(publicRuntimeConfig.POTATO_MIN_WATER || '0', 10);
+    default:
+      return undefined;
+  }
+};
+
+const mapSeedTypeToGrowthDuration = (seedType?: string) => {
+  switch (seedType) {
+    case SEED_TYPE.CARROT:
+      return parseInt(publicRuntimeConfig.CARROT_GROWTH_DURATION || '0', 10);
+    case SEED_TYPE.CORN:
+      return parseInt(publicRuntimeConfig.CORN_GROWTH_DURATION || '0', 10);
+    case SEED_TYPE.POTATO:
+      return parseInt(publicRuntimeConfig.POTATO_GROWTH_DURATION || '0', 10);
+    default:
+      return undefined;
+  }
+};
+
 const PlotActionModals: React.FC = () => {
   const { wallet } = useWallet();
   const { currentBlock } = useBlockchain();
@@ -35,6 +64,9 @@ const PlotActionModals: React.FC = () => {
   const [isPlantModalShown, setIsPlantModalShown] = useState(false);
   const [isHarvestModalShown, setIsHarvestModalShown] = useState(false);
   const [waterLevel, setWaterLevel] = useState(0);
+  const [waterRequired, setWaterRequired] = useState<number | undefined>(undefined);
+  const [blocksGrown, setBlocksGrown] = useState<number | undefined>(undefined);
+  const [blocksRequired, setBlockRequired] = useState<number | undefined>(undefined);
   const [plantedOnBlock, setPlantedOnBlock] = useState<number | undefined>(undefined);
   const [blocksTillOvergrown, setBlocksTillOvergrown] = useState<number | undefined>(undefined);
   const [waterAbsorbed, setWaterAbsorbed] = useState<number | undefined>(undefined);
@@ -44,7 +76,14 @@ const PlotActionModals: React.FC = () => {
     setSelectedCoords({ x, y });
     setWaterLevel(plotInfo.waterLevel);
     setWaterAbsorbed(plotInfo.waterAbsorbed);
-    setBlocksTillOvergrown(plotInfo.overgrownBlockNumber ? plotInfo.overgrownBlockNumber - currentBlock_ : undefined);
+    setWaterRequired(mapSeedTypeToWaterRequired(plotInfo.seedType));
+    // the game can lag behind the current block, so we need to make sure the plotsGrown is not negative
+    setBlocksGrown(plotInfo?.plantedBlockNumber ? Math.max(currentBlock_ - plotInfo.plantedBlockNumber, 0) : undefined);
+    setBlockRequired(mapSeedTypeToGrowthDuration(plotInfo.seedType));
+
+    setBlocksTillOvergrown(
+      plotInfo.overgrownBlockNumber ? Math.max(plotInfo.overgrownBlockNumber - currentBlock_, 0) : undefined,
+    );
     setPlantedOnBlock(plotInfo.plantedBlockNumber);
 
     const { isUnminted, isPlantOwner, isOwner } = plotInfo;
@@ -109,9 +148,9 @@ const PlotActionModals: React.FC = () => {
     );
 
   const defaultPlantErrorMessage = 'Planting failed, check if you have necessary seed';
-  const onPlantConfirm = async (coords: Coordinates, seedType: string) =>
+  const onPlantConfirm = async (coords: Coordinates, seedType_: string) =>
     onModalConfirm(
-      (walletPrivateKey: string) => plant(coords.x, coords.y, seedType, walletPrivateKey),
+      (walletPrivateKey: string) => plant(coords.x, coords.y, seedType_, walletPrivateKey),
       () => setIsPlantModalShown(false),
       defaultPlantErrorMessage,
     );
@@ -134,13 +173,13 @@ const PlotActionModals: React.FC = () => {
 
   return (
     <>
+      {/* TODO: probably a good idea to create separate modals for each action */}
       {isAlreadyOwnedModalShown && (
         <PlotModal
           title="This plot is owned by another farmer 🛑"
           description="Better luck next time"
           confirmText="Okay"
           onConfirm={() => hideModal()}
-          waterAbsorbed={waterAbsorbed}
           waterLevel={waterLevel}
         />
       )}
@@ -162,7 +201,7 @@ const PlotActionModals: React.FC = () => {
           description={`You are about to plant at [X : ${selectedCoords.x} | Y : ${selectedCoords.y}]`}
           confirmText={isLoading ? <Spinner /> : 'Plant'}
           cancelText="Regret forever"
-          onConfirm={(seedType) => onPlantConfirm(selectedCoords, seedType)}
+          onConfirm={(seedType_) => onPlantConfirm(selectedCoords, seedType_)}
           onCancel={() => hideModal()}
           waterLevel={waterLevel}
         />
@@ -177,6 +216,9 @@ const PlotActionModals: React.FC = () => {
           onCancel={() => hideModal()}
           waterAbsorbed={waterAbsorbed}
           waterLevel={waterLevel}
+          waterRequired={waterRequired}
+          blocksGrown={blocksGrown}
+          blocksRequired={blocksRequired}
           plantedOnBlock={plantedOnBlock}
           blocksTillOvergrown={blocksTillOvergrown}
         />

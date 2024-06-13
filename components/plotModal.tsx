@@ -11,6 +11,9 @@ interface Props {
   onCancel?: () => void;
   waterLevel: number;
   waterAbsorbed?: number;
+  waterRequired?: number;
+  blocksGrown?: number;
+  blocksRequired?: number;
   plantedOnBlock?: number;
   blocksTillOvergrown?: number;
 }
@@ -24,6 +27,9 @@ const PlotModal: React.FC<Props> = ({
   onCancel,
   waterLevel,
   waterAbsorbed,
+  waterRequired,
+  blocksGrown,
+  blocksRequired,
   plantedOnBlock,
   blocksTillOvergrown,
 }) => {
@@ -46,13 +52,27 @@ const PlotModal: React.FC<Props> = ({
                   Plot Info 🟩
                 </div>
                 <div className="mt-2">
-                  <p className="text-gray-500 mt-1">{`Plot water level: ${waterLevel} 💧`}</p>
+                  <p className="text-gray-500 mt-1">{`Plot water level: ${waterLevel} 🚰`}</p>
                   {(waterAbsorbed || waterAbsorbed === 0) && (
-                    <p className="text-gray-500 mt-1">{`Plant water absorbed: ${waterAbsorbed} 🌱`}</p>
+                    <p
+                      className={`text-gray-500 mt-1 ${!!waterRequired && waterAbsorbed >= waterRequired ? 'animate-pulse bg-green-600 text-white p-1' : ''}`}
+                    >
+                      {`Plant water absorbed: ${waterAbsorbed}`} {`${waterRequired ? `/ ${waterRequired} 💧` : ' 💧'}`}
+                    </p>
                   )}
-                  {plantedOnBlock && <p className="text-gray-500 mt-1">{`Planted on block: ${plantedOnBlock} 📅`}</p>}
-                  {blocksTillOvergrown && (
-                    <p className="text-gray-500 mt-1">{`Blocks till overgrown: ${blocksTillOvergrown} 🥀`}</p>
+
+                  {(blocksGrown || blocksGrown === 0) && (
+                    <p
+                      className={`text-gray-500 mt-1 ${!!blocksRequired && blocksGrown >= blocksRequired ? 'animate-pulse bg-green-600 text-white p-1' : ''}`}
+                    >
+                      {`Plant grown: ${blocksGrown}`} {`${blocksRequired ? `/ ${blocksRequired} 🌱` : ' 🌱'}`}
+                    </p>
+                  )}
+                  {plantedOnBlock && <p className="text-gray-500 mt-5">{`Planted on block: ${plantedOnBlock} 📅`}</p>}
+                  {(blocksTillOvergrown || blocksTillOvergrown === 0) && (
+                    <p
+                      className={`text-gray-500 mt-1 ${blocksTillOvergrown === 0 ? 'animate-pulse bg-red-600 text-white p-1' : ''}`}
+                    >{`Blocks till overgrown: ${blocksTillOvergrown} 🥀`}</p>
                   )}
                 </div>
                 <div className="text-lg leading-6 font-medium text-gray-900 mt-5">{title}</div>

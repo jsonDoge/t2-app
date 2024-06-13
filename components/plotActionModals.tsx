@@ -19,11 +19,12 @@ import { selectPlotStore } from '../stores';
 import { Coordinates, PlotInfo } from './game/utils/interfaces';
 
 // constants
-import { SEED_TYPE } from '../utils/constants';
+import { SEED_TYPE, SeedType } from '../utils/constants';
+import { calculateSeason, getSeasonSeedTypes } from './game/utils/seasons';
 
 const { publicRuntimeConfig } = getConfig();
 
-const mapSeedTypeToWaterRequired = (seedType?: string) => {
+const mapSeedTypeToWaterRequired = (seedType?: SeedType) => {
   switch (seedType) {
     case SEED_TYPE.CARROT:
       return parseInt(publicRuntimeConfig.CARROT_MIN_WATER || '0', 10);
@@ -36,7 +37,7 @@ const mapSeedTypeToWaterRequired = (seedType?: string) => {
   }
 };
 
-const mapSeedTypeToGrowthDuration = (seedType?: string) => {
+const mapSeedTypeToGrowthDuration = (seedType?: SeedType) => {
   switch (seedType) {
     case SEED_TYPE.CARROT:
       return parseInt(publicRuntimeConfig.CARROT_GROWTH_DURATION || '0', 10);
@@ -63,6 +64,7 @@ const PlotActionModals: React.FC = () => {
   const [isBuyPlotModalShown, setIsBuyPlotModalShown] = useState(false);
   const [isPlantModalShown, setIsPlantModalShown] = useState(false);
   const [isHarvestModalShown, setIsHarvestModalShown] = useState(false);
+  const [seasonSeedTypes, setSeasonSeedTypes] = useState<SeedType[]>([]);
   const [waterLevel, setWaterLevel] = useState(0);
   const [waterRequired, setWaterRequired] = useState<number | undefined>(undefined);
   const [blocksGrown, setBlocksGrown] = useState<number | undefined>(undefined);
@@ -76,15 +78,19 @@ const PlotActionModals: React.FC = () => {
     setSelectedCoords({ x, y });
     setWaterLevel(plotInfo.waterLevel);
     setWaterAbsorbed(plotInfo.waterAbsorbed);
-    setWaterRequired(mapSeedTypeToWaterRequired(plotInfo.seedType));
+    setWaterRequired(mapSeedTypeToWaterRequired(plotInfo.seedType as SeedType));
     // the game can lag behind the current block, so we need to make sure the plotsGrown is not negative
     setBlocksGrown(plotInfo?.plantedBlockNumber ? Math.max(currentBlock_ - plotInfo.plantedBlockNumber, 0) : undefined);
-    setBlockRequired(mapSeedTypeToGrowthDuration(plotInfo.seedType));
+    setBlockRequired(mapSeedTypeToGrowthDuration(plotInfo.seedType as SeedType));
 
     setBlocksTillOvergrown(
       plotInfo.overgrownBlockNumber ? Math.max(plotInfo.overgrownBlockNumber - currentBlock_, 0) : undefined,
     );
     setPlantedOnBlock(plotInfo.plantedBlockNumber);
+
+    setSeasonSeedTypes(
+      getSeasonSeedTypes(calculateSeason(currentBlock_, parseInt(publicRuntimeConfig.SEASON_DURATION_BLOCKS, 10))),
+    );
 
     const { isUnminted, isPlantOwner, isOwner } = plotInfo;
 
@@ -173,7 +179,7 @@ const PlotActionModals: React.FC = () => {
 
   return (
     <>
-      {/* TODO: probably a good idea to create separate modals for each action */}
+      {/* TODO: probably a good idea to create separate modals for each action - split into self-contained components */}
       {isAlreadyOwnedModalShown && (
         <PlotModal
           title="This plot is owned by another farmer 🛑"
@@ -198,6 +204,7 @@ const PlotActionModals: React.FC = () => {
         <PlantModal
           title="Plant seed? 🌱"
           seedTypes={Object.values(SEED_TYPE)}
+          seasonSeedTypes={seasonSeedTypes}
           description={`You are about to plant at [X : ${selectedCoords.x} | Y : ${selectedCoords.y}]`}
           confirmText={isLoading ? <Spinner /> : 'Plant'}
           cancelText="Regret forever"

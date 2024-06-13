@@ -15,9 +15,11 @@ const PLOT_REGEN_RATE = parseInt(publicRuntimeConfig.PLOT_WATER_REGEN_RATE, 10);
 const estimatePlotWaterLevel = (plotWaterLevel: number, waterChangeRate: number, blocksElapsed: number) => {
   const plotWaterGained = PLOT_REGEN_RATE * blocksElapsed;
 
-  const plotWaterLost = waterChangeRate * blocksElapsed;
+  const availableWaterBlocks = Math.floor((plotWaterLevel + plotWaterGained) / waterChangeRate);
 
-  const plotWaterLeft = plotWaterLevel + plotWaterGained - plotWaterLost;
+  // if there is not enough water to absorb it will only absorb full blocks of water (as much as all plants drain per block)
+  const waterBlocksAbsorbed = availableWaterBlocks >= blocksElapsed ? blocksElapsed : availableWaterBlocks;
+  const plotWaterLeft = plotWaterLevel + plotWaterGained - waterBlocksAbsorbed * waterChangeRate;
 
   if (plotWaterLeft < 0) {
     return 0;
@@ -33,6 +35,7 @@ const estimatePlotWaterLevel = (plotWaterLevel: number, waterChangeRate: number,
 // returns all plant water absorption
 
 const estimatePlantWaterAbsorbed = (
+  waterAlreadyAbsorbed: number,
   centerPlotWaterLevel: number,
   centerPlotWaterChange: number,
   centerPlotBlocksPassed: number,
@@ -40,7 +43,7 @@ const estimatePlantWaterAbsorbed = (
   surroundingPlotWaterChanges: number[],
   surroundingPlotBlocksPassed: number[],
 ): number => {
-  let waterAbsorbed = 0;
+  let waterAbsorbed = waterAlreadyAbsorbed;
 
   const plotWaterLeft = centerPlotWaterLevel + PLOT_REGEN_RATE * centerPlotBlocksPassed;
   const availableWaterBlocks = Math.floor(plotWaterLeft / centerPlotWaterChange);
@@ -135,12 +138,17 @@ export const reduceContractPlots = (
     };
 
     const lastKnownPlotWaterLevel =
-      plot.waterLog?.waterLevel?.toNumber() || parseInt(publicRuntimeConfig.PLOT_MAX_WATER, 10);
+      plot.waterLog?.level?.toNumber() || parseInt(publicRuntimeConfig.PLOT_MAX_WATER, 10);
     const lastKnownPlotWaterChange = plot.waterLog?.changeRate?.toNumber() || 0;
 
     const centerPlotBlockDiff = currentBlock - (plot.waterLog?.blockNumber?.toNumber() || 0);
     // if block diff is negative, it means the game has not updated to the latest block yet
     const centerPlotBlocksPassed = centerPlotBlockDiff < 0 ? 0 : centerPlotBlockDiff;
+
+    if (i === 24 || i === 23 || i === 25) {
+      console.log(centerPlotBlocksPassed);
+      console.log(plot.waterLog);
+    }
 
     const currentPlotWaterLevel = estimatePlotWaterLevel(
       lastKnownPlotWaterLevel,
@@ -216,12 +224,11 @@ export const reduceContractPlots = (
     );
 
     const waterAbsorbed = estimatePlantWaterAbsorbed(
+      plot?.plant?.waterAbsorbed?.toNumber() || 0,
       lastKnownPlotWaterLevel,
       lastKnownPlotWaterChange,
       centerPlotBlocksPassed,
-      neighborPlots.map(
-        (np) => np.waterLog?.waterLevel?.toNumber() || parseInt(publicRuntimeConfig.PLOT_MAX_WATER, 10),
-      ),
+      neighborPlots.map((np) => np.waterLog?.level?.toNumber() || parseInt(publicRuntimeConfig.PLOT_MAX_WATER, 10)),
       neighborPlots.map((np) => np.waterLog?.changeRate?.toNumber() || 0),
       neighborPlots.map((np) =>
         currentBlock - (np.waterLog?.blockNumber?.toNumber() || 0) < 0

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { Analytics } from '@vercel/analytics/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -15,15 +15,21 @@ import CenterPlotCoordsDisplay from './plots/centerPlotCoordsDisplay';
 import Kitchen from './kitchen';
 import Help from './help';
 import ChainName from './chainName';
+import WalletIntroModal from './walletIntroModal';
 
 const Layout: React.FC = () => {
-  const { wallet } = useWallet();
+  const { wallet, walletIntroShown, markWalletIntroAsShown } = useWallet();
   const [tab, setTab] = useState('plots');
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isBtnUpPressed, setIsBtnUpPressed] = useState(false);
   const [isBtnRightPressed, setIsBtnRightPressed] = useState(false);
   const [isBtnDownPressed, setIsBtnDownPressed] = useState(false);
   const [isBtnLeftPressed, setIsBtnLeftPressed] = useState(false);
+  const [isWalletIntroModalShown, setIsWalletIntroModalShown] = useState(false);
+
+  useEffect(() => {
+    setIsWalletIntroModalShown(!walletIntroShown);
+  }, [walletIntroShown]);
 
   return (
     <div className="flex flex-col h-screen">
@@ -301,6 +307,15 @@ const Layout: React.FC = () => {
         </div>
       )}
       <Analytics />
+      {isWalletIntroModalShown && (
+        <WalletIntroModal
+          walletAddress={wallet?.address || ''}
+          onConfirm={() => {
+            setIsWalletIntroModalShown(false);
+            markWalletIntroAsShown();
+          }}
+        />
+      )}
     </div>
   );
 };

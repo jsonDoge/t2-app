@@ -77,5 +77,6 @@ Currently using local blockchain for development and Polygon Amoy for Testnet.
 
 ## TODO
 
+- Front-end in testnet grid loading is flaky sometimes the UI plots don't get contract values (especially after plant action). This causes to display incorrect plant state.
 - Verify if math with very big numbers wouldn't break JS
 - Add metamask wallet option

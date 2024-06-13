@@ -2,6 +2,9 @@ It's a TokenToken token farm! Get it? cause the name is TokenToken... and it has
 
 ![image](https://user-images.githubusercontent.com/16711523/203055844-e1826f8a-7d93-4cf5-9440-1b55f005e9f6.png)
 
+Updated interaction modals with more information and basic color indicators
+
+![image](https://github.com/jsonDoge/t2-app/assets/16711523/3f9ffcb8-c48f-401c-8892-8a8a1a3b73d5)
 
 ## Getting Started
 

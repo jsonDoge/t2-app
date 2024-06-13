@@ -43,16 +43,16 @@ const PlotModal: React.FC<Props> = ({
             <div className="sm:flex sm:items-start">
               <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                 <div className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                  Plot Info
+                  Plot Info 🟩
                 </div>
                 <div className="mt-2">
-                  <p className="text-gray-500">{`Plot water level: ${waterLevel}`}</p>
+                  <p className="text-gray-500 mt-1">{`Plot water level: ${waterLevel} 💧`}</p>
                   {(waterAbsorbed || waterAbsorbed === 0) && (
-                    <p className="text-gray-500">{`Plant water absorbed: ${waterAbsorbed}`}</p>
+                    <p className="text-gray-500 mt-1">{`Plant water absorbed: ${waterAbsorbed} 🌱`}</p>
                   )}
-                  {plantedOnBlock && <p className="text-gray-500">{`Planted on block: ${plantedOnBlock}`}</p>}
+                  {plantedOnBlock && <p className="text-gray-500 mt-1">{`Planted on block: ${plantedOnBlock} 📅`}</p>}
                   {blocksTillOvergrown && (
-                    <p className="text-gray-500">{`Blocks till overgrown: ${blocksTillOvergrown}`}</p>
+                    <p className="text-gray-500 mt-1">{`Blocks till overgrown: ${blocksTillOvergrown} 🥀`}</p>
                   )}
                 </div>
                 <div className="text-lg leading-6 font-medium text-gray-900 mt-5">{title}</div>

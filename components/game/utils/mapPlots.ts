@@ -38,7 +38,7 @@ const estimatePlantWaterAbsorbed = (
   centerPlotBlocksPassed: number,
   surroundingPlotWaterLevels: number[],
   surroundingPlotWaterChanges: number[],
-  surroundingPlotLastBlockUpdate: number[],
+  surroundingPlotBlocksPassed: number[],
 ): number => {
   let waterAbsorbed = 0;
 
@@ -53,12 +53,10 @@ const estimatePlantWaterAbsorbed = (
 
   waterAbsorbed += surroundingPlotWaterLevels
     .map((plotWaterLevel, i) => {
-      const sPlotWaterLeft = plotWaterLevel + publicRuntimeConfig.PLOT_WATER_REGEN_RATE;
+      const sPlotWaterLeft = plotWaterLevel + PLOT_REGEN_RATE * surroundingPlotBlocksPassed[i];
       const sAvailableWaterBlocks = Math.floor(sPlotWaterLeft / surroundingPlotWaterChanges[i]);
       const sAbsorbedWaterBlocks =
-        sAvailableWaterBlocks > surroundingPlotLastBlockUpdate[i]
-          ? surroundingPlotLastBlockUpdate[i]
-          : sAvailableWaterBlocks;
+        sAvailableWaterBlocks > surroundingPlotBlocksPassed[i] ? surroundingPlotBlocksPassed[i] : sAvailableWaterBlocks;
 
       return sAbsorbedWaterBlocks * parseInt(publicRuntimeConfig.PLANT_NEIGHBOR_WATER_ABSORB_RATE, 10);
     })
@@ -70,7 +68,7 @@ const estimatePlantWaterAbsorbed = (
 const getNeighborPlots = (
   plotCoords: Coordinates,
   contractPlots: any[],
-  surroundingPlots: any[],
+  surroundingWaterLogs: any[],
   absoluteCornerX: number,
   absoluteCornerY: number,
 ): any[] => {
@@ -80,7 +78,7 @@ const getNeighborPlots = (
   if (absoluteCornerY === PLOT_MAX_Y - 6 && plotCoords.y === 6) {
     // do nothing
   } else if (plotCoords.y === 6) {
-    neighborPlots.push(surroundingPlots[3 * 7 + plotCoords.x]);
+    neighborPlots.push({ waterLog: surroundingWaterLogs[3 * 7 + plotCoords.x] });
   } else {
     neighborPlots.push(contractPlots[(plotCoords.y + 1) * 7 + plotCoords.x]);
   }
@@ -89,7 +87,7 @@ const getNeighborPlots = (
   if (absoluteCornerY === 0 && plotCoords.y === 0) {
     // do nothing
   } else if (plotCoords.y === 0) {
-    neighborPlots.push(surroundingPlots[2 * 7 + plotCoords.x]);
+    neighborPlots.push({ waterLog: surroundingWaterLogs[2 * 7 + plotCoords.x] });
   } else {
     neighborPlots.push(contractPlots[(plotCoords.y - 1) * 7 + plotCoords.x]);
   }
@@ -98,7 +96,7 @@ const getNeighborPlots = (
   if (absoluteCornerX === PLOT_MAX_X - 6 && plotCoords.x === 6) {
     // do nothing
   } else if (plotCoords.x === 6) {
-    neighborPlots.push(surroundingPlots[1 * 7 + plotCoords.y]);
+    neighborPlots.push({ waterLog: surroundingWaterLogs[1 * 7 + plotCoords.y] });
   } else {
     neighborPlots.push(contractPlots[plotCoords.y * 7 + plotCoords.x + 1]);
   }
@@ -107,7 +105,7 @@ const getNeighborPlots = (
   if (absoluteCornerX === 0 && plotCoords.x === 0) {
     // do nothing
   } else if (plotCoords.x === 0) {
-    neighborPlots.push(surroundingPlots[plotCoords.y]);
+    neighborPlots.push({ waterLog: surroundingWaterLogs[plotCoords.y] });
   } else {
     neighborPlots.push(contractPlots[plotCoords.y * 7 + plotCoords.x - 1]);
   }
@@ -118,7 +116,7 @@ const getNeighborPlots = (
 // TODO: function is growing too big, refactor
 export const reduceContractPlots = (
   contractPlots: any[], // 49 plots
-  surroundingPlots: any[], // 28 plots (line on each side of the 7x7 grid - look in contracts for more info)
+  surroundingWaterLogs: any[], // 28 plots (line on each side of the 7x7 grid - look in contracts for more info)
   currentBlock: number,
   walletAddress: string,
 
@@ -212,7 +210,7 @@ export const reduceContractPlots = (
     const neighborPlots = getNeighborPlots(
       plotCoords,
       contractPlots,
-      surroundingPlots,
+      surroundingWaterLogs,
       absoluteCornerX,
       absoluteCornerY,
     );

@@ -1,6 +1,6 @@
 import getConfig from 'next/config';
 import React, { FC, useCallback, useEffect, useState } from 'react';
-import { toSentenceCase } from '../utils';
+import { seedTypeToEmoji, toSentenceCase } from '../utils';
 import { useBlockchain } from '../context/blockchain';
 import { Season } from '../utils/enums';
 import { calculateSeason, isPlantSeason } from './game/utils/seasons';
@@ -9,19 +9,6 @@ import { calculateSeason, isPlantSeason } from './game/utils/seasons';
 import { SEED_TYPE } from '../utils/constants';
 
 const { publicRuntimeConfig } = getConfig();
-
-const seedTypeToEmoji = (seedType: string): string => {
-  switch (seedType) {
-    case SEED_TYPE.CARROT:
-      return '🥕';
-    case SEED_TYPE.CORN:
-      return '🌽';
-    case SEED_TYPE.POTATO:
-      return '🥔';
-    default:
-      return '';
-  }
-};
 
 const getNextSeason = (currentSeason: Season): Season => {
   switch (currentSeason) {
@@ -34,7 +21,7 @@ const getNextSeason = (currentSeason: Season): Season => {
     case Season.AUTUMN:
       return Season.WINTER;
     default:
-      return Season.WINTER;
+      throw new Error('Invalid season');
   }
 };
 
@@ -43,6 +30,8 @@ const getSeasonPlantEmojis = (season: Season, seedTypes: string[]): string =>
     .map((seedType) => isPlantSeason(seedType, season) && seedTypeToEmoji(seedType))
     .filter((e) => !!e)
     .join('');
+
+const seasonDurationBlocks = parseInt(publicRuntimeConfig.SEASON_DURATION_BLOCKS, 10);
 
 const BlockCounter: FC = () => {
   const { currentBlock } = useBlockchain();
@@ -56,8 +45,8 @@ const BlockCounter: FC = () => {
 
   const updateBlockAndSeason = useCallback((currentBlockNumber: number) => {
     setBlockNumber(currentBlockNumber);
-    setBlocksTillNextSeason(calculateSeasonBlocksLeft(currentBlockNumber, publicRuntimeConfig.SEASON_DURATION_BLOCKS));
-    const currentSeason = calculateSeason(currentBlockNumber, publicRuntimeConfig.SEASON_DURATION_BLOCKS);
+    setBlocksTillNextSeason(calculateSeasonBlocksLeft(currentBlockNumber, seasonDurationBlocks));
+    const currentSeason = calculateSeason(currentBlockNumber, seasonDurationBlocks);
     setSeason(currentSeason);
     setNextSeason(getNextSeason(currentSeason));
   }, []);

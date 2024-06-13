@@ -258,6 +258,23 @@ export const reduceContractPlots = (
     return updatedMp;
   }, {});
 
+export const getEmptyPlotInfo = () => ({
+  isOwner: false,
+  isPlantOwner: false,
+  isUnminted: true,
+
+  // plant
+  seedType: undefined,
+  plantState: undefined,
+  waterAbsorbed: undefined,
+  plantedBlockNumber: undefined,
+  overgrownBlockNumber: undefined,
+  // plot
+  color: getDefaultPlotColor(),
+  lastStateChangeBlock: 0,
+  waterLevel: parseInt(publicRuntimeConfig.PLOT_MAX_WATER, 10),
+});
+
 // eslint-disable-next-line import/prefer-default-export
 export const generateEmptyMappedPlotInfos = (coords: Coordinates[]): MappedPlotInfos =>
   coords.reduce(
@@ -265,22 +282,7 @@ export const generateEmptyMappedPlotInfos = (coords: Coordinates[]): MappedPlotI
       ...mpi,
       [c.x]: {
         ...mpi[c.x],
-        [c.y]: {
-          isOwner: false,
-          isPlantOwner: false,
-          isUnminted: true,
-
-          // plant
-          seedType: undefined,
-          plantState: undefined,
-          waterAbsorbed: undefined,
-          plantedBlockNumber: undefined,
-          overgrownBlockNumber: undefined,
-          // plot
-          color: getDefaultPlotColor(),
-          lastStateChangeBlock: 0,
-          waterLevel: parseInt(publicRuntimeConfig.PLOT_MAX_WATER, 10),
-        },
+        [c.y]: getEmptyPlotInfo(),
       },
     }),
     {},

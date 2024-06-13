@@ -7,15 +7,16 @@ import { SEED_TYPE, SeedType } from '../../../utils/constants';
 const { publicRuntimeConfig } = getConfig();
 
 export const calculateSeason = (blockNumber: number, seasonBlockDuration: number): Season => {
+  // mod by year duration
   const moduleBlockNumber = blockNumber % (4 * seasonBlockDuration);
 
   if (moduleBlockNumber / seasonBlockDuration < 1) {
     return Season.WINTER;
   }
-  if (moduleBlockNumber / (seasonBlockDuration * 2) < 2) {
+  if (moduleBlockNumber / seasonBlockDuration < 2) {
     return Season.SPRING;
   }
-  if (moduleBlockNumber / (seasonBlockDuration * 3) < 3) {
+  if (moduleBlockNumber / seasonBlockDuration < 3) {
     return Season.SUMMER;
   }
 

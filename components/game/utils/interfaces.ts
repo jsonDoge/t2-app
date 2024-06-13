@@ -24,10 +24,17 @@ export interface PlotInfo {
   isPlantOwner: boolean;
   isUnminted: boolean;
   seedType: string | undefined;
-  color: PlotColor;
-  state: PlantState | undefined;
-  waterLevel: number;
+
+  // plant
+  plantState: PlantState | undefined;
+  plantedBlockNumber: number | undefined;
+  overgrownBlockNumber: number | undefined;
   waterAbsorbed: number | undefined;
+
+  // plot
+  color: PlotColor;
+  lastStateChangeBlock: number | undefined;
+  waterLevel: number;
 }
 
 export interface PlotColor {

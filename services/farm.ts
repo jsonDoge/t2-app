@@ -82,7 +82,7 @@ export const getPlantState = (
   overgrownBlock: BigNumber,
   growthDuration: BigNumber,
 ) => {
-  if (currentBlock >= overgrownBlock) {
+  if (currentBlock.gte(overgrownBlock)) {
     return PlantState.OVERGROWN;
   }
   if (plantedBlock.sub(currentBlock).abs().gte(growthDuration)) {

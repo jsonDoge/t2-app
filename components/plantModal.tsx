@@ -11,6 +11,7 @@ interface Props {
   cancelText?: string;
   onConfirm: (seedType: string) => void;
   onCancel?: () => void;
+  waterLevel: number;
 }
 
 const PlantModal: React.FC<Props> = ({
@@ -21,6 +22,7 @@ const PlantModal: React.FC<Props> = ({
   cancelText,
   onConfirm,
   onCancel,
+  waterLevel,
 }) => {
   const [seedType, setSeedType] = useState(seedTypes[0]);
 
@@ -44,6 +46,7 @@ const PlantModal: React.FC<Props> = ({
                   {title}
                 </h3>
                 <div className="mt-2">
+                  <p className="text-gray-500">{`Plot water level: ${waterLevel}`}</p>
                   <p>
                     <select
                       onChange={(e) => {

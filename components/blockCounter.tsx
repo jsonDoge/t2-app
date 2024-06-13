@@ -1,7 +1,7 @@
 import getConfig from 'next/config';
 import React, { FC, useCallback, useEffect, useState } from 'react';
-import { getBlockNumber } from '../services/web3Utils';
 import { toSentenceCase } from '../utils';
+import { useBlockchain } from '../context/blockchain';
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -13,6 +13,7 @@ enum Season {
 }
 
 const BlockCounter: FC = () => {
+  const { currentBlock } = useBlockchain();
   const [blockNumber, setBlockNumber] = useState(0);
   const [season, setSeason] = useState<Season>();
   const [blocksTillNextSeason, setBlocksTillNextSeason] = useState(0);
@@ -43,13 +44,8 @@ const BlockCounter: FC = () => {
   }, []);
 
   useEffect(() => {
-    getBlockNumber().then(updateBlockAndSeason);
-
-    setInterval(() => {
-      // Clear interval
-      getBlockNumber().then(updateBlockAndSeason);
-    }, 60000);
-  }, [updateBlockAndSeason]);
+    updateBlockAndSeason(currentBlock);
+  }, [currentBlock]);
 
   return (
     <div className="font-bold mr-5">

@@ -10,7 +10,12 @@ interface Props {
   onConfirm: () => void;
   onCancel?: () => void;
   waterLevel: number;
-  waterAbsorbed: number | undefined;
+  waterAbsorbed?: number;
+  waterRequired?: number;
+  blocksGrown?: number;
+  blocksRequired?: number;
+  plantedOnBlock?: number;
+  blocksTillOvergrown?: number;
 }
 
 const PlotModal: React.FC<Props> = ({
@@ -22,6 +27,11 @@ const PlotModal: React.FC<Props> = ({
   onCancel,
   waterLevel,
   waterAbsorbed,
+  waterRequired,
+  blocksGrown,
+  blocksRequired,
+  plantedOnBlock,
+  blocksTillOvergrown,
 }) => {
   const confirm = () => onConfirm && onConfirm();
   const cancel = () => onCancel && onCancel();
@@ -39,13 +49,33 @@ const PlotModal: React.FC<Props> = ({
             <div className="sm:flex sm:items-start">
               <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                 <div className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                  Plot Info
+                  Plot Info 🟩
                 </div>
                 <div className="mt-2">
-                  <p className="text-gray-500">{`Plot water level: ${waterLevel}`}</p>
-                  {waterAbsorbed && <p className="text-gray-500">{`Plant water absorbed: ${waterAbsorbed}`}</p>}
+                  <p className="text-gray-500 mt-1">{`Plot water level: ${waterLevel} 🚰`}</p>
+                  {(waterAbsorbed || waterAbsorbed === 0) && (
+                    <p
+                      className={`text-gray-500 mt-1 ${!!waterRequired && waterAbsorbed >= waterRequired ? 'animate-pulse bg-green-600 text-white p-1' : ''}`}
+                    >
+                      {`Plant water absorbed: ${waterAbsorbed}`} {`${waterRequired ? `/ ${waterRequired} 💧` : ' 💧'}`}
+                    </p>
+                  )}
+
+                  {(blocksGrown || blocksGrown === 0) && (
+                    <p
+                      className={`text-gray-500 mt-1 ${!!blocksRequired && blocksGrown >= blocksRequired ? 'animate-pulse bg-green-600 text-white p-1' : ''}`}
+                    >
+                      {`Plant grown: ${blocksGrown}`} {`${blocksRequired ? `/ ${blocksRequired} 🌱` : ' 🌱'}`}
+                    </p>
+                  )}
+                  {plantedOnBlock && <p className="text-gray-500 mt-5">{`Planted on block: ${plantedOnBlock} 📅`}</p>}
+                  {(blocksTillOvergrown || blocksTillOvergrown === 0) && (
+                    <p
+                      className={`text-gray-500 mt-1 ${blocksTillOvergrown === 0 ? 'animate-pulse bg-red-600 text-white p-1' : ''}`}
+                    >{`Blocks till overgrown: ${blocksTillOvergrown} 🥀`}</p>
+                  )}
                 </div>
-                <div className="text-lg leading-6 font-medium text-gray-900">{title}</div>
+                <div className="text-lg leading-6 font-medium text-gray-900 mt-5">{title}</div>
                 <div className="mt-2">
                   <p className="text-gray-500">{description}</p>
                 </div>

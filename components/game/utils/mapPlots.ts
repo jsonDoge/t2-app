@@ -145,11 +145,6 @@ export const reduceContractPlots = (
     // if block diff is negative, it means the game has not updated to the latest block yet
     const centerPlotBlocksPassed = centerPlotBlockDiff < 0 ? 0 : centerPlotBlockDiff;
 
-    if (i === 24 || i === 23 || i === 25) {
-      console.log(centerPlotBlocksPassed);
-      console.log(plot.waterLog);
-    }
-
     const currentPlotWaterLevel = estimatePlotWaterLevel(
       lastKnownPlotWaterLevel,
       lastKnownPlotWaterChange,

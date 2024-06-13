@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { getBlockNumber } from '../services/web3Utils';
 
@@ -32,8 +32,9 @@ const BlockchainContextProvider = ({ children }: { children: React.ReactNode }) 
     };
   }, []);
 
+  const blockchainContextValue = useMemo(() => ({ currentBlock }), [currentBlock]);
   // TODO: investigate if such value context doesn't cause performance issues
-  return <BlockchainContext.Provider value={{ currentBlock }}> {children} </BlockchainContext.Provider>;
+  return <BlockchainContext.Provider value={blockchainContextValue}> {children} </BlockchainContext.Provider>;
 };
 
 BlockchainContextProvider.propTypes = {

@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { toSentenceCase } from '../utils';
 
 import Button from './button';
+import { SeedType } from '../utils/constants';
 
 interface Props {
   title: string;
-  seedTypes: string[];
+  seedTypes: SeedType[];
+  seasonSeedTypes: SeedType[];
   description: string;
   confirmText: string | JSX.Element;
   cancelText?: string;
@@ -17,6 +19,7 @@ interface Props {
 const PlantModal: React.FC<Props> = ({
   title,
   seedTypes,
+  seasonSeedTypes,
   description,
   confirmText,
   cancelText,
@@ -24,7 +27,7 @@ const PlantModal: React.FC<Props> = ({
   onCancel,
   waterLevel,
 }) => {
-  const [seedType, setSeedType] = useState(seedTypes[0]);
+  const [seedType, setSeedType] = useState(seasonSeedTypes[0]);
 
   const confirm = () => onConfirm && onConfirm(seedType);
 
@@ -46,22 +49,30 @@ const PlantModal: React.FC<Props> = ({
                   {title}
                 </h3>
                 <div className="mt-2">
-                  <p className="text-gray-500">{`Plot water level: ${waterLevel}`}</p>
-                  <p>
+                  <p className="text-gray-500">{`Plot water level: ${waterLevel} 🚰`}</p>
+                  {/* TODO add seed balances here */}
+                  <p className="mt-5">
+                    <label htmlFor="seedType" className="block text-sm font-medium text-gray-700">
+                      Seed type*
+                    </label>
                     <select
                       onChange={(e) => {
-                        setSeedType(e.target.value);
+                        setSeedType(e.target.value as SeedType);
                       }}
                       value={seedType}
                     >
                       {seedTypes.map((v) => (
-                        <option key={v} value={v}>
+                        <option key={v} value={v} disabled={!seasonSeedTypes.includes(v)}>
                           {toSentenceCase(v)}
+                          {seasonSeedTypes.includes(v) ? '' : ' - Not in season'}
                         </option>
                       ))}
                     </select>
                   </p>
                   <p className="text-sm text-gray-500">{description}</p>
+                  <p>
+                    <span className="text-gray-400 text-sm">*make sure you have enough seeds</span>
+                  </p>
                 </div>
               </div>
             </div>

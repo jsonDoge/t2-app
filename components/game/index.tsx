@@ -93,7 +93,7 @@ const Game = () => {
 
     subscribeToUiActionCompleted(() => reloadPlotInfos(currentBlock));
 
-    walletStore.onChange((newWallet) => {
+    const cleanUp = walletStore.onChange((newWallet) => {
       if (wallet.current?.address === newWallet?.address) {
         return;
       }
@@ -104,6 +104,7 @@ const Game = () => {
 
     return () => {
       subscribeToUiActionCompleted(() => {});
+      cleanUp();
     };
   }, []);
 

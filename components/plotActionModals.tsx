@@ -21,34 +21,10 @@ import { Coordinates, PlotInfo } from './game/utils/interfaces';
 // constants
 import { SEED_TYPE, SeedType } from '../utils/constants';
 import { calculateSeason, getSeasonSeedTypes } from './game/utils/seasons';
+import HarvestModal from './harvestModal';
+import { getEmptyPlotInfo } from './game/utils/mapPlots';
 
 const { publicRuntimeConfig } = getConfig();
-
-const mapSeedTypeToWaterRequired = (seedType?: SeedType) => {
-  switch (seedType) {
-    case SEED_TYPE.CARROT:
-      return parseInt(publicRuntimeConfig.CARROT_MIN_WATER || '0', 10);
-    case SEED_TYPE.CORN:
-      return parseInt(publicRuntimeConfig.CORN_MIN_WATER || '0', 10);
-    case SEED_TYPE.POTATO:
-      return parseInt(publicRuntimeConfig.POTATO_MIN_WATER || '0', 10);
-    default:
-      return undefined;
-  }
-};
-
-const mapSeedTypeToGrowthDuration = (seedType?: SeedType) => {
-  switch (seedType) {
-    case SEED_TYPE.CARROT:
-      return parseInt(publicRuntimeConfig.CARROT_GROWTH_DURATION || '0', 10);
-    case SEED_TYPE.CORN:
-      return parseInt(publicRuntimeConfig.CORN_GROWTH_DURATION || '0', 10);
-    case SEED_TYPE.POTATO:
-      return parseInt(publicRuntimeConfig.POTATO_GROWTH_DURATION || '0', 10);
-    default:
-      return undefined;
-  }
-};
 
 const PlotActionModals: React.FC = () => {
   const { wallet } = useWallet();
@@ -66,27 +42,12 @@ const PlotActionModals: React.FC = () => {
   const [isHarvestModalShown, setIsHarvestModalShown] = useState(false);
   const [seasonSeedTypes, setSeasonSeedTypes] = useState<SeedType[]>([]);
   const [waterLevel, setWaterLevel] = useState(0);
-  const [waterRequired, setWaterRequired] = useState<number | undefined>(undefined);
-  const [blocksGrown, setBlocksGrown] = useState<number | undefined>(undefined);
-  const [blocksRequired, setBlockRequired] = useState<number | undefined>(undefined);
-  const [plantedOnBlock, setPlantedOnBlock] = useState<number | undefined>(undefined);
-  const [blocksTillOvergrown, setBlocksTillOvergrown] = useState<number | undefined>(undefined);
-  const [waterAbsorbed, setWaterAbsorbed] = useState<number | undefined>(undefined);
   const [selectedCoords, setSelectedCoords] = useState<Coordinates>();
+  const [currentPlotInfo, setCurrentPlotInfo] = useState<PlotInfo>(getEmptyPlotInfo());
 
   const onPlotSelect = (x: number, y: number, plotInfo: PlotInfo, currentBlock_: number) => {
     setSelectedCoords({ x, y });
     setWaterLevel(plotInfo.waterLevel);
-    setWaterAbsorbed(plotInfo.waterAbsorbed);
-    setWaterRequired(mapSeedTypeToWaterRequired(plotInfo.seedType as SeedType));
-    // the game can lag behind the current block, so we need to make sure the plotsGrown is not negative
-    setBlocksGrown(plotInfo?.plantedBlockNumber ? Math.max(currentBlock_ - plotInfo.plantedBlockNumber, 0) : undefined);
-    setBlockRequired(mapSeedTypeToGrowthDuration(plotInfo.seedType as SeedType));
-
-    setBlocksTillOvergrown(
-      plotInfo.overgrownBlockNumber ? Math.max(plotInfo.overgrownBlockNumber - currentBlock_, 0) : undefined,
-    );
-    setPlantedOnBlock(plotInfo.plantedBlockNumber);
 
     setSeasonSeedTypes(
       getSeasonSeedTypes(calculateSeason(currentBlock_, parseInt(publicRuntimeConfig.SEASON_DURATION_BLOCKS, 10))),
@@ -172,6 +133,7 @@ const PlotActionModals: React.FC = () => {
   useEffect(
     () =>
       selectPlotStore.onChange(({ x, y, plotInfo }) => {
+        setCurrentPlotInfo(plotInfo);
         onPlotSelect(x, y, plotInfo, currentBlock);
       }),
     [currentBlock],
@@ -214,20 +176,18 @@ const PlotActionModals: React.FC = () => {
         />
       )}
       {isHarvestModalShown && selectedCoords && (
-        <PlotModal
+        <HarvestModal
           title="Harvest? 👨‍🌾"
           description={`You are about to harvest at [X : ${selectedCoords.x} | Y : ${selectedCoords.y}]`}
           confirmText={isLoading ? <Spinner /> : 'Harvest'}
           cancelText="Cancel"
           onConfirm={() => onHarvestConfirm(selectedCoords)}
           onCancel={() => hideModal()}
-          waterAbsorbed={waterAbsorbed}
+          currentBlock={currentBlock}
+          plotInfo={currentPlotInfo}
+          seasonSeedTypes={seasonSeedTypes}
           waterLevel={waterLevel}
-          waterRequired={waterRequired}
-          blocksGrown={blocksGrown}
-          blocksRequired={blocksRequired}
-          plantedOnBlock={plantedOnBlock}
-          blocksTillOvergrown={blocksTillOvergrown}
+          // TODO: Should really move this logic to it's own component... Too many checks if variables are defined
         />
       )}
     </>

@@ -98,71 +98,52 @@ const MainPlots = memo<Props>(({ mainPlotRefs, plotCenterRef }) => {
 
         const { seedType, plantState } = currentMappedPlotInfos?.[x][y] || { seedType: undefined, state: undefined };
 
-        setPlotItem(
-          !!seedType && plantState === PlantState.GROWING,
-          currentPlantRefs[x][y].current,
-          mainPlotRefs_[y][x].current,
-        );
+        setPlotItem(plantState === PlantState.GROWING, currentPlantRefs[x][y].current, mainPlotRefs_[y][x].current);
 
         setPlotItem(
-          !!seedType && seedType === SEED_TYPE.CORN && plantState === PlantState.READY,
+          seedType === SEED_TYPE.CORN && plantState === PlantState.READY,
           currentCornRefs[x][y].current,
           mainPlotRefs_[y][x].current,
         );
 
         setPlotItem(
-          !!seedType && seedType === SEED_TYPE.POTATO && plantState === PlantState.READY,
+          seedType === SEED_TYPE.POTATO && plantState === PlantState.READY,
           currentPotatoRefs[x][y].current,
           mainPlotRefs_[y][x].current,
         );
 
         setPlotItem(
-          !!seedType && seedType === SEED_TYPE.CARROT && plantState === PlantState.READY,
+          seedType === SEED_TYPE.CARROT && plantState === PlantState.READY,
           currentCarrotRefs[x][y].current,
           mainPlotRefs_[y][x].current,
         );
 
-        setPlotItem(
-          !!seedType && plantState === PlantState.OVERGROWN,
-          currentWeedRefs[x][y].current,
-          mainPlotRefs_[y][x].current,
-        );
+        setPlotItem(plantState === PlantState.OVERGROWN, currentWeedRefs[x][y].current, mainPlotRefs_[y][x].current);
       }
     }
   };
 
-  useEffect(() => {
-    mappedPlotInfos.current = mappedPlotInfosStore.getValue();
-    if (mappedPlotInfos.current) {
-      applyMappedPlotInfos(
-        mainPlotRefs,
-        plantRefs.current,
-        weedRefs.current,
-        cornRefs.current,
-        potatoRefs.current,
-        carrotRefs.current,
-        mappedPlotInfos.current,
-      );
-    }
+  useEffect(
+    () =>
+      mappedPlotInfosStore.onChange((newMappedPlotInfos: MappedPlotInfos) => {
+        if (JSON.stringify(newMappedPlotInfos) === JSON.stringify(mappedPlotInfos.current)) {
+          return;
+        }
 
-    return mappedPlotInfosStore.onChange((newMappedPlotInfos: MappedPlotInfos) => {
-      if (JSON.stringify(newMappedPlotInfos) === JSON.stringify(mappedPlotInfos.current)) {
-        return;
-      }
+        mappedPlotInfos.current = { ...newMappedPlotInfos };
 
-      mappedPlotInfos.current = { ...newMappedPlotInfos };
-
-      applyMappedPlotInfos(
-        mainPlotRefs,
-        plantRefs.current,
-        weedRefs.current,
-        cornRefs.current,
-        potatoRefs.current,
-        carrotRefs.current,
-        mappedPlotInfos.current,
-      );
-    });
-  }, []);
+        applyMappedPlotInfos(
+          mainPlotRefs,
+          plantRefs.current,
+          weedRefs.current,
+          cornRefs.current,
+          potatoRefs.current,
+          carrotRefs.current,
+          mappedPlotInfos.current,
+        );
+      }),
+    [],
+  );
 
   return (
     <>

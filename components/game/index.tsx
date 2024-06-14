@@ -89,6 +89,10 @@ const Game = () => {
   };
 
   useEffect(() => {
+    if (!currentBlock) {
+      return () => {};
+    }
+
     wallet.current = walletStore.getValue();
 
     subscribeToUiActionCompleted(() => reloadPlotInfos(currentBlock));
@@ -106,7 +110,7 @@ const Game = () => {
       subscribeToUiActionCompleted(() => {});
       cleanUp();
     };
-  }, []);
+  }, [currentBlock]);
 
   return <CanvasWrapper plotCenterChanged={() => reloadPlotInfos(currentBlock)} />;
 };

@@ -29,7 +29,7 @@ ETH_PROVIDER=http:/{your local blockchain node IP+PORT}
 ETH_CHAIN_ID={Chain ID}
 
 SEASON_DURATION_BLOCKS={any number}
-POTATO_GROWTH_SEASONS={number 0-15}
+POTATO_GROWTH_SEASONS={number 0-15} # seasons bitwise (1111)
 CORN_GROWTH_SEASONS={number 0-15}
 CARROT_GROWTH_SEASONS={number 0-15}
 
@@ -67,8 +67,8 @@ C_CARROT_DISH=0x...
 C_WEED_PRODUCT=0x...
 C_WEED_DISH=0x...
 
-PLOT_AREA_MAX_X={any number},
-PLOT_AREA_MAX_Y={any number},
+PLOT_AREA_MAX_X={any number}
+PLOT_AREA_MAX_Y={any number}
 ```
 
 ## Blockchain

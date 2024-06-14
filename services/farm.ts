@@ -74,7 +74,8 @@ export const getUserPlots = async (address: string): Promise<{ x: number; y: num
 };
 
 // TODO: can be moved to env or fetched from contracts and stored
-export const getGrowthBlockDuration = (seedType: string): number => publicRuntimeConfig[`${seedType}_GROWTH_DURATION`];
+export const getGrowthBlockDuration = (seedType: string): number =>
+  parseInt(publicRuntimeConfig[`${seedType}_GROWTH_DURATION`], 10);
 
 export const getPlantState = (
   currentBlock: BigNumber,
